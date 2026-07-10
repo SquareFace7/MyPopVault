@@ -1,39 +1,34 @@
-**Welcome to your Base44 project** 
+# MyPopVault Frontend
 
-**About**
+Welcome to the frontend application for **MyPopVault** - the ultimate collection tracker, trading system, and community chat for Funko Pop collectors.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Tech Stack
+- **Framework**: React (Vite)
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **WebSockets**: Socket.io-client
 
-This project contains everything you need to run your app locally.
+## Running Locally
 
-**Edit the code in your local development environment**
+1. Navigate to this directory:
+   ```bash
+   cd frontend
+   ```
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## Production Docker Build
 
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
+This frontend is designed to be built using a multi-stage Dockerfile and orchestrated via Docker Compose.
+To run the full stack (Frontend + Backend), navigate to the root directory of the workspace and run:
+```bash
+docker compose up --build
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
-```
-
-Run the app: `npm run dev`
-
-**Publish your changes**
-
-Open [Base44.com](http://Base44.com) and click on Publish.
-
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+This serves the application on `http://localhost:8080`.
