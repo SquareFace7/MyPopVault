@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       username: data.user.username,
       email: data.user.email,
       role: data.user.role || 'user',
-      isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
       isVerified: data.user.isVerified || false
     };
     localStorage.setItem('user', JSON.stringify(userProfile));
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       _id: data.user._id || data.user.id,
       isLoggedIn: true,
       role: data.user.role || 'user',
-      isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
       username: data.user.username,
       email: data.user.email,
       token: data.token,
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
       username: data.user.username,
       email: data.user.email,
       role: data.user.role || 'user',
-      isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
       isVerified: data.user.isVerified || false
     };
     localStorage.setItem('user', JSON.stringify(userProfile));
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
       _id: data.user._id || data.user.id,
       isLoggedIn: true,
       role: data.user.role || 'user',
-      isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
       username: data.user.username,
       email: data.user.email,
       token: data.token,
@@ -217,7 +217,7 @@ export const AuthProvider = ({ children }) => {
           username: data.user.username,
           email: data.user.email,
           role: data.user.role || 'user',
-          isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+          isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
           isVerified: data.user.isVerified || false
         };
         localStorage.setItem('user', JSON.stringify(userProfile));
@@ -226,7 +226,7 @@ export const AuthProvider = ({ children }) => {
           _id: data.user._id || data.user.id,
           isLoggedIn: true,
           role: data.user.role || 'user',
-          isVIP: data.user.role === 'vip' || data.user.role === 'admin',
+          isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
           username: data.user.username,
           email: data.user.email,
           token,

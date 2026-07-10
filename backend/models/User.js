@@ -30,6 +30,10 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isVip: {
+    type: Boolean,
+    default: false
+  },
   verificationToken: {
     type: String
   },

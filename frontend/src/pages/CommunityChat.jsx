@@ -219,7 +219,7 @@ export default function CommunityChat() {
             ) : isStandardUser ? (
               <div className="w-full flex justify-center py-2">
                 <motion.button
-                  onClick={() => navigate('/VIPSearch')}
+                  onClick={() => navigate('/vip-upgrade')}
                   className="w-full max-w-md py-3.5 px-6 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 text-gray-900 font-black text-sm rounded-2xl border-4 border-gray-805 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
                   whileHover={{ y: -2 }}
                   whileTap={{ y: 0 }}

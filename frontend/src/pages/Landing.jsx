@@ -74,7 +74,7 @@ export default function Landing() {
             )}
           </button>
 
-          <Link to="/VIPSearch">
+          <Link to="/vip-upgrade">
             <motion.div
               className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-black text-sm px-4 py-2 rounded-2xl border-4 border-gray-800 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
               whileHover={{ y: -2, boxShadow: '3px 5px 0px rgba(0,0,0,0.8)' }}
@@ -391,7 +391,7 @@ export default function Landing() {
 
               {/* CTA Button */}
               <div className="flex justify-center">
-                <Link to="/VIPSearch">
+                <Link to="/vip-upgrade">
                   <motion.div
                     className="inline-flex items-center gap-3 bg-gray-800 text-yellow-400 font-black text-xl px-10 py-5 rounded-3xl border-4 border-gray-900 shadow-[8px_8px_0px_rgba(0,0,0,0.7)] cursor-pointer"
                     whileHover={{ y: -4, boxShadow: '8px 12px 0px rgba(0,0,0,0.7)', scale: 1.03 }}

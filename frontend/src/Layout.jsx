@@ -433,6 +433,21 @@ export default function Layout({ children, currentPageName }) {
                         👋 Welcome, {user.username || user.email?.split('@')[0]}
                         {renderRoleBadge(user.role)}
                       </span>
+
+                      {/* VIP Upgrade / Badge */}
+                      {user.isVIP ? (
+                        <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 border-2 border-gray-800 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[1px_1px_0px_rgba(0,0,0,0.85)] flex items-center gap-1 shrink-0">
+                          👑 VIP Member
+                        </span>
+                      ) : (
+                        <Link
+                          to="/vip-upgrade"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white border-2 border-gray-800 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[1px_1px_0px_rgba(0,0,0,0.85)] hover:brightness-110 flex items-center gap-1 shrink-0 transition-all"
+                        >
+                          👑 Upgrade
+                        </Link>
+                      )}
                     </div>
                     <button
                       onClick={() => {
@@ -511,6 +526,20 @@ export default function Layout({ children, currentPageName }) {
                   👋 Welcome, {user.username || user.email?.split('@')[0]}
                   {renderRoleBadge(user.role)}
                 </span>
+
+                {/* VIP Upgrade / Badge */}
+                {user.isVIP ? (
+                  <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 border-2 border-gray-800 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.85)] flex items-center gap-1 shrink-0">
+                    👑 VIP Member
+                  </span>
+                ) : (
+                  <Link
+                    to="/vip-upgrade"
+                    className="bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white border-2 border-gray-800 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.85)] hover:brightness-110 flex items-center gap-1 shrink-0 transition-all"
+                  >
+                    👑 Upgrade to VIP
+                  </Link>
+                )}
                 <motion.button
                   onClick={logout}
                   className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-black text-xs px-3.5 py-2 rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.8)]"

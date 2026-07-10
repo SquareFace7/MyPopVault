@@ -19,6 +19,11 @@ if (!mongoURI || mongoURI === 'your_connection_string_here') {
 
 // Middleware
 app.use(cors());
+
+// Mount payment routes BEFORE express.json() to preserve raw stream for Stripe webhooks
+const paymentRoutes = require('./routes/paymentRoutes');
+app.use('/api/payment', paymentRoutes);
+
 app.use(express.json());
 
 // Routes

@@ -496,7 +496,7 @@ export default function TradeManager() {
               <BouncyButton
                 variant="primary"
                 size="lg"
-                onClick={() => navigate('/VIPSearch')}
+                onClick={() => navigate('/vip-upgrade')}
                 className="w-full justify-center text-sm font-black border-4 border-gray-800 bg-gray-800 text-yellow-400 shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
               >
                 Upgrade to VIP Status

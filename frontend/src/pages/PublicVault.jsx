@@ -120,7 +120,7 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
           {user?.isLoggedIn && (
             <div className="px-3 py-3 bg-gray-800 border-t-2 border-gray-700">
               {!currentIsVipOrAdmin ? (
-                <Link to="/VIPSearch" className="block w-full">
+                <Link to="/vip-upgrade" className="block w-full">
                   <motion.button
                     className="w-full h-9 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-gray-900 font-black text-xs rounded-xl border-2 border-gray-600 shadow-[2px_2px_0px_rgba(0,0,0,0.6)] flex items-center justify-center gap-1"
                     whileHover={{ y: -1 }}
@@ -259,7 +259,7 @@ export default function PublicVault() {
           animate={{ opacity: 1, x: 0 }}
           className="mb-6"
         >
-          <Link to="/VIPSearch">
+          <Link to="/CollectorSearch">
             <motion.div
               className="inline-flex items-center gap-2 bg-white border-4 border-gray-800 rounded-2xl px-4 py-2 font-black text-gray-700 shadow-[3px_3px_0px_rgba(0,0,0,0.8)] hover:bg-gray-50"
               whileHover={{ x: -3 }}
@@ -306,7 +306,7 @@ export default function PublicVault() {
             <div className="flex flex-col items-center md:items-end gap-2 shrink-0 w-full md:w-auto mt-4 md:mt-0">
               {!currentIsVipOrAdmin ? (
                 <motion.button
-                  onClick={() => navigate('/VIPSearch')}
+                  onClick={() => navigate('/vip-upgrade')}
                   className="px-5 py-3 w-full md:w-auto justify-center bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-gray-900 font-black text-sm rounded-2xl border-4 border-gray-808 shadow-[3px_3px_0px_rgba(0,0,0,0.85)] flex items-center gap-2"
                   whileHover={{ y: -2 }}
                   whileTap={{ y: 0 }}

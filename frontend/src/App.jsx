@@ -22,6 +22,9 @@ import PrivateRoute from '@/components/PrivateRoute';
 import PendingVerificationScreen from '@/components/PendingVerificationScreen';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VipUpgrade from './pages/VipUpgrade';
+import VipSuccess from './pages/VipSuccess';
+import VipCancel from './pages/VipCancel';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -124,6 +127,27 @@ const AuthenticatedApp = () => {
           <ResetPassword />
         </LayoutWrapper>
       } />
+      <Route path="/vip-upgrade" element={
+        <PrivateRoute>
+          <LayoutWrapper currentPageName="Login">
+            <VipUpgrade />
+          </LayoutWrapper>
+        </PrivateRoute>
+      } />
+      <Route path="/vip-success" element={
+        <PrivateRoute>
+          <LayoutWrapper currentPageName="Login">
+            <VipSuccess />
+          </LayoutWrapper>
+        </PrivateRoute>
+      } />
+      <Route path="/vip-cancel" element={
+        <PrivateRoute>
+          <LayoutWrapper currentPageName="Login">
+            <VipCancel />
+          </LayoutWrapper>
+        </PrivateRoute>
+      } />
       <Route path="/CollectorSearch" element={
         <PrivateRoute>
           <LayoutWrapper currentPageName="CollectorSearch">
@@ -131,6 +155,7 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         </PrivateRoute>
       } />
+      <Route path="/VIPSearch" element={<Navigate to="/CollectorSearch" replace />} />
       <Route path="/PublicVault" element={
         <LayoutWrapper currentPageName="PublicVault">
           <PublicVault />
