@@ -1,0 +1,9 @@
+{
+  "short_name": "MyPopVault",
+  "name": "MyPopVault - Funko Pop Tracker",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#080f19",
+  "background_color": "#ffffff"
+}

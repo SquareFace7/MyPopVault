@@ -1,0 +1,142 @@
+[
+  {
+    "name": "Spider-Man",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2018,
+    "isVaulted": false
+  },
+  {
+    "name": "Iron Man (Metallic)",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2019,
+    "isVaulted": true
+  },
+  {
+    "name": "Thanos",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2018,
+    "isVaulted": true
+  },
+  {
+    "name": "Black Panther",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2019,
+    "isVaulted": false
+  },
+  {
+    "name": "Venom (Chase)",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2020,
+    "isVaulted": true
+  },
+  {
+    "name": "Wolverine",
+    "series": "Marvel",
+    "image": "",
+    "releaseYear": 2017,
+    "isVaulted": false
+  },
+  {
+    "name": "Goku (Ultra Instinct)",
+    "series": "Anime",
+    "image": "",
+    "releaseYear": 2021,
+    "isVaulted": true
+  },
+  {
+    "name": "Naruto (Running)",
+    "series": "Anime",
+    "image": "",
+    "releaseYear": 2020,
+    "isVaulted": false
+  },
+  {
+    "name": "Itachi Uchiha",
+    "series": "Anime",
+    "image": "",
+    "releaseYear": 2022,
+    "isVaulted": true
+  },
+  {
+    "name": "Luffy (Gear 5)",
+    "series": "Anime",
+    "image": "",
+    "releaseYear": 2023,
+    "isVaulted": false
+  },
+  {
+    "name": "Pikachu",
+    "series": "Anime",
+    "image": "",
+    "releaseYear": 2019,
+    "isVaulted": false
+  },
+  {
+    "name": "Darth Vader",
+    "series": "Star Wars",
+    "image": "",
+    "releaseYear": 2015,
+    "isVaulted": true
+  },
+  {
+    "name": "Yoda",
+    "series": "Star Wars",
+    "image": "",
+    "releaseYear": 2015,
+    "isVaulted": true
+  },
+  {
+    "name": "Mandalorian",
+    "series": "Star Wars",
+    "image": "",
+    "releaseYear": 2020,
+    "isVaulted": false
+  },
+  {
+    "name": "Grogu (Glow)",
+    "series": "Star Wars",
+    "image": "",
+    "releaseYear": 2021,
+    "isVaulted": false
+  },
+  {
+    "name": "Batman",
+    "series": "DC",
+    "image": "",
+    "releaseYear": 2016,
+    "isVaulted": false
+  },
+  {
+    "name": "Joker",
+    "series": "DC",
+    "image": "",
+    "releaseYear": 2016,
+    "isVaulted": true
+  },
+  {
+    "name": "Superman (Chrome)",
+    "series": "DC",
+    "image": "",
+    "releaseYear": 2018,
+    "isVaulted": true
+  },
+  {
+    "name": "Mickey Mouse",
+    "series": "Disney",
+    "image": "",
+    "releaseYear": 2013,
+    "isVaulted": true
+  },
+  {
+    "name": "Stitch",
+    "series": "Disney",
+    "image": "",
+    "releaseYear": 2016,
+    "isVaulted": false
+  }
+]

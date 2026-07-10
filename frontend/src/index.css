@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 0 0% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-200;
+  }
+}
+
+/* Custom premium neomorphic Dark Mode overrides */
+.dark body {
+  background-color: #0b0f19;
+  color: #f3f4f6;
+}
+
+.dark .bg-white {
+  background-color: #111827 !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151 !important;
+}
+
+.dark .bg-gray-150 {
+  background-color: #1f2937 !important;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: #374151 !important;
+}
+
+.dark .border-gray-850 {
+  border-color: #4b5563 !important;
+}
+
+/* Gradients */
+.dark .bg-gradient-to-br.from-pink-50.to-cyan-50 {
+  background-image: linear-gradient(to bottom right, rgba(236, 0, 140, 0.1), rgba(0, 174, 239, 0.1)) !important;
+  border: 2px solid #374151;
+}
+
+.dark .bg-gradient-to-br.from-cyan-100.via-pink-100.to-yellow-100 {
+  background-image: linear-gradient(to bottom right, rgba(0, 174, 239, 0.25), rgba(236, 0, 140, 0.25), rgba(255, 215, 0, 0.15)) !important;
+}
+
+.dark .bg-gradient-to-br.from-gray-50.via-white.to-gray-50 {
+  background-image: linear-gradient(to bottom right, #0b0f19, #111827, #0b0f19) !important;
+}
+
+/* Chart text adjust */
+.dark .recharts-text {
+  fill: #d1d5db !important;
+}
+
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #374151 !important;
+}
+
+/* Input Overrides */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+.dark input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Dropdowns & Selects (Shadcn components) */
+.dark [data-radix-select-viewport],
+.dark [role="listbox"] {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border: 2px solid #4b5563 !important;
+}
+
+.dark [role="option"]:hover,
+.dark [role="option"][data-highlighted] {
+  background-color: #374151 !important;
+}
+
+/* Focus-visible high-contrast outline for keyboard navigation */
+:focus-visible {
+  outline: 4px solid #00AEEF !important; /* Cyan outline using design token variable value */
+  outline-offset: 2px !important;
+}
+
+/* Clear standard focus outline when clicking with mouse */
+:focus:not(:focus-visible) {
+  outline: none !important;
+}

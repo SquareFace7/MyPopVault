@@ -1,0 +1,307 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Shield, Users, Crown, Package, ArrowDownUp, Trash2, UserX, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { toast } from 'react-hot-toast';
+
+// --- Sub-Components ---
+function StatCard({ stat, index }) {
+  return (
+    <motion.div
+      className={`relative bg-white dark:bg-gray-900 border-4 border-gray-800 rounded-3xl p-6 shadow-[6px_6px_0px_rgba(0,0,0,0.85)] overflow-hidden`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, type: 'spring', stiffness: 200, damping: 20 }}
+      whileHover={{ y: -4, boxShadow: '6px 10px 0px rgba(0,0,0,0.85)' }}
+    >
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: 'radial-gradient(circle, #000 1.5px, transparent 1.5px)',
+        backgroundSize: '18px 18px'
+      }} />
+      <div className="relative z-10 flex items-center gap-4">
+        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} border-4 border-gray-800 flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,0.6)]`}>
+          <stat.icon className="w-7 h-7 text-white" />
+        </div>
+        <div>
+          <p className="text-3xl font-black text-gray-850 dark:text-white">{stat.value}</p>
+          <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{stat.label}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function UserRow({ user, onToggleVIP }) {
+  const username = user.username || user.name || 'User';
+  const initial = username[0].toUpperCase();
+  const isVip = user.role === 'vip';
+  const isAdmin = user.role === 'admin';
+
+  return (
+    <motion.tr
+      className="border-b-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+    >
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 border-2 border-gray-800 flex items-center justify-center text-white font-black text-xs">
+            {initial}
+          </div>
+          <div>
+            <p className="font-black text-gray-800 dark:text-white text-sm">{username}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
+          </div>
+        </div>
+      </td>
+      <td className="px-4 py-3">
+        <span className={`font-black text-xs px-2 py-1 rounded-lg border-2 border-gray-800 ${isAdmin ? 'bg-purple-200 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'}`}>
+          {user.role?.toUpperCase() || 'USER'}
+        </span>
+      </td>
+      <td className="px-4 py-3 font-bold text-gray-655 dark:text-gray-350 text-sm">{user.pops || 0} pops</td>
+      <td className="px-4 py-3">
+        {isVip
+          ? <span className="bg-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300 font-black text-xs px-2 py-1 rounded-lg border-2 border-gray-800">👑 VIP</span>
+          : isAdmin
+          ? <span className="bg-purple-200 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-black text-xs px-2 py-1 rounded-lg border-2 border-gray-800">Admin</span>
+          : <span className="bg-gray-100 text-gray-500 dark:bg-gray-805 font-black text-xs px-2 py-1 rounded-lg border-2 border-gray-800">Standard</span>
+        }
+      </td>
+      <td className="px-4 py-3">
+        {!isAdmin ? (
+          <motion.button
+            onClick={() => onToggleVIP(user)}
+            className={`flex items-center gap-1 font-black text-xs px-3 py-1.5 rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${isVip ? 'bg-red-200 text-red-900 hover:bg-red-300' : 'bg-yellow-300 hover:bg-yellow-450 text-gray-900'}`}
+            whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
+            whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
+          >
+            {isVip ? <><XCircle className="w-3 h-3" /> Revoke VIP</> : <><CheckCircle className="w-3 h-3" /> Grant VIP</>}
+          </motion.button>
+        ) : (
+          <span className="text-xs text-gray-400 font-bold italic">Admin Locked</span>
+        )}
+      </td>
+    </motion.tr>
+  );
+}
+
+// --- Main Page ---
+export default function AdminPanel() {
+  const [users, setUsers] = useState([]);
+  const [growthData, setGrowthData] = useState([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalVips: 0,
+    totalPopsVaulted: 0,
+    totalTrades: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAdminData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Fetch Stats and growth data
+      const statsRes = await fetch('/api/admin/stats', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStats({
+          totalUsers: statsData.totalUsers,
+          totalVips: statsData.totalVips,
+          totalPopsVaulted: statsData.totalPopsVaulted,
+          totalTrades: statsData.totalTrades
+        });
+        if (statsData.growthData) {
+          setGrowthData(statsData.growthData);
+        }
+      }
+
+      // Fetch Users List
+      const usersRes = await fetch('/api/admin/users', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch admin stats:', error);
+      toast.error('Failed to load system aggregates.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
+
+  const handleToggleVIP = async (targetUser) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const newRole = targetUser.role === 'vip' ? 'user' : 'vip';
+
+      const res = await fetch(`/api/admin/users/${targetUser._id}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update user role');
+      }
+
+      toast.success(newRole === 'vip' ? 'VIP Status granted successfully!' : 'VIP privileges revoked.');
+      fetchAdminData(); // Refresh list and stats
+    } catch (error) {
+      console.error('❌ Failed to update role:', error);
+      toast.error(`Action failed: ${error.message}`);
+    }
+  };
+
+  const statsList = [
+    { label: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'from-cyan-400 to-blue-500' },
+    { label: 'Active VIPs', value: stats.totalVips.toLocaleString(), icon: Crown, color: 'from-yellow-400 to-orange-400' },
+    { label: 'Pops Vaulted', value: stats.totalPopsVaulted.toLocaleString(), icon: Package, color: 'from-pink-400 to-rose-500' },
+    { label: 'Total Trades', value: stats.totalTrades.toLocaleString(), icon: ArrowDownUp, color: 'from-purple-400 to-indigo-500' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 md:p-8 transition-colors duration-200">
+      {/* Dot background */}
+      <div className="fixed inset-0 opacity-[0.03] dark:opacity-[0.01] pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, #000 1.5px, transparent 1.5px)',
+        backgroundSize: '24px 24px'
+      }} />
+
+      {/* Page Header */}
+      <motion.div
+        className="flex items-center gap-4 mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl border-4 border-gray-800 flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
+          <Shield className="w-8 h-8 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-800 dark:text-white">Admin Control Panel</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-bold text-sm">Full platform management — handle with care! ⚠️</p>
+        </div>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {statsList.map((stat, i) => <StatCard key={stat.label} stat={stat} index={i} />)}
+      </div>
+
+      {/* Growth Chart */}
+      <motion.div
+        className="bg-white dark:bg-gray-900 border-4 border-gray-800 rounded-3xl p-6 shadow-[6px_6px_0px_rgba(0,0,0,0.85)] mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="flex items-center gap-3 mb-5">
+          <TrendingUp className="w-6 h-6 text-pink-500" />
+          <h2 className="text-xl font-black text-gray-800 dark:text-white">User Growth</h2>
+        </div>
+        <div className="w-full">
+          {growthData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={growthData}>
+                <defs>
+                  <linearGradient id="userGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#EC008C" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#EC008C" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" className="dark:stroke-gray-800" />
+                <XAxis dataKey="month" tick={{ fontWeight: 800, fontSize: 12, fill: 'currentColor' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontWeight: 800, fontSize: 11, fill: 'currentColor' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ border: '3px solid #1f2937', borderRadius: '12px', fontWeight: 800, background: '#111827', color: '#fff' }}
+                />
+                <Area type="monotone" dataKey="users" stroke="#EC008C" strokeWidth={3} fill="url(#userGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <p className="text-gray-400 font-bold">Waiting for registry timeline statistics...</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Moderation Hub */}
+      <motion.div
+        className="bg-white dark:bg-gray-900 border-4 border-gray-800 rounded-3xl shadow-[6px_6px_0px_rgba(0,0,0,0.85)] mb-8 overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <div className="flex items-center gap-3 px-6 py-4 border-b-4 border-gray-800 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20">
+          <div className="w-8 h-8 bg-red-500 rounded-xl border-2 border-gray-800 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="text-xl font-black text-gray-800 dark:text-white">Community Moderation</h2>
+          <span className="ml-auto bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 font-black text-xs px-3 py-1 rounded-full border-2 border-gray-800">
+            0 flagged
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+          <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full border-4 border-gray-800 flex items-center justify-center mb-4 shadow-[4px_4px_0px_rgba(0,0,0,0.85)]">
+            <CheckCircle className="w-8 h-8 text-green-500" />
+          </div>
+          <h3 className="text-lg font-black text-gray-800 dark:text-white mb-1">Moderation Queue Empty</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-bold max-w-sm font-sans">No flagged messages at this time. The community chat is clean and tidy! ✨</p>
+        </div>
+      </motion.div>
+
+      {/* User Management */}
+      <motion.div
+        className="bg-white dark:bg-gray-900 border-4 border-gray-800 rounded-3xl shadow-[6px_6px_0px_rgba(0,0,0,0.85)] overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <div className="flex items-center gap-3 px-6 py-4 border-b-4 border-gray-800 bg-gradient-to-r from-yellow-50 to-cyan-50 dark:from-yellow-950/20 dark:to-cyan-950/20">
+          <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl border-2 border-gray-800 flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="text-xl font-black text-gray-800 dark:text-white">User Management</h2>
+          <span className="ml-auto bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300 font-black text-xs px-3 py-1 rounded-full border-2 border-gray-800">
+            {users.filter(u => u.role === 'vip').length} VIPs active
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800/40 border-b-2 border-gray-200 dark:border-gray-850">
+                <th className="px-4 py-2 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase">User</th>
+                <th className="px-4 py-2 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase">Role</th>
+                <th className="px-4 py-2 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase">Collection</th>
+                <th className="px-4 py-2 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-4 py-2 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase">VIP Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <UserRow key={user._id} user={user} onToggleVIP={handleToggleVIP} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

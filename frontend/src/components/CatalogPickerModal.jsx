@@ -1,0 +1,227 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Heart, X, Sparkles } from 'lucide-react';
+
+const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
+
+const BADGE_STYLES = {
+  'NEW': 'bg-blue-500 text-white',
+  'WEB EXCLUSIVE': 'bg-yellow-400 text-gray-900',
+  'CHASE': 'bg-pink-500 text-white',
+};
+
+export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
+  const [catalog, setCatalog] = useState([]);
+  const [query, setQuery] = useState('');
+  const [activeSeries, setActiveSeries] = useState('All');
+  const [favorites, setFavorites] = useState(new Set());
+  const [addedIds, setAddedIds] = useState(new Set());
+
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/catalog?limit=100')
+        .then(res => res.json())
+        .then(data => {
+          const mapped = (data.items || []).map((pop, index) => ({
+            id: pop._id,
+            name: pop.name,
+            series: pop.series,
+            number: pop.itemNumber,
+            rarity: pop.marketPrice > 40 ? 'Epic' : 'Common',
+            image: pop.imageUrl || null,
+            price: pop.marketPrice || 15,
+            badge: pop.marketPrice > 40 ? 'CHASE' : null,
+            color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
+          }));
+          setCatalog(mapped);
+        })
+        .catch(err => console.error('Failed to fetch catalog:', err));
+    }
+  }, [isOpen]);
+
+  const results = useMemo(() => {
+    return catalog.filter(p => {
+      const matchesSeries = activeSeries === 'All' || p.series === activeSeries;
+      const matchesQuery = !query.trim() ||
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.series.toLowerCase().includes(query.toLowerCase());
+      return matchesSeries && matchesQuery;
+    });
+  }, [catalog, query, activeSeries]);
+
+  const toggleFavorite = (id) => {
+    setFavorites(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleAdd = (pop) => {
+    setAddedIds(prev => new Set([...prev, pop.id]));
+    onAdd({
+      name: pop.name,
+      series: pop.series,
+      number: pop.number,
+      rarity: pop.rarity,
+      purchasePrice: pop.price,
+      marketValue: pop.price,
+      condition: 'Mint',
+      isExclusive: pop.badge === 'WEB EXCLUSIVE',
+      popId: pop.id,
+    });
+  };
+
+  const handleClose = () => {
+    setQuery('');
+    setActiveSeries('All');
+    setAddedIds(new Set());
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 bg-gray-100"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="h-full w-full flex flex-col"
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 40, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+          >
+            {/* Header */}
+            <div className="bg-white border-b-4 border-gray-800 shrink-0">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl md:text-3xl font-black text-gray-800 flex items-center gap-2">
+                    <Sparkles className="w-7 h-7 text-pink-500" />
+                    Catalog Picker
+                  </h2>
+                  <motion.button
+                    onClick={handleClose}
+                    className="w-10 h-10 bg-gray-100 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <X className="w-5 h-5 text-gray-700" />
+                  </motion.button>
+                </div>
+
+                {/* Search bar */}
+                <div className="flex items-center gap-3 bg-gray-50 border-4 border-gray-800 rounded-2xl px-4 py-3 shadow-[3px_3px_0px_rgba(0,0,0,0.7)] mb-4">
+                  <Search className="w-5 h-5 text-pink-500 shrink-0" />
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="Search the global catalog..."
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    className="flex-1 bg-transparent text-gray-800 font-bold text-sm placeholder-gray-400 outline-none"
+                  />
+                </div>
+
+                {/* Series filters */}
+                <div className="flex gap-2 flex-wrap">
+                  {SERIES_LIST.map(series => (
+                    <button
+                      key={series}
+                      onClick={() => setActiveSeries(series)}
+                      className={`px-4 py-1.5 rounded-full font-black text-xs border-2 border-gray-800 transition-colors ${
+                        activeSeries === series
+                          ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,0.7)]'
+                          : 'bg-white text-gray-600'
+                      }`}
+                    >
+                      {series}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Grid */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+                {results.length === 0 ? (
+                  <div className="text-center py-20">
+                    <p className="text-5xl mb-3">🔍</p>
+                    <p className="font-black text-gray-400 text-lg">No Pops found</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                    {results.map((pop, i) => (
+                      <motion.div
+                        key={pop.id}
+                        className="relative bg-white border-4 border-gray-800 rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.02 }}
+                        whileHover={{ y: -4, boxShadow: '5px 9px 0px rgba(0,0,0,0.8)' }}
+                      >
+                        {/* Ribbon badge */}
+                        {pop.badge && (
+                          <div className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg border-2 border-gray-800 font-black text-[9px] tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${BADGE_STYLES[pop.badge]}`}>
+                            {pop.badge}
+                          </div>
+                        )}
+
+                        {/* Heart icon */}
+                        <motion.button
+                          onClick={() => toggleFavorite(pop.id)}
+                          className="absolute top-2 right-2 z-10 w-7 h-7 bg-white/90 border-2 border-gray-800 rounded-full flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                          whileTap={{ scale: 0.85 }}
+                        >
+                          <Heart
+                            className={`w-3.5 h-3.5 ${favorites.has(pop.id) ? 'text-pink-500' : 'text-gray-400'}`}
+                            fill={favorites.has(pop.id) ? '#ec4899' : 'none'}
+                          />
+                        </motion.button>
+
+                        {/* Image area */}
+                        <div className={`aspect-square bg-gradient-to-br ${pop.color} flex items-center justify-center border-b-4 border-gray-800 p-3 overflow-hidden`}>
+                          {pop.image ? (
+                            <img src={pop.image} alt={pop.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <span className="text-4xl">✨</span>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="p-3 flex-1 flex flex-col">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{pop.series}</p>
+                          <p className="font-black text-gray-800 text-sm leading-tight mt-0.5 line-clamp-2">{pop.name}</p>
+                          <p className="font-black text-cyan-600 text-sm mt-1">${pop.price.toFixed(2)}</p>
+                        </div>
+
+                        {/* Add button */}
+                        <motion.button
+                          onClick={() => handleAdd(pop)}
+                          disabled={addedIds.has(pop.id)}
+                          className={`w-full py-2.5 font-black text-xs border-t-4 border-gray-800 ${
+                            addedIds.has(pop.id)
+                              ? 'bg-green-400 text-white'
+                              : 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white'
+                          }`}
+                          whileHover={addedIds.has(pop.id) ? {} : { filter: 'brightness(1.1)' }}
+                          whileTap={addedIds.has(pop.id) ? {} : { scale: 0.98 }}
+                        >
+                          {addedIds.has(pop.id) ? '✓ ADDED!' : 'ADD TO VAULT'}
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
