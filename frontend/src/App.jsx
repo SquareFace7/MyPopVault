@@ -19,8 +19,9 @@ import PopDetails from './pages/PopDetails';
 import PopMessenger from './pages/PopMessenger';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PrivateRoute from '@/components/PrivateRoute';
-import PopList from '@/components/PopList';
 import PendingVerificationScreen from '@/components/PendingVerificationScreen';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -86,9 +87,6 @@ const AuthenticatedApp = () => {
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
-          <div className="bg-gray-50 border-t-8 border-gray-800 pb-16">
-            <PopList />
-          </div>
         </LayoutWrapper>
       } />
       {Object.entries(Pages).map(([path, Page]) => {
@@ -114,6 +112,16 @@ const AuthenticatedApp = () => {
       <Route path="/Login" element={
         <LayoutWrapper currentPageName="Login">
           <Login />
+        </LayoutWrapper>
+      } />
+      <Route path="/forgot-password" element={
+        <LayoutWrapper currentPageName="Login">
+          <ForgotPassword />
+        </LayoutWrapper>
+      } />
+      <Route path="/reset-password/:token" element={
+        <LayoutWrapper currentPageName="Login">
+          <ResetPassword />
         </LayoutWrapper>
       } />
       <Route path="/CollectorSearch" element={

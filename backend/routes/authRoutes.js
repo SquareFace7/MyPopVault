@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const crypto = require('crypto');
-const { sendVerificationEmail } = require('../services/emailService');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/emailService');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Helper function to generate a JWT token including role
@@ -243,4 +243,74 @@ router.post('/resend', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/auth/forgot-password - Generate reset token and send email
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Return a friendly message for security to prevent user enumeration
+      return res.status(200).json({ message: 'If that email exists, a reset link has been sent!' });
+    }
+
+    // Generate a temporary JWT token valid for 15m
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '15m'
+    });
+
+    // Send reset email
+    await sendPasswordResetEmail(user.email, user.username, resetToken);
+
+    res.status(200).json({ message: 'Password reset link sent successfully!' });
+  } catch (error) {
+    console.error('❌ Forgot Password Error:', error);
+    res.status(500).json({ error: 'Failed to process password reset request', message: error.message });
+  }
+});
+
+// POST /api/auth/reset-password - Verify token and update password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    // Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(400).json({ error: 'Invalid or expired password reset token' });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully!' });
+  } catch (error) {
+    console.error('❌ Reset Password Error:', error);
+    res.status(500).json({ error: 'Failed to reset password', message: error.message });
+  }
+});
+
 module.exports = router;
+
