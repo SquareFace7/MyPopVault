@@ -58,7 +58,7 @@ router.post('/create-checkout-session', express.json(), authMiddleware, async (r
     if (!stripe) {
       return res.status(500).json({ error: 'Stripe is not configured on this server.' });
     }
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
     
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

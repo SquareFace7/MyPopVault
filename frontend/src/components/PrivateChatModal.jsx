@@ -51,7 +51,8 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     markAsRead();
 
     // 2. Establish Socket connection
-    const socket = io('http://localhost:5000');
+    const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+    const socket = io(socketUrl);
     socketRef.current = socket;
 
     const username = currentUser?.username || currentUser?.email?.split('@')[0] || 'Collector';

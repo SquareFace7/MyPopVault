@@ -44,7 +44,8 @@ export default function CommunityChat() {
       });
 
     // Initialize Socket connection to server
-    const socket = io('http://localhost:5000');
+    const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+    const socket = io(socketUrl);
     socketRef.current = socket;
 
     // Send join registration payload

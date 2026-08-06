@@ -140,7 +140,8 @@ export default function Layout({ children, currentPageName }) {
       const userId = user._id || user.id;
       if (!userId) return;
 
-      const socket = io('http://localhost:5000');
+      const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+      const socket = io(socketUrl);
       
       console.log(`🔌 [Global Socket] Connecting and registering user: ${userId}`);
       socket.emit('register_user', userId);

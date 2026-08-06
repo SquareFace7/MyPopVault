@@ -1,7 +1,12 @@
 const nodemailer = require('nodemailer');
 
 const sendVerificationEmail = async (email, username, token) => {
-  const verificationUrl = `http://localhost:5000/api/auth/verify/${token}`;
+  // Support dynamic environment variables for base URL (CLIENT_URL, BASE_URL, FRONTEND_URL, or BACKEND_URL)
+  const baseUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.BACKEND_URL || process.env.FRONTEND_URL || 'http://localhost:5000';
+  const verificationEndpoint = baseUrl.endsWith('/api') 
+    ? `${baseUrl}/auth/verify/${token}` 
+    : `${baseUrl}/api/auth/verify/${token}`;
+  const verificationUrl = verificationEndpoint;
   console.log(`✉️ [Verification Email Log]`);
   console.log(`To: ${email}`);
   console.log(`Verification URL: ${verificationUrl}`);
@@ -88,7 +93,7 @@ const sendVerificationEmail = async (email, username, token) => {
 };
 
 const sendPasswordResetEmail = async (email, username, token) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+  const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
   const resetUrl = `${frontendUrl}/reset-password/${token}`;
   console.log(`✉️ [Password Reset Email Log]`);
   console.log(`To: ${email}`);

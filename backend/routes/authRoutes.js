@@ -198,22 +198,23 @@ router.post('/login', async (req, res) => {
 
 // GET /api/auth/verify/:token - Verify user email
 router.get('/verify/:token', async (req, res) => {
+  const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
   try {
     const { token } = req.params;
     const user = await User.findOne({ verificationToken: token });
     
     if (!user) {
-      return res.redirect('http://localhost:5173/Login?verified=false&error=invalid_token');
+      return res.redirect(`${frontendUrl}/Login?verified=false&error=invalid_token`);
     }
 
     user.isVerified = true;
     user.verificationToken = undefined;
     await user.save();
 
-    res.redirect('http://localhost:5173/Dashboard?verified=true');
+    res.redirect(`${frontendUrl}/Dashboard?verified=true`);
   } catch (error) {
     console.error('❌ Email Verification Error:', error);
-    res.redirect('http://localhost:5173/Login?verified=false&error=server_error');
+    res.redirect(`${frontendUrl}/Login?verified=false&error=server_error`);
   }
 });
 
