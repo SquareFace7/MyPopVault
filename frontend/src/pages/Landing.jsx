@@ -7,6 +7,7 @@ import PopArtBackground from '@/components/PopArtBackground';
 import BouncyButton from '@/components/BouncyButton';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/ThemeContext';
+import Navbar from '@/components/Navbar';
 
 export default function Landing() {
   const { user, logout } = useAuth();
@@ -51,72 +52,8 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden text-gray-900 dark:text-white transition-colors duration-200">
-        {/* Top Nav Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b-2 border-gray-100 dark:border-gray-800 transition-colors">
-        <div className="flex items-center gap-2">
-          <Package className="w-6 h-6 text-pink-500" />
-          <span className="font-black text-xl">
-            <span className="text-cyan-500">MyPop</span>
-            <span className="text-gray-800 dark:text-white">Vault</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-transparent hover:border-gray-850 dark:hover:border-gray-700 transition-all mr-1"
-            title="Toggle Theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-            ) : (
-              <Moon className="w-4 h-4 text-gray-800 fill-gray-850" />
-            )}
-          </button>
-
-          <Link to="/vip-upgrade">
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-black text-sm px-4 py-2 rounded-2xl border-4 border-gray-800 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
-              whileHover={{ y: -2, boxShadow: '3px 5px 0px rgba(0,0,0,0.8)' }}
-              whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.8)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-            >
-              <Crown className="w-4 h-4" />
-              VIP
-            </motion.div>
-          </Link>
-
-          {user?.isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-black text-gray-700 dark:text-gray-200">
-                👋 Welcome, {user.username || user.email?.split('@')[0]}
-              </span>
-              <motion.button
-                onClick={logout}
-                className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-orange-550 text-white font-black text-sm px-4 py-2 rounded-2xl border-4 border-gray-800 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
-                whileHover={{ y: -2, boxShadow: '3px 5px 0px rgba(0,0,0,0.8)' }}
-                whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.8)' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </motion.button>
-            </div>
-          ) : (
-            <Link to="/Login">
-              <motion.div
-                className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-sm px-4 py-2 rounded-2xl border-4 border-gray-800 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
-                whileHover={{ y: -2, boxShadow: '3px 5px 0px rgba(0,0,0,0.8)' }}
-                whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.8)' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              >
-                <LogIn className="w-4 h-4" />
-                Login
-              </motion.div>
-            </Link>
-          )}
-        </div>
-      </div>
+      {/* Top Nav Bar */}
+      <Navbar />
 
       {/* Hero Section */}
       <PopArtBackground>

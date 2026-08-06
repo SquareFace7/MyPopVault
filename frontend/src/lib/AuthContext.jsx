@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -243,6 +244,47 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkUserAuth();
   }, []);
+
+  // Auto-logout feature for inactive users (10 minutes / 600,000 ms)
+  useEffect(() => {
+    if (!user.isLoggedIn) return;
+
+    let timeoutId;
+
+    const handleInactivity = () => {
+      logout();
+      toast('⚠️ נותקת מהמערכת עקב חוסר פעילות', {
+        style: {
+          border: '4px solid #1f2937',
+          padding: '16px',
+          color: '#1f2937',
+          fontWeight: 'bold',
+          borderRadius: '16px',
+          boxShadow: '4px 4px 0px rgba(0,0,0,0.85)'
+        }
+      });
+    };
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(handleInactivity, 10 * 60 * 1000);
+    };
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll'];
+
+    resetTimer();
+
+    events.forEach(event => {
+      window.addEventListener(event, resetTimer);
+    });
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach(event => {
+        window.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [user.isLoggedIn]);
 
   return (
     <AuthContext.Provider value={{
