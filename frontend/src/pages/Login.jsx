@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Sparkles, LogIn, UserPlus, Zap } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -11,12 +11,22 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (location.state?.activeTab === 'signup') {
+      setMode('signup');
+    } else if (location.state?.activeTab === 'login') {
+      setMode('login');
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const verified = searchParams.get('verified');
@@ -55,9 +65,62 @@ export default function Login() {
     }
   }, [searchParams, setSearchParams]);
 
+  const validatePassword = (pwd) => {
+    const errors = [];
+    if (pwd.length < 8) errors.push('at least 8 characters');
+    if (!/[A-Z]/.test(pwd)) errors.push('at least one uppercase letter (A-Z)');
+    if (!/[a-z]/.test(pwd)) errors.push('at least one lowercase letter (a-z)');
+    if (!/\d/.test(pwd)) errors.push('at least one number (0-9)');
+    if (!/[^A-Za-z0-9]/.test(pwd)) errors.push('at least one special character (e.g. !@#$%^&*)');
+
+    if (errors.length > 0) {
+      return `Password must contain ${errors.join(', ')}.`;
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (mode === 'signup') {
+      // Validate matching passwords
+      if (password !== confirmPassword) {
+        const matchMsg = '🔒 Passwords do not match. Please check and try again.';
+        setError(matchMsg);
+        toast.error(matchMsg, {
+          style: {
+            border: '4px solid #1f2937',
+            padding: '16px',
+            color: '#1f2937',
+            fontWeight: 'bold',
+            borderRadius: '16px',
+            boxShadow: '4px 4px 0px rgba(0,0,0,0.85)'
+          }
+        });
+        return;
+      }
+
+      // Validate password policy strength
+      const pwdErr = validatePassword(password);
+      if (pwdErr) {
+        const strengthMsg = `🛡️ ${pwdErr}`;
+        setError(strengthMsg);
+        toast.error(strengthMsg, {
+          duration: 6000,
+          style: {
+            border: '4px solid #1f2937',
+            padding: '16px',
+            color: '#1f2937',
+            fontWeight: 'bold',
+            borderRadius: '16px',
+            boxShadow: '4px 4px 0px rgba(0,0,0,0.85)'
+          }
+        });
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -175,6 +238,7 @@ export default function Login() {
                   onClick={() => {
                     setMode('login');
                     setError(null);
+                    setConfirmPassword('');
                   }}
                   className={`flex-1 py-1.5 font-black text-xs transition-all ${isLogin ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                 >
@@ -186,6 +250,7 @@ export default function Login() {
                   onClick={() => {
                     setMode('signup');
                     setError(null);
+                    setConfirmPassword('');
                   }}
                   className={`flex-1 py-1.5 font-black text-xs transition-all ${!isLogin ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                 >
@@ -254,6 +319,21 @@ export default function Login() {
                   )}
                 </div>
 
+                {!isLogin && (
+                  <div>
+                    <label className="block text-xs font-black text-gray-700 mb-0.5" htmlFor="confirmPassword">Confirm Password</label>
+                    <input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
+                      required
+                    />
+                  </div>
+                )}
+
                 {/* Notice */}
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl px-3 py-1.5 flex items-start gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-yellow-500 mt-0.5 shrink-0" />
@@ -290,6 +370,7 @@ export default function Login() {
                   onClick={() => {
                     setMode(isLogin ? 'signup' : 'login');
                     setError(null);
+                    setConfirmPassword('');
                   }}
                   className={`font-black underline ${isLogin ? 'text-pink-500' : 'text-cyan-500'}`}
                 >

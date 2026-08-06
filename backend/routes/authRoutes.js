@@ -14,6 +14,24 @@ const generateToken = (id, role) => {
   });
 };
 
+// Helper function to validate strict password requirements
+const validatePasswordPolicy = (pwd) => {
+  if (!pwd || typeof pwd !== 'string') {
+    return 'Password is required.';
+  }
+  const errors = [];
+  if (pwd.length < 8) errors.push('at least 8 characters');
+  if (!/[A-Z]/.test(pwd)) errors.push('at least one uppercase letter (A-Z)');
+  if (!/[a-z]/.test(pwd)) errors.push('at least one lowercase letter (a-z)');
+  if (!/\d/.test(pwd)) errors.push('at least one number (0-9)');
+  if (!/[^A-Za-z0-9]/.test(pwd)) errors.push('at least one special character (e.g. !@#$%^&*)');
+
+  if (errors.length > 0) {
+    return `Password must contain ${errors.join(', ')}.`;
+  }
+  return null;
+};
+
 // POST /api/auth/register - Register a new user
 router.post('/register', async (req, res) => {
   try {
@@ -52,8 +70,12 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    const pwdPolicyError = validatePasswordPolicy(password);
+    if (pwdPolicyError) {
+      return res.status(400).json({
+        error: 'Weak password error',
+        message: pwdPolicyError
+      });
     }
 
     // Hash the password using bcryptjs
@@ -281,8 +303,12 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Token and new password are required' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    const pwdPolicyError = validatePasswordPolicy(newPassword);
+    if (pwdPolicyError) {
+      return res.status(400).json({
+        error: 'Weak password error',
+        message: pwdPolicyError
+      });
     }
 
     // Verify token

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Crown, LogIn, LogOut, Sun, Moon, Menu, X } from 'lucide-react';
+import { Package, Crown, LogIn, LogOut, UserPlus, Sun, Moon, Menu, X } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/ThemeContext';
 
@@ -70,17 +70,30 @@ export default function Navbar({ showMenuButton = false, onMenuToggle = () => {}
             </motion.button>
           </div>
         ) : (
-          <Link to="/Login">
-            <motion.div
-              className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-xs px-3.5 py-1.5 rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] shrink-0 cursor-pointer"
-              whileHover={{ y: -1, boxShadow: '2.5px 3.5px 0px rgba(0,0,0,0.85)' }}
-              whileTap={{ y: 0, boxShadow: '1.5px 1.5px 0px rgba(0,0,0,0.85)' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              Login
-            </motion.div>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/Login" state={{ activeTab: 'login' }}>
+              <motion.div
+                className="flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-xs px-3.5 py-1.5 rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] shrink-0 cursor-pointer"
+                whileHover={{ y: -1, boxShadow: '2.5px 3.5px 0px rgba(0,0,0,0.85)' }}
+                whileTap={{ y: 0, boxShadow: '1.5px 1.5px 0px rgba(0,0,0,0.85)' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Login
+              </motion.div>
+            </Link>
+            <Link to="/Login" state={{ activeTab: 'signup' }}>
+              <motion.div
+                className="flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-xs px-3.5 py-1.5 rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] shrink-0 cursor-pointer"
+                whileHover={{ y: -1, boxShadow: '2.5px 3.5px 0px rgba(0,0,0,0.85)' }}
+                whileTap={{ y: 0, boxShadow: '1.5px 1.5px 0px rgba(0,0,0,0.85)' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Sign Up
+              </motion.div>
+            </Link>
+          </div>
         )}
 
         {/* Mobile Sidebar Hamburger Toggle */}
