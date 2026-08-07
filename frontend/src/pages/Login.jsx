@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Sparkles, LogIn, UserPlus, Zap } from 'lucide-react';
+import { Package, Sparkles, LogIn, UserPlus, Zap, Check, X } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
@@ -19,6 +19,14 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const passwordRules = [
+    { id: 'length', label: '8+ characters', met: password.length >= 8 },
+    { id: 'uppercase', label: '1 uppercase (A-Z)', met: /[A-Z]/.test(password) },
+    { id: 'lowercase', label: '1 lowercase (a-z)', met: /[a-z]/.test(password) },
+    { id: 'number', label: '1 number (0-9)', met: /\d/.test(password) },
+    { id: 'special', label: '1 special (!@#$...)', met: /[^A-Za-z0-9]/.test(password) }
+  ];
 
   useEffect(() => {
     if (location.state?.activeTab === 'signup') {
@@ -315,6 +323,28 @@ export default function Login() {
                       >
                         Forgot Password?
                       </button>
+                    </div>
+                  )}
+
+                  {!isLogin && (
+                    <div className="mt-2 p-2 bg-gray-50 border-2 border-gray-800 rounded-xl shadow-[2px_2px_0px_rgba(0,0,0,0.8)] text-[11px]">
+                      <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1">
+                        Password Requirements:
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                        {passwordRules.map(rule => (
+                          <div key={rule.id} className="flex items-center gap-1.5">
+                            {rule.met ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[3]" />
+                            ) : (
+                              <X className="w-3.5 h-3.5 text-gray-400 shrink-0 stroke-[2.5]" />
+                            )}
+                            <span className={rule.met ? 'text-emerald-700 font-extrabold line-through decoration-emerald-500/40' : 'text-gray-500 font-bold'}>
+                              {rule.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
