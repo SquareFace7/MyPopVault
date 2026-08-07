@@ -399,7 +399,7 @@ export default function Login() {
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl px-3 py-1.5 flex items-start gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-yellow-500 mt-0.5 shrink-0" />
                   <p className="text-[10px] font-bold text-yellow-700">
-                    Connecting directly to your backend API cluster. Passwords are salted and hashed.
+                    ✨ Your data is securely locked in the vault. We use industry-standard encryption to keep your account safe.
                   </p>
                 </div>
 
