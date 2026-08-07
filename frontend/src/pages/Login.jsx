@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Sparkles, LogIn, UserPlus, Zap, Check, X } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
@@ -19,6 +19,37 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const lastToastTimeRef = useRef(0);
+
+  const handleEnglishOnlyInput = (value, setter) => {
+    // Regex for non-printable ASCII or non-English characters (anything outside ASCII 32-126)
+    const nonEnglishRegex = /[^\x20-\x7E]/g;
+
+    if (nonEnglishRegex.test(value)) {
+      const cleanValue = value.replace(nonEnglishRegex, '');
+      setter(cleanValue);
+
+      const now = Date.now();
+      if (now - lastToastTimeRef.current > 2500) {
+        lastToastTimeRef.current = now;
+        toast.error('🌍 Please use English keyboard only. Foreign characters are not allowed.', {
+          id: 'english-only-toast',
+          duration: 4000,
+          style: {
+            border: '4px solid #1f2937',
+            padding: '16px',
+            color: '#1f2937',
+            fontWeight: 'bold',
+            borderRadius: '16px',
+            boxShadow: '4px 4px 0px rgba(0,0,0,0.85)'
+          }
+        });
+      }
+    } else {
+      setter(value);
+    }
+  };
 
   const passwordRules = [
     { id: 'length', label: '8+ characters', met: password.length >= 8 },
@@ -283,7 +314,7 @@ export default function Login() {
                       type="text"
                       placeholder="collector_jack"
                       value={username}
-                      onChange={e => setUsername(e.target.value)}
+                      onChange={e => handleEnglishOnlyInput(e.target.value, setUsername)}
                       className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-yellow-500 focus:shadow-[3px_3px_0px_rgba(255,215,0,0.5)] transition-all bg-white"
                       required
                     />
@@ -297,7 +328,7 @@ export default function Login() {
                     type="email"
                     placeholder="collector@example.com"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => handleEnglishOnlyInput(e.target.value, setEmail)}
                     className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-pink-500 focus:shadow-[3px_3px_0px_rgba(236,0,140,0.5)] transition-all bg-white"
                     required
                   />
@@ -310,7 +341,7 @@ export default function Login() {
                     type="password"
                     placeholder="••••••••"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={e => handleEnglishOnlyInput(e.target.value, setPassword)}
                     className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
                     required
                   />
@@ -357,7 +388,7 @@ export default function Login() {
                       type="password"
                       placeholder="••••••••"
                       value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
+                      onChange={e => handleEnglishOnlyInput(e.target.value, setConfirmPassword)}
                       className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
                       required
                     />
