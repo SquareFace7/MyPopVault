@@ -121,6 +121,7 @@ router.post('/register', async (req, res) => {
         username: savedUser.username,
         email: savedUser.email,
         role: savedUser.role,
+        isVip: savedUser.isVip,
         isVerified: savedUser.isVerified
       }
     });
@@ -184,6 +185,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        isVip: user.isVip,
         isVerified: user.isVerified
       }
     });
@@ -231,6 +233,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        isVip: user.isVip,
         isVerified: user.isVerified
       }
     });

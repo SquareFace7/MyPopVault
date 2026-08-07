@@ -12,9 +12,19 @@ export default function VipSuccess() {
   const [syncing, setSyncing] = useState(true);
 
   useEffect(() => {
-    // Sync local context to get updated VIP status from backend
+    // Confirm VIP status on backend and sync local auth context
     const syncStatus = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (token && token !== 'mock_token_sandbox') {
+          await fetch('/api/payment/confirm-vip', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        }
         await checkUserAuth();
       } catch (err) {
         console.error('Failed to sync auth status:', err);

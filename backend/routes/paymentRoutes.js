@@ -90,4 +90,37 @@ router.post('/create-checkout-session', express.json(), authMiddleware, async (r
   }
 });
 
+// POST /api/payment/confirm-vip - Upgrades VIP status for authenticated user upon successful payment return
+router.post('/confirm-vip', express.json(), authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.isVip = true;
+    if (user.role !== 'admin') {
+      user.role = 'vip';
+    }
+    await user.save();
+    console.log(`👑 VIP status confirmed and upgraded for user: ${user.username}`);
+
+    res.json({
+      success: true,
+      message: 'VIP status activated successfully',
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isVip: user.isVip,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('❌ Confirm VIP Error:', error);
+    res.status(500).json({ error: 'Failed to confirm VIP status', message: error.message });
+  }
+});
+
 module.exports = router;

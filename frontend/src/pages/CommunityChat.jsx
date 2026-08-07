@@ -195,9 +195,9 @@ export default function CommunityChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Tiered Chat Input Panel */}
+          {/* Chat Input Panel */}
           <div className="border-t-4 border-gray-800 bg-white dark:bg-gray-900 p-4 shrink-0">
-            {isVipOrAdmin ? (
+            {currentUser?.isLoggedIn ? (
               <form onSubmit={handleSend} className="flex items-center gap-3">
                 <Input
                   value={inputText}
@@ -217,18 +217,6 @@ export default function CommunityChat() {
                   <Send className="w-5 h-5 text-white" />
                 </motion.button>
               </form>
-            ) : isStandardUser ? (
-              <div className="w-full flex justify-center py-2">
-                <motion.button
-                  onClick={() => navigate('/vip-upgrade')}
-                  className="w-full max-w-md py-3.5 px-6 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 text-gray-900 font-black text-sm rounded-2xl border-4 border-gray-805 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ y: 0 }}
-                >
-                  <Crown className="w-5 h-5 text-gray-900 animate-bounce" />
-                  Upgrade to VIP to unlock chat
-                </motion.button>
-              </div>
             ) : (
               <div className="w-full flex justify-center py-2">
                 <motion.button
