@@ -222,10 +222,10 @@ export default function Login() {
   const isLogin = mode === 'login';
 
   return (
-    <PopArtBackground className="w-full h-full flex flex-col items-center justify-center px-4 py-6 bg-slate-50 dark:bg-gray-950 font-sans">
+    <PopArtBackground className="w-full min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-6 bg-slate-50 dark:bg-gray-950 font-sans">
       {/* Card */}
       <motion.div
-        className="w-full max-w-md bg-white border-4 border-gray-805 rounded-3xl shadow-[8px_8px_0px_rgba(0,0,0,0.85)] overflow-hidden"
+        className="w-full max-w-md h-auto bg-white border-4 border-gray-805 rounded-3xl shadow-[8px_8px_0px_rgba(0,0,0,0.85)] overflow-hidden"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
@@ -234,7 +234,7 @@ export default function Login() {
             <div className={`h-2.5 w-full transition-all duration-300 ${isLogin ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500' : 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500'}`} />
 
             {/* Top section */}
-            <div className="px-6 pt-5 pb-4">
+            <div className={`px-5 sm:px-6 transition-all ${isLogin ? 'pt-5 pb-5' : 'pt-3.5 pb-4'}`}>
               {/* Logo */}
               <div className="flex justify-center mb-3">
                 <motion.div
@@ -271,7 +271,7 @@ export default function Login() {
               </div>
 
               {/* Toggle tabs */}
-              <div className="flex mt-3.5 mb-3.5 border-4 border-gray-800 rounded-xl overflow-hidden shadow-[3px_3px_0px_rgba(0,0,0,0.8)] bg-white">
+              <div className="flex my-2.5 border-4 border-gray-800 rounded-xl overflow-hidden shadow-[3px_3px_0px_rgba(0,0,0,0.8)] bg-white">
                 <button
                   type="button"
                   onClick={() => {
@@ -305,44 +305,44 @@ export default function Login() {
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-3">
+              <form onSubmit={handleSubmit} className={isLogin ? "space-y-3" : "space-y-2"}>
                 {!isLogin && (
                   <div>
-                    <label className="block text-xs font-black text-gray-700 mb-0.5" htmlFor="username">Username</label>
+                    <label className="block text-[11px] font-black text-gray-700 mb-0.5" htmlFor="username">Username</label>
                     <input
                       id="username"
                       type="text"
                       placeholder="collector_jack"
                       value={username}
                       onChange={e => handleEnglishOnlyInput(e.target.value, setUsername)}
-                      className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-yellow-500 focus:shadow-[3px_3px_0px_rgba(255,215,0,0.5)] transition-all bg-white"
+                      className="w-full h-9 px-3 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-yellow-500 focus:shadow-[3px_3px_0px_rgba(255,215,0,0.5)] transition-all bg-white"
                       required
                     />
                   </div>
                 )}
                 
                 <div>
-                  <label className="block text-xs font-black text-gray-700 mb-0.5" htmlFor="email">Email Address</label>
+                  <label className="block text-[11px] font-black text-gray-700 mb-0.5" htmlFor="email">Email Address</label>
                   <input
                     id="email"
                     type="email"
                     placeholder="collector@example.com"
                     value={email}
                     onChange={e => handleEnglishOnlyInput(e.target.value, setEmail)}
-                    className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-pink-500 focus:shadow-[3px_3px_0px_rgba(236,0,140,0.5)] transition-all bg-white"
+                    className="w-full h-9 px-3 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-pink-500 focus:shadow-[3px_3px_0px_rgba(236,0,140,0.5)] transition-all bg-white"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-black text-gray-700 mb-0.5" htmlFor="password">Password</label>
+                  <label className="block text-[11px] font-black text-gray-700 mb-0.5" htmlFor="password">Password</label>
                   <input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={e => handleEnglishOnlyInput(e.target.value, setPassword)}
-                    className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
+                    className="w-full h-9 px-3 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
                     required
                   />
                   {isLogin && (
@@ -358,19 +358,19 @@ export default function Login() {
                   )}
 
                   {!isLogin && (
-                    <div className="mt-2 p-2 bg-gray-50 border-2 border-gray-800 rounded-xl shadow-[2px_2px_0px_rgba(0,0,0,0.8)] text-[11px]">
-                      <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="mt-1.5 p-1.5 px-2.5 bg-gray-50 border-2 border-gray-800 rounded-xl shadow-[2px_2px_0px_rgba(0,0,0,0.8)] text-[10.5px]">
+                      <div className="text-[9.5px] font-black text-gray-500 uppercase tracking-wider mb-0.5">
                         Password Requirements:
                       </div>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
                         {passwordRules.map(rule => (
-                          <div key={rule.id} className="flex items-center gap-1.5">
+                          <div key={rule.id} className="flex items-center gap-1">
                             {rule.met ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[3]" />
+                              <Check className="w-3 h-3 text-emerald-600 shrink-0 stroke-[3]" />
                             ) : (
-                              <X className="w-3.5 h-3.5 text-gray-400 shrink-0 stroke-[2.5]" />
+                              <X className="w-3 h-3 text-gray-400 shrink-0 stroke-[2.5]" />
                             )}
-                            <span className={rule.met ? 'text-emerald-700 font-extrabold line-through decoration-emerald-500/40' : 'text-gray-500 font-bold'}>
+                            <span className={rule.met ? 'text-emerald-700 font-extrabold line-through decoration-emerald-500/40 text-[10px]' : 'text-gray-500 font-bold text-[10px]'}>
                               {rule.label}
                             </span>
                           </div>
@@ -382,14 +382,14 @@ export default function Login() {
 
                 {!isLogin && (
                   <div>
-                    <label className="block text-xs font-black text-gray-700 mb-0.5" htmlFor="confirmPassword">Confirm Password</label>
+                    <label className="block text-[11px] font-black text-gray-700 mb-0.5" htmlFor="confirmPassword">Confirm Password</label>
                     <input
                       id="confirmPassword"
                       type="password"
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={e => handleEnglishOnlyInput(e.target.value, setConfirmPassword)}
-                      className="w-full h-10 px-3.5 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
+                      className="w-full h-9 px-3 border-4 border-gray-800 rounded-xl font-bold text-xs shadow-[3px_3px_0px_rgba(0,0,0,0.8)] focus:outline-none focus:border-cyan-500 focus:shadow-[3px_3px_0px_rgba(0,174,239,0.5)] transition-all bg-white"
                       required
                     />
                   </div>
