@@ -140,7 +140,7 @@ export default function Layout({ children, currentPageName }) {
       const userId = user._id || user.id;
       if (!userId) return;
 
-      const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+      const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
       const socket = io(socketUrl);
       
       console.log(`🔌 [Global Socket] Connecting and registering user: ${userId}`);

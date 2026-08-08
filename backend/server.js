@@ -17,8 +17,34 @@ if (!mongoURI || mongoURI === 'your_connection_string_here') {
     .catch(err => console.error('❌ MongoDB Connection Error:', err));
 }
 
+// Whitelisted CORS origins for production and local development
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN,
+  'https://mypopvault.online',
+  'http://mypopvault.online',
+  'http://localhost:5173',
+  'http://localhost:8080',
+  'http://localhost:3000'
+].filter(Boolean);
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ Blocked by CORS policy: ${origin}`);
+      callback(new Error(`CORS origin policy restriction for: ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Mount payment routes BEFORE express.json() to preserve raw stream for Stripe webhooks
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -63,8 +89,15 @@ const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Socket.IO CORS policy restriction'));
+      }
+    },
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 app.set('io', io);

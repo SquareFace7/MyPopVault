@@ -51,7 +51,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     markAsRead();
 
     // 2. Establish Socket connection
-    const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+    const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
     const socket = io(socketUrl);
     socketRef.current = socket;
 

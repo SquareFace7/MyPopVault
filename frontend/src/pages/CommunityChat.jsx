@@ -44,7 +44,7 @@ export default function CommunityChat() {
       });
 
     // Initialize Socket connection to server
-    const socketUrl = import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+    const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
     const socket = io(socketUrl);
     socketRef.current = socket;
 
