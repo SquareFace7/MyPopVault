@@ -4,6 +4,7 @@ import { Crown, CheckCircle, ArrowRight, Zap } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 export default function VipUpgrade() {
   const { user } = useAuth();
@@ -13,7 +14,7 @@ export default function VipUpgrade() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/payment/create-checkout-session', {
+      const res = await fetch(getApiUrl('/api/payment/create-checkout-session'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, Users, Crown, Package, ArrowDownUp, Trash2, UserX, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 // --- Sub-Components ---
 function StatCard({ stat, index }) {
@@ -104,7 +105,7 @@ export default function AdminPanel() {
       if (!token) return;
 
       // Fetch Stats and growth data
-      const statsRes = await fetch('/api/admin/stats', {
+      const statsRes = await fetch(getApiUrl('/api/admin/stats'), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (statsRes.ok) {
@@ -121,7 +122,7 @@ export default function AdminPanel() {
       }
 
       // Fetch Users List
-      const usersRes = await fetch('/api/admin/users', {
+      const usersRes = await fetch(getApiUrl('/api/admin/users'), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (usersRes.ok) {
@@ -147,7 +148,7 @@ export default function AdminPanel() {
 
       const newRole = targetUser.role === 'vip' ? 'user' : 'vip';
 
-      const res = await fetch(`/api/admin/users/${targetUser._id}/role`, {
+      const res = await fetch(getApiUrl(`/api/admin/users/${targetUser._id}/role`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

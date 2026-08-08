@@ -5,6 +5,7 @@ import PopArtBackground from '@/components/PopArtBackground';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import confetti from 'canvas-confetti';
+import { getApiUrl } from '@/lib/api';
 
 export default function VipSuccess() {
   const { checkUserAuth } = useAuth();
@@ -17,7 +18,7 @@ export default function VipSuccess() {
       try {
         const token = localStorage.getItem('token');
         if (token && token !== 'mock_token_sandbox') {
-          await fetch('/api/payment/confirm-vip', {
+          await fetch(getApiUrl('/api/payment/confirm-vip'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import { Package, ArrowLeft, Zap } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(getApiUrl('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

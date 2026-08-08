@@ -4,6 +4,7 @@ import { Search, Plus, Star, Sparkles, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 const CATEGORIES = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
 
@@ -45,7 +46,7 @@ export default function PopExplorer() {
   // Load catalog dynamically from backend seeder database with search/paging
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/catalog?search=${searchQuery}&category=${activeCategory}&page=${page}&limit=12`)
+    fetch(getApiUrl(`/api/catalog?search=${searchQuery}&category=${activeCategory}&page=${page}&limit=12`))
       .then(res => res.json())
       .then(data => {
         const mapped = (data.items || []).map(pop => ({
@@ -71,7 +72,7 @@ export default function PopExplorer() {
   // Pre-load already vaulted Pop IDs to lock the add action
   useEffect(() => {
     if (user && user.isLoggedIn) {
-      fetch('/api/vault', {
+      fetch(getApiUrl('/api/vault'), {
         headers: {
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
         }
@@ -113,7 +114,7 @@ export default function PopExplorer() {
     }
 
     try {
-      const response = await fetch('/api/vault', {
+      const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

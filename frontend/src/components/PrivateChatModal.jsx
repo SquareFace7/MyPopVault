@@ -4,6 +4,7 @@ import { X, Send, Sparkles } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { getApiUrl, API_BASE_URL } from '@/lib/api';
 
 export default function PrivateChatModal({ recipientId, recipientName, onClose }) {
   const [messages, setMessages] = useState([]);
@@ -21,7 +22,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     // 1. Fetch message history
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`/api/messages/private/chat/${recipientId}`, {
+        const response = await fetch(getApiUrl(`/api/messages/private/chat/${recipientId}`), {
           headers: {
             'Authorization': `Bearer ${currentUser?.token}`
           }
@@ -36,7 +37,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     // Mark messages from this sender as read
     const markAsRead = async () => {
       try {
-        await fetch(`/api/messages/private/read/${recipientId}`, {
+        await fetch(getApiUrl(`/api/messages/private/read/${recipientId}`), {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${currentUser?.token}`
@@ -51,7 +52,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     markAsRead();
 
     // 2. Establish Socket connection
-    const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
+    const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
     const socket = io(socketUrl);
     socketRef.current = socket;
 
@@ -125,7 +126,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
     console.log('📤 [REST API Frontend] POSTing private message:', { receiverId: recipientId, text });
 
     try {
-      const response = await fetch('/api/messages/private', {
+      const response = await fetch(getApiUrl('/api/messages/private'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 const AuthContext = createContext();
 
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   // POST /api/auth/register
   const register = async (username, email, password) => {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch(getApiUrl('/api/auth/register'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   // POST /api/auth/login
   const login = async (email, password) => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch(getApiUrl('/api/auth/login'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -205,7 +206,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token || token === 'mock_token_sandbox') return null;
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch(getApiUrl('/api/auth/me'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }

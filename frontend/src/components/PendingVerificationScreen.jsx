@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, RefreshCw, LogOut, CheckCircle, Package, Send } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 export default function PendingVerificationScreen({ user, logout, checkUserAuth }) {
   const [resending, setResending] = useState(false);
@@ -11,7 +12,7 @@ export default function PendingVerificationScreen({ user, logout, checkUserAuth 
   const handleResend = async () => {
     setResending(true);
     try {
-      const response = await fetch('/api/auth/resend', {
+      const response = await fetch(getApiUrl('/api/auth/resend'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

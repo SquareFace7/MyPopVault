@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, Star, TrendingUp, Package, Tag, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 export default function PopDetails() {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export default function PopDetails() {
     setLoading(true);
     
     // Fetch pop catalog detail by ID
-    fetch(`/api/catalog/${id}`)
+    fetch(getApiUrl(`/api/catalog/${id}`))
       .then(res => {
         if (!res.ok) throw new Error('Failed to load Pop catalog details.');
         return res.json();
@@ -36,7 +37,7 @@ export default function PopDetails() {
 
     // Check if user already owns this item
     if (user && user.isLoggedIn) {
-      fetch('/api/vault', {
+      fetch(getApiUrl('/api/vault'), {
         headers: {
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
         }
@@ -60,7 +61,7 @@ export default function PopDetails() {
     }
 
     try {
-      const response = await fetch('/api/vault', {
+      const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

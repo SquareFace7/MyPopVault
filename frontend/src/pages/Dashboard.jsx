@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 import { 
   DollarSign, Package, TrendingUp, Crown, Plus, ArrowRight, 
   Sparkles, RefreshCw, Star
@@ -26,7 +27,7 @@ export default function Dashboard() {
 
   const fetchVault = () => {
     setIsLoading(true);
-    fetch('/api/vault', {
+    fetch(getApiUrl('/api/vault'), {
       headers: {
         'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
       }
@@ -83,7 +84,7 @@ export default function Dashboard() {
     try {
       const popId = popData.popId || popData.id || popData._id || popData;
       if (!popId) throw new Error('Pop ID is missing.');
-      const response = await fetch('/api/vault', {
+      const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +130,7 @@ export default function Dashboard() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/api/vault/${vaultItemId}`, {
+      const response = await fetch(getApiUrl(`/api/vault/${vaultItemId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
@@ -170,7 +171,7 @@ export default function Dashboard() {
 
   const handleUpdatePop = async (vaultItemId, updatedFields) => {
     try {
-      const response = await fetch(`/api/vault/${vaultItemId}`, {
+      const response = await fetch(getApiUrl(`/api/vault/${vaultItemId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

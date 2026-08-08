@@ -6,6 +6,7 @@ import TradeModal from '@/components/TradeModal';
 import CategoryBadge from '@/components/CategoryBadge';
 import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 const COLLECTORS = {
   1: { id: '1', name: 'Alex "PopKing" Rivera', badge: 'Grail Hunter', gradient: 'from-pink-500 to-rose-500', initials: 'AR' },
@@ -183,7 +184,7 @@ export default function PublicVault() {
 
     if (isObjectId) {
       setLoading(true);
-      fetch(`/api/users/${collectorId}/profile`)
+      fetch(getApiUrl(`/api/users/${collectorId}/profile`))
         .then(res => res.json())
         .then(data => {
           if (data.user) {
@@ -355,7 +356,7 @@ export default function PublicVault() {
                     onClick={() => {
                       const text = prompt(`Send a private message to ${collector?.name}:`);
                       if (text && text.trim()) {
-                        fetch('/api/messages/private', {
+                        fetch(getApiUrl('/api/messages/private'), {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',

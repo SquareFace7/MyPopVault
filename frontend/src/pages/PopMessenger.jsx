@@ -7,6 +7,7 @@ import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import PrivateChatModal from '@/components/PrivateChatModal';
 import BouncyButton from '@/components/BouncyButton';
+import { getApiUrl, API_BASE_URL } from '@/lib/api';
 
 export default function PopMessenger() {
   const [conversations, setConversations] = useState([]);
@@ -30,7 +31,7 @@ export default function PopMessenger() {
   // Fetch active conversations list
   const fetchConversations = () => {
     setLoading(true);
-    fetch('/api/messages/private/conversations', {
+    fetch(getApiUrl('/api/messages/private/conversations'), {
       headers: {
         'Authorization': `Bearer ${currentUser?.token}`
       }
@@ -59,7 +60,7 @@ export default function PopMessenger() {
     fetchConversations();
 
     // Establish socket connection for real-time inbox updates
-    const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
+    const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
     const socket = io(socketUrl);
     socketRef.current = socket;
 

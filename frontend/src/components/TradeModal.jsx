@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowDownUp, Sparkles, CheckCircle, Send } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -22,7 +23,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
 
   // Load current user's vault items to offer
   useEffect(() => {
-    fetch('/api/vault', {
+    fetch(getApiUrl('/api/vault'), {
       headers: {
         'Authorization': `Bearer ${currentUser?.token}`
       }
@@ -50,7 +51,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
     if (!selectedId) return;
 
     // Build payload using MongoDB ObjectIds or mock ids
-    fetch('/api/trades', {
+    fetch(getApiUrl('/api/trades'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

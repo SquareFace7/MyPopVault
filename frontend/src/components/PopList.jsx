@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Calendar } from 'lucide-react';
+import { getApiUrl } from '@/lib/api';
 
 export default function PopList() {
   const [pops, setPops] = useState([]);
@@ -8,7 +9,7 @@ export default function PopList() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('/api/pops')
+    fetch(getApiUrl('/api/pops'))
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch pops from API');
         return res.json();

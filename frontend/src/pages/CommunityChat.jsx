@@ -7,6 +7,7 @@ import MessageBubble from '@/components/chat/MessageBubble';
 import { useAuth } from '@/lib/AuthContext';
 import { io } from 'socket.io-client';
 import { toast as hotToast } from 'react-hot-toast';
+import { getApiUrl, API_BASE_URL } from '@/lib/api';
 
 // Patterns to detect and censor contact sharing
 const PHONE_REGEX = /\b\d[\d\s\-().]{7,}\d\b/g;
@@ -34,7 +35,7 @@ export default function CommunityChat() {
   // 1. Fetch chat history and establish socket connection on mount
   useEffect(() => {
     // Fetch past message log
-    fetch('/api/chat/history')
+    fetch(getApiUrl('/api/chat/history'))
       .then(res => res.json())
       .then(data => {
         setMessages(data);
@@ -44,7 +45,7 @@ export default function CommunityChat() {
       });
 
     // Initialize Socket connection to server
-    const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
+    const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
     const socket = io(socketUrl);
     socketRef.current = socket;
 

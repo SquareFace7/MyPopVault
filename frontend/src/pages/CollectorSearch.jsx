@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
 import PrivateChatModal from '@/components/PrivateChatModal';
+import { getApiUrl } from '@/lib/api';
 
 function CollectorCard({ collector, index, onMessage }) {
   const { user } = useAuth();
@@ -107,7 +108,7 @@ export default function CollectorSearch() {
 
   // Fetch registered users on mount
   useEffect(() => {
-    fetch('/api/users/public', {
+    fetch(getApiUrl('/api/users/public'), {
       headers: {
         'Authorization': `Bearer ${currentUser?.token}`
       }

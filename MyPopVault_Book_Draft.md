@@ -143,7 +143,11 @@
 ### 8.1 דרישות מערכת (Non-Functional Requirements)
 
 * **סביבת הטמעה ונגישות:** המערכת מפותחת כיישום Web רספונסיבי מלא (Responsive Web Application), התומך באופן מלא בדפדפנים מודרניים (Chrome, Edge, Safari, Firefox) הן במסכי מחשב שולחני והן במכשירים ניידים (Mobile & Tablet).
-* **זמינות גבוהה (High Availability):** תשתית השרת מתוכננת לפריסה בסביבת ענן (Cloud Deployment — Render / Heroku) בשילוב מסד נתונים בענן (MongoDB Atlas) המבטיח זמינות של 99.9% וגיבויים אוטומטיים.
+* **זמינות גבוהה (High Availability & Production Architecture):** תשתית האפליקציה מחולקת בצורה מנותקת (Decoupled System):
+  - **צד לקוח (Frontend SPA):** מאוחסן ב-**GitHub Pages** בדומיין המרכזי [https://mypopvault.online](https://mypopvault.online) (הגדרה ב-Hostinger עם רשומת CNAME וצינור פריסה אוטומטי ב-GitHub Actions via `deploy.yml`).
+  - **צד שרת (Backend REST API & WebSockets):** מוטמע בשרת ענן ייעודי **AWS EC2 (Ubuntu Linux)** בעל כתובת Elastic IP נייחת (`54.145.50.157`) ותת-דומיין מאובטח [https://api.mypopvault.online](https://api.mypopvault.online) (רשומת A).
+  - **תזמור מכלים (Docker Compose):** השרת מנהל 3 שירותים מבודדים במכולות Docker: שרת Node.js Express (פורט 5000 פנימי), שרת Nginx Reverse Proxy (הורדת עומסים, ניתוב SSL, והפניה אוטומטית מפורט 80 ל-443), ותהליך Certbot (חידוש אוטומטי לתעודות SSL Let's Encrypt).
+  - **בסיס נתונים:** מסד נתונים בענן **MongoDB Atlas Cloud** המבטיח זמינות של 99.9% וגיבויים אוטומטיים.
 * **ביצועים וזמני תגובה:** זמן טעינת דף ראשוני (Initial Load) מתחת ל-1.5 שניות. שריפת קריאות API בזמן ממוצע של פחות מ-150ms באמצעות אינדוקס שאילתות ושימוש בדפדף (Pagination).
 * **שרידות והתמודדות עם עומסים:** ניהול שגיאות מרכזי (Global Error Handling Middleware), מנגנון ניסיון חוזר (Retry mechanism) בחיבור לבסיס הנתונים, ותחימת קצב בקשות (Rate Limiting) למניעת התקפות מניעת שירות (DoS).
 
@@ -243,9 +247,13 @@
 * **צד לקוח (Client Modules):** `AuthContext`, דפים (`Dashboard`, `Collection`, `Explorer`, `TradeManager`, `VipUpgrade`, `AdminPanel`), ורכיבי תצוגה.
 * **צד שרת (Server Modules):** `authRoutes`, `vaultRoutes`, `catalogRoutes`, `paymentRoutes`, `tradeRoutes`, `messageRoutes`, `cronService` ו-`seedCatalog`.
 
-### 10.5 סביבת השרת
-* **פיתוח (Development):** הרצה מקומית ב-`Node.js Environment` (Localhost:5000 / Localhost:8080).
-* **ייצור (Production):** אירוח בענן (Render / Heroku) עם מסד נתונים מנוהל ב-MongoDB Atlas Cloud.
+### 10.5 סביבת השרת והטמעה
+* **פיתוח (Development):** הרצה מקומית בסביבת `Node.js Environment` (Localhost:5000 / Vite Dev Server).
+* **ייצור (Production Environment & Infrastructure):**
+  - **Frontend SPA:** מוגש מ-**GitHub Pages** (`https://mypopvault.online`) עם תהליך CI/CD אוטומטי ב-GitHub Actions (`deploy.yml`).
+  - **Backend API & WebSockets:** מופעל על גבי שרת **AWS EC2 Ubuntu Linux** עם Elastic IP (`54.145.50.157`) בדומיין `api.mypopvault.online`.
+  - **תזמור Docker Compose:** שרת `backend` (פורט 5000 פנימי), שרת `nginx` כ-Reverse Proxy (ניהול תעודות SSL Let's Encrypt, הפניית HTTP 301 מפורט 80 ל-443, וניהול Websocket Headers עבור `/socket.io/`), ושירות `certbot`.
+  - **Database:** מסד נתונים מנוהל בענן ב-**MongoDB Atlas Cloud**.
 
 ### 10.6 ממשק המשתמש / לקוח (GUI)
 ממשק משתמש רספונסיבי מודרני בסגנון Pop-Art Neo-Brutalism (גבולות שחורים מודגשים, צבעוניות עזה, מיקרו-אנמציות ב-Framer Motion, ותמיכה מלאה במסכי Mobile).
@@ -484,9 +492,17 @@ flowchart LR
         Browser["Web Browser (Chrome / Safari / Edge)"]
     end
 
-    subgraph CloudHosting["Render / Heroku Cloud Application Platform"]
-        NodeServer["Node.js Express Server Node Environment"]
-        CronTask["Background Cron Task Process"]
+    subgraph GitHubPagesHost["GitHub Pages Hosting (Hostinger CNAME: mypopvault.online)"]
+        FrontendSPA["Static React SPA Bundle (GitHub Actions deploy.yml)"]
+    end
+
+    subgraph AWSHost["AWS EC2 Standalone Instance (Ubuntu Linux - Elastic IP: 54.145.50.157)"]
+        subgraph DockerComposeNet["Docker Compose Isolated Network"]
+            NginxProxy["Nginx Reverse Proxy Container (Port 80/443, SSL Let's Encrypt)"]
+            NodeContainer["Node.js Express API & Socket.IO WebSockets (Port 5000)"]
+            CronScraper["Automated Scraper Cron Service"]
+            CertbotService["Certbot SSL Renewal Container"]
+        end
     end
 
     subgraph DBCloud["MongoDB Atlas Cloud Infrastructure"]
@@ -496,15 +512,19 @@ flowchart LR
 
     subgraph ExternalAPIs["External SaaS Cloud Providers"]
         StripeSvc["Stripe Payment Gateway API"]
-        TargetScraper["External Funko Price Source"]
+        BrevoSvc["Brevo API Email Service"]
+        TargetScraper["External Funko Price Source (pops.today)"]
     end
 
-    Browser <-->|HTTPS / REST API| NodeServer
-    NodeServer <-->|TLS / Mongoose Connections| MongoPrimary
+    Browser <-->|HTTPS / TLS| FrontendSPA
+    Browser <-->|HTTPS REST API & WSS / WebSockets (api.mypopvault.online)| NginxProxy
+    NginxProxy <-->|Internal Proxy Pass| NodeContainer
+    NodeContainer <-->|TLS / Mongoose Connections| MongoPrimary
     MongoPrimary <-->|Replication| MongoSecondary
-    NodeServer <-->|HTTPS Webhook / REST| StripeSvc
-    CronTask <-->|Web Scraping HTTP| TargetScraper
-    CronTask <-->|Mongoose Bulk Upsert| MongoPrimary
+    NodeContainer <-->|HTTPS Webhook / REST| StripeSvc
+    NodeContainer <-->|HTTPS REST API| BrevoSvc
+    CronScraper <-->|Web Scraping HTTP| TargetScraper
+    CronScraper <-->|Mongoose Bulk Upsert| MongoPrimary
 ```
 
 ---
@@ -621,19 +641,28 @@ const portfolioStats = await VaultItem.aggregate([
 ### 15.2 ציוד נדרש
 * מחשב פיתוח אישי (Intel i7, 16GB RAM, SSD Drive).
 * תשתית חיבור רשת רחבת פס ויציבה.
-* שרתי אירוח ופיתוח בענן (Render / Heroku, MongoDB Atlas Cloud).
+* דומיין ראשי מ-**Hostinger** (`mypopvault.online`) וניהול רשומות DNS (CNAME & A Record).
+* שרת ענן ייעודי **AWS EC2 (Ubuntu Linux)** עם כתובת Elastic IP (`54.145.50.157`), מכולות **Docker & Docker Compose**, אירוח **GitHub Pages**, ושרת מסד נתונים בענן **MongoDB Atlas Cloud**.
 
-### 15.3 תוכנות נדרשות
+### 15.3 תוכנות נדרשות ותשתיות ענן
 * **סביבת פיתוח (IDE):** Visual Studio Code.
-* **ניהול גרסאות:** Git & GitHub Client / CLI.
+* **אירוח וצינור פריסה (CI/CD):** GitHub Pages & GitHub Actions (`deploy.yml`).
+* **תזמור מכולות ותשתיות ענן:** AWS Management Console (EC2 Provisioning & Elastic IP), Docker Engine & Docker Compose CLI, Nginx Web Server (Reverse Proxy & SSL Termination), Certbot (Let's Encrypt SSL Certificates).
+* **דשבורדים ניהוליים צד-שלישי:** MongoDB Atlas Dashboard, Stripe Developer Dashboard, Brevo SMTP Platform.
 * **בדיקות API:** Postman Desktop App.
 * **ניהול מסד נתונים:** MongoDB Compass.
 * **סביבת ריצה:** Node.js Runtime (v18+).
 
 ### 15.4 ידע חדש שנדרש ללמוד לצורך ביצוע הפרויקט
+* הגדרת דומיינים ורשומות DNS (Hostinger CNAME ל-GitHub Pages ורשומת A ל-AWS EC2 Elastic IP).
+* הקמה ותזמור מכלים בסביבת ענן באמצעות Docker Compose (`backend`, `nginx`, `certbot`).
+* פתרון בעיית "Chicken-and-Egg" בהפקת תעודות SSL ראשוניות ב-Certbot והגדרת Nginx Reverse Proxy מ-HTTP (פורט 80) ל-HTTPS (פורט 443) 301 Redirection.
+* תחזוקה, אופטימיזציה וניקוי שטח דיסק בשרת AWS EC2 (Docker prune, apt cache, systemd journals).
+* הגדרת תהליך CI/CD ב-GitHub Actions לגרסת ה-Production של ה-Frontend.
 * עבודה מתקדמת עם React Hooks, Custom Hooks, ו-Context API.
 * מימוש אגרגציות ושאילתות מורכבות (MongoDB Aggregation Pipeline).
 * אינטגרציית Stripe Checkout Sessions ועיבוד Webhooks ב-Node.js.
+* אינטגרציית Brevo API / SMTP לשליחת מיילים מאומתים.
 * טכניקות Web Scraping מתקדמות עם `Cheerio` וניהול משימות רקע ב-`Node-Cron`.
 
 ### 15.5 ספרות ומקורות מידע
@@ -653,7 +682,7 @@ const portfolioStats = await VaultItem.aggregate([
 | **3. פיתוח צד שרת (Backend)** | 4 שבועות | הקמת שרת Node.js/Express, מידול מסד הנתונים ב-Mongoose, מימוש מנגנוני Auth (JWT/Bcrypt), פיתוח נתיבי כספת, סייר ואינטגרציית Stripe & Scraper Cron. |
 | **4. פיתוח צד לקוח (Frontend)** | 4 שבועות | בניית אפליקציית SPA ב-React, פיתוח רכיבי UI בסגנון Pop-Art, חיבור נתיבי API (Axios), בניית דשבורדים ויזואליים ומערכת מסחר. |
 | **5. בדיקות ואבטחה (QA & Testing)** | שבועיים | ביצוע בדיקות יחידה, בדיקות אינטגרציה, בדיקות מקצה לקצה (Full Flow), אימות אבטחה ודיבאגינג. |
-| **6. פריסה ותיעוד (Deployment & Docs)** | שבועיים | העלאת המערכת לענן (Render + MongoDB Atlas), כתיבת ספר הפרויקט הסופי והכנת מצגת להגנה. |
+| **6. פריסה ותיעוד (Deployment & Docs)** | שבועיים | פריסת ה-Frontend ב-GitHub Pages בדומיין `mypopvault.online`, הקמת שרת AWS EC2 ב-Docker Compose עבור ה-Backend בדומיין `api.mypopvault.online` עם תעודות SSL Let's Encrypt וחיבור ל-MongoDB Atlas Cloud, כתיבת ספר הפרויקט הסופי והכנת מצגת להגנה. |
 
 ---
 
@@ -701,6 +730,7 @@ graph TD
 * **שם מסך:** מסך התחברות לחשבון קיים (`Login.jsx` - Login Mode).
 * **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** אימות זהות משתמש רשום, הגנה מבראוט-פורס וסינון תווים זרים, והנפקת אסימון אבטחה מוצפן (JWT Token) השמור ב-LocalStorage.
 * **מה המשתמש עושה בפועל במסך:** לוחץ על הטאב "Log In", מזין כתובת דוא"ל וסיסמה (כאשר מנגנון `handleEnglishOnlyInput` מזהה וחוסם אוטומטית הקלדת תווים בעברית/זרים ומקפיץ התראת Toast), לוחץ על קישור "Forgot Password?" במידת הצורך, ולוחץ על כפתור Submit ("Log In to Vault") לאימות הפרטים ומעבר לדשבורד.
+* **הערת ארכיטקטורה וקומפוננטות (Component Architecture Note):** על אף שמסך 2 (התחברות) ומסך 3 (הרשמה) פועלים כמיקומים לוגיים נפרדים בעלי זרימת משתמש, שדות קלט וכללי אימות נפרדים, ברמת הארכיטקטורה ב-React הם מאוחדים ברכיב קוד משותף יחיד (`Login.jsx`). הרכיב מנהל מעבר מצבים באמצעות טאבים (Tab-based state switching), דבר המבטא שימוש חוזר מיטבי בקוד (Code Reusability) והקפדה על עקרון ה-DRY (Don't Repeat Yourself).
 * **צילום מסך:**
 > 📷 **[צילום מסך: מסך 2 - מסך התחברות | UI Screenshot Placeholder]**
 
@@ -708,6 +738,7 @@ graph TD
 * **שם מסך:** מסך הרשמת אספן חדש (`Login.jsx` - Signup Mode).
 * **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** יצירת חשבון אספן חדש, הצפנת סיסמה בשרת באמצעות Bcrypt, ושליחת דוא"ל אימות חשבון אוטומטי (Email Verification) דרך API Brevo.
 * **מה המשתמש עושה בפועל במסך:** לוחץ על הטאב "Sign Up", מזין שם משתמש, דוא"ל, סיסמה ואישור סיסמה תוך מעקב פעיל אחר 5 תנאי חוזק הסיסמה (Password Checklist) ובדיקת התאמת סיסמאות (Passwords Match Check), ולוחץ על כפתור "Create Your Vault" ליצירת החשבון ושליחת מייל אימות המעביר למצב `PendingVerificationScreen`.
+* **הערת ארכיטקטורה וקומפוננטות (Component Architecture Note):** על אף שמסך 3 (הרשמה) ומסך 2 (התחברות) פועלים כמיקומים לוגיים נפרדים בעלי זרימת משתמש, שדות קלט וכללי אימות נפרדים, ברמת הארכיטקטורה ב-React הם מאוחדים ברכיב קוד משותף יחיד (`Login.jsx`). הרכיב מנהל מעבר מצבים באמצעות טאבים (Tab-based state switching), דבר המבטא שימוש חוזר מיטבי בקוד (Code Reusability) והקפדה על עקרון ה-DRY (Don't Repeat Yourself).
 * **צילום מסך:**
 > 📷 **[צילום מסך: מסך 3 - מסך הרשמה | UI Screenshot Placeholder]**
 
@@ -717,6 +748,13 @@ graph TD
 * **מה המשתמש עושה בפועל במסך:** בדף Forgot Password: מזין כתובת דוא"ל ולוחץ "Send Reset Link" המשגר בקשת איפוס במייל. בדף Reset Password (מתוך הקישור במייל): מזין סיסמה חדשה, מזין אישור סיסמה תואם, ולוחץ "Reset Password" לעדכון הסיסמה בשרת ומעבר למסך ההתחברות.
 * **צילום מסך:**
 > 📷 **[צילום מסך: מסך 4 - מסך איפוס סיסמה | UI Screenshot Placeholder]**
+
+##### מסך 11: מסך צ'אט קהילתי (Read-Only Mode)
+* **שם מסך:** צ'אט קהילתי בזמן אמת - תצוגת אורח (`CommunityChat.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** חשיפת המשתמש האורח לאווירה הקהילתית והדינמית של הפלטפורמה (יצירת FOMO) במטרה לעודד אותו להירשם. המסך פתוח לקריאה בלבד (Read-Only) וחוסם אינטראקציה של כתיבה.
+* **מה המשתמש עושה בפועל במסך:** צופה בזמן אמת בהודעות שרצות בצ'אט הקהילתי, רואה את מונה המשתמשים המחוברים, ובעת לחיצה על תיבת הטקסט או כפתור השליחה (שנמצאים במצב Disabled) הוא נחשף להודעה המניעה אותו לעבור למסך ההתחברות/הרשמה כדי לקחת חלק בשיחה.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 11 - צ'אט קהילתי אורח | UI Screenshot Placeholder]**
 
 ---
 

@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/ThemeContext';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
+import { getApiUrl, API_BASE_URL } from '@/lib/api';
 
 const navItems = [
   { name: 'Home', page: 'Landing', icon: Home },
@@ -75,7 +76,7 @@ export default function Layout({ children, currentPageName }) {
   // Fetch unread count
   React.useEffect(() => {
     if (user && user.isLoggedIn) {
-      fetch('/api/messages/private/unread-count', {
+      fetch(getApiUrl('/api/messages/private/unread-count'), {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -95,7 +96,7 @@ export default function Layout({ children, currentPageName }) {
   // Fetch pending trades count
   React.useEffect(() => {
     if (user && user.isLoggedIn && (user.role === 'vip' || user.role === 'admin')) {
-      fetch('/api/trades/pending-count', {
+      fetch(getApiUrl('/api/trades/pending-count'), {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -116,7 +117,7 @@ export default function Layout({ children, currentPageName }) {
   React.useEffect(() => {
     const handleTradeChange = () => {
       if (user && user.isLoggedIn && (user.role === 'vip' || user.role === 'admin')) {
-        fetch('/api/trades/pending-count', {
+        fetch(getApiUrl('/api/trades/pending-count'), {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
@@ -140,7 +141,7 @@ export default function Layout({ children, currentPageName }) {
       const userId = user._id || user.id;
       if (!userId) return;
 
-      const socketUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.mypopvault.online';
+      const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
       const socket = io(socketUrl);
       
       console.log(`🔌 [Global Socket] Connecting and registering user: ${userId}`);

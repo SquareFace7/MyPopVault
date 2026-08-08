@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Heart, X, Sparkles } from 'lucide-react';
+import { getApiUrl } from '@/lib/api';
 
 const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
 
@@ -19,7 +20,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
 
   useEffect(() => {
     if (isOpen) {
-      fetch('/api/catalog?limit=100')
+      fetch(getApiUrl('/api/catalog?limit=100'))
         .then(res => res.json())
         .then(data => {
           const mapped = (data.items || []).map((pop, index) => ({

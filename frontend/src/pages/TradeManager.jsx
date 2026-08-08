@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import BouncyButton from '@/components/BouncyButton';
 import { toast as hotToast } from 'react-hot-toast';
 import PrivateChatModal from '@/components/PrivateChatModal';
+import { getApiUrl } from '@/lib/api';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -243,8 +244,8 @@ export default function TradeManager() {
     const headers = { 'Authorization': `Bearer ${currentUser?.token}` };
 
     Promise.all([
-      fetch('/api/trades/incoming', { headers }).then(res => res.json()),
-      fetch('/api/trades/outgoing', { headers }).then(res => res.json())
+      fetch(getApiUrl('/api/trades/incoming'), { headers }).then(res => res.json()),
+      fetch(getApiUrl('/api/trades/outgoing'), { headers }).then(res => res.json())
     ])
       .then(([incomingData, outgoingData]) => {
         // Map database incoming trades
@@ -309,7 +310,7 @@ export default function TradeManager() {
   }, [currentUser, isVipOrAdmin]);
 
   const handleAccept = (id, senderId, senderName) => {
-    fetch(`/api/trades/${id}/status`, {
+    fetch(getApiUrl(`/api/trades/${id}/status`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -338,7 +339,7 @@ export default function TradeManager() {
   };
 
   const handleReject = (id) => {
-    fetch(`/api/trades/${id}/status`, {
+    fetch(getApiUrl(`/api/trades/${id}/status`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -363,7 +364,7 @@ export default function TradeManager() {
   };
 
   const handleCancel = (id) => {
-    fetch(`/api/trades/${id}/status`, {
+    fetch(getApiUrl(`/api/trades/${id}/status`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -388,7 +389,7 @@ export default function TradeManager() {
   };
 
   const handleHide = (id) => {
-    fetch(`/api/trades/${id}/hide`, {
+    fetch(getApiUrl(`/api/trades/${id}/hide`), {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${currentUser?.token}`
@@ -411,7 +412,7 @@ export default function TradeManager() {
   };
 
   const handleClearHistory = () => {
-    fetch('/api/trades/hide-resolved', {
+    fetch(getApiUrl('/api/trades/hide-resolved'), {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${currentUser?.token}`

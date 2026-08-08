@@ -4,6 +4,7 @@ import { Package, ArrowLeft, Zap } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '@/lib/api';
 
 export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState('');
@@ -46,7 +47,7 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(getApiUrl('/api/auth/reset-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword })
