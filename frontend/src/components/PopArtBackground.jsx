@@ -18,7 +18,7 @@ export default function PopArtBackground({ children, className = '', variant = '
   }, []);
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative ${className}`}>
       {/* Pop Art Halftone Pattern */}
       <div className="absolute inset-0 opacity-10" aria-hidden="true">
         <svg width="100%" height="100%">
@@ -84,7 +84,7 @@ export default function PopArtBackground({ children, className = '', variant = '
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center">
+      <div className="relative z-10 w-full min-h-full flex items-center justify-center">
         {children}
       </div>
     </div>

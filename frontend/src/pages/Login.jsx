@@ -222,7 +222,7 @@ export default function Login() {
   const isLogin = mode === 'login';
 
   return (
-    <PopArtBackground className="w-full min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-6 bg-slate-50 dark:bg-gray-950 font-sans">
+    <PopArtBackground className="w-full min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-8 bg-slate-50 dark:bg-gray-950 font-sans my-auto">
       {/* Card */}
       <motion.div
         className="w-full max-w-md h-auto bg-white border-4 border-gray-805 rounded-3xl shadow-[8px_8px_0px_rgba(0,0,0,0.85)] overflow-hidden"
@@ -234,7 +234,7 @@ export default function Login() {
             <div className={`h-2.5 w-full transition-all duration-300 ${isLogin ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500' : 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500'}`} />
 
             {/* Top section */}
-            <div className={`px-5 sm:px-6 transition-all ${isLogin ? 'pt-5 pb-5' : 'pt-3.5 pb-4'}`}>
+            <div className={`px-5 sm:px-6 transition-all ${isLogin ? 'pt-5 pb-6' : 'pt-4 pb-6'}`}>
               {/* Logo */}
               <div className="flex justify-center mb-3">
                 <motion.div
@@ -407,7 +407,7 @@ export default function Login() {
                 <motion.button
                   type="submit"
                   disabled={loading}
-                  className={`w-full h-11 rounded-xl border-4 border-gray-800 font-black text-white text-base shadow-[3px_3px_0px_rgba(0,0,0,0.85)] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                  className={`w-full h-11 mt-2 rounded-xl border-4 border-gray-800 font-black text-white text-base shadow-[3px_3px_0px_rgba(0,0,0,0.85)] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                     ${isLogin
                       ? 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600'
                       : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600'
@@ -423,7 +423,7 @@ export default function Login() {
             </div>
 
             {/* Footer */}
-            <div className="bg-gray-50 border-t-4 border-gray-800 px-6 py-2.5 text-center">
+            <div className="bg-gray-50 border-t-4 border-gray-800 px-6 py-3.5 text-center">
               <p className="text-xs text-gray-500 font-bold">
                 {isLogin ? "Don't have a vault? " : 'Already have a vault? '}
                 <button
