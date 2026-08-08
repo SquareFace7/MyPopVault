@@ -102,11 +102,18 @@ const io = new Server(server, {
 });
 app.set('io', io);
 
-// Online users tracking
+// Online users tracking (only authenticated, non-guest users)
 let onlineUsers = [];
 
 const getUniqueOnlineUsers = () => {
-  const names = onlineUsers.map(u => u.username);
+  const validUsers = onlineUsers.filter(u => {
+    if (!u.userId) return false;
+    if (!u.username) return false;
+    const lowerName = u.username.toLowerCase();
+    if (lowerName.includes('guest') || lowerName.includes('anonymous')) return false;
+    return true;
+  });
+  const names = validUsers.map(u => u.username);
   return [...new Set(names)];
 };
 
@@ -123,21 +130,28 @@ io.on('connection', (socket) => {
 
   // When a user joins the chat
   socket.on('joinChat', (userData) => {
-    const username = userData?.username || 'Anonymous';
-    const userId = userData?.userId;
-    socket.username = username;
-    
+    const username = userData?.username;
+    const userId = userData?.userId || userData?.id;
+
+    const isGuest = !userId || !username || username.toLowerCase().includes('guest') || username.toLowerCase().includes('anonymous');
+
+    socket.username = username || 'Guest';
+    socket.userId = userId;
+
     if (userId) {
       socket.join(userId);
       console.log(`👤 Socket ${socket.id} joined room for userId: ${userId}`);
     }
-    
-    // Add to onlineUsers
-    onlineUsers.push({ socketId: socket.id, username, userId });
-    
-    // Emit updated unique list
-    io.emit('onlineUsers', getUniqueOnlineUsers());
-    console.log(`👤 User joined: ${username}. Total connections: ${onlineUsers.length}`);
+
+    if (!isGuest) {
+      onlineUsers = onlineUsers.filter(u => u.socketId !== socket.id);
+      onlineUsers.push({ socketId: socket.id, username, userId });
+      io.emit('onlineUsers', getUniqueOnlineUsers());
+      console.log(`👤 Active collector joined: ${username}. Total online: ${getUniqueOnlineUsers().length}`);
+    } else {
+      console.log(`👁️ Guest socket ${socket.id} connected (excluded from online users list).`);
+      socket.emit('onlineUsers', getUniqueOnlineUsers());
+    }
   });
 
   // When client sends a message

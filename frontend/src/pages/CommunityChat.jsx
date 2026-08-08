@@ -49,18 +49,26 @@ export default function CommunityChat() {
     const socket = io(socketUrl);
     socketRef.current = socket;
 
-    // Send join registration payload
-    const username = currentUser?.username || currentUser?.email?.split('@')[0] || 'Guest';
-    socket.emit('joinChat', { username });
+    // Send join registration payload ONLY for logged-in users
+    if (currentUser?.isLoggedIn) {
+      const username = currentUser.username || currentUser.email?.split('@')[0];
+      const userId = currentUser._id || currentUser.id;
+      socket.emit('joinChat', { username, userId });
+    }
 
     // Listen for incoming messages
     socket.on('message', (newMsg) => {
       setMessages(prev => [...prev, newMsg]);
     });
 
-    // Listen for online user updates
+    // Listen for online user updates (strictly filtering out guests/anonymous entries)
     socket.on('onlineUsers', (usersList) => {
-      setOnlineUsers(usersList);
+      const activeCollectors = (Array.isArray(usersList) ? usersList : []).filter(name => {
+        if (!name) return false;
+        const lower = name.toLowerCase();
+        return !lower.includes('guest') && !lower.includes('anonymous');
+      });
+      setOnlineUsers(activeCollectors);
     });
 
     return () => {
