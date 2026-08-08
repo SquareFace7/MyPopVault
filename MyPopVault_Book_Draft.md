@@ -241,7 +241,7 @@
 9. **TypeScript Declarations:** הגדרות טיפוסים (`@types/node`, `@types/react`) לבדיקת תקינות ב-VS Code.
 
 ### 10.3 תיאור הארכיטקטורה הנבחרת
-ארכיטקטורת Client-Server בתצורת **Single Page Application (SPA)**. דפדפן הלקוח מריץ את אפליקציית ה-React וטוען את המבנה פעם אחת. כל התקשורת מול השרת מתבצעת באופן אסינכרוני (AJAX/Fetch) באמצעות בקשות HTTP/REST API בפורמט JSON.
+ארכיטקטורת Client-Server בתצורת **Single Page Application (SPA)** מנותקת (Decoupled Architecture). דפדפן הלקוח טוען מ-GitHub Pages את אפליקציית ה-React ומבצע תקשורת אסינכרונית (REST API & WebSockets) מול שרת AWS EC2 תחת תת-הדומיין `api.mypopvault.online`. כל בקשות ה-API וה-Fetch בצד הלקוח עוברות דרך הליפר מרכזי `getApiUrl` (`src/lib/api.js`), המצמיד דינמית את `VITE_API_BASE_URL` בסביבת הייצור (מוזרק דרך GitHub Actions via `deploy.yml`) ופותר בעיות ניתוב, CORS ושגיאות 405.
 
 ### 10.4 חלוקה לתכניות ומודולים
 * **צד לקוח (Client Modules):** `AuthContext`, דפים (`Dashboard`, `Collection`, `Explorer`, `TradeManager`, `VipUpgrade`, `AdminPanel`), ורכיבי תצוגה.
@@ -256,7 +256,8 @@
   - **Database:** מסד נתונים מנוהל בענן ב-**MongoDB Atlas Cloud**.
 
 ### 10.6 ממשק המשתמש / לקוח (GUI)
-ממשק משתמש רספונסיבי מודרני בסגנון Pop-Art Neo-Brutalism (גבולות שחורים מודגשים, צבעוניות עזה, מיקרו-אנמציות ב-Framer Motion, ותמיכה מלאה במסכי Mobile).
+ממשק משתמש רספונסיבי מודרני בסגנון Pop-Art Neo-Brutalism (גבולות שחורים מודגשים, צבעוניות עזה, מיקרו-אנמציות ב-Framer Motion, ותמיכה מלאה במסכי Mobile). 
+* **אופטימיזציית CSS ופתרון גלישה (Signup Form UI/CSS Overflow Fix):** פתרון בעיית גלישת תוכן וסרגל גלילה פנימי במסך ההרשמה (`Login.jsx` - Signup mode) באמצעות החלפת אילוצי `h-full` ו-`overflow-hidden` נוקשים ב-`min-h-full` ברכיב מעטפת הרקע (`PopArtBackground.jsx`), הגדרת גודל `h-auto` בכרטיס הטופס, צמצום המרווחים הפנימיים (`space-y-2`), והוספת פדינג חיצוני נדיב (`py-8`, `my-auto`, `pb-6`) המבטיחים מרכזיות אנכית מושלמת ללא חיתוכי תוכן או סרגלי גלילה פנימיים.
 
 ### 10.7 ממשקים למערכות אחרות (APIs)
 * **Stripe API & Webhook Service:** סליקת אשראי ועיבוד אירועי תשלום מאובטחים.
@@ -626,10 +627,17 @@ const portfolioStats = await VaultItem.aggregate([
 
 ## 14. תיאור/התייחסות לנושאי אבטחת מידע
 
-1. **הצפנת סיסמאות:** שימוש בספריית `bcryptjs` עם סאלט (Salt Rounds = 10) לערבוב סיסמאות לפני שמירתן במסד הנתונים (הצפנה חד-כיוונית).
-2. **אימות והרשאות (Authentication & Authorization):** אימות מבוסס **JSON Web Tokens (JWT)**. השרת מנפיק טוקן חתום המועבר ב-HTTP Header (`Bearer <token>`). Middlewares מיוחדים (`authMiddleware`, `requireAdmin`, `requireVIP`) בודקים הרשאות בכל בקשה.
-3. **אימות חתימה קריפטוגרפית ב-Stripe Webhooks:** נתיב ה-Webhook משתמש ב-Raw Body Parser ובודק את החתימה (`stripe-signature`) מול המפתח הסודי `STRIPE_WEBHOOK_SECRET` למניעת בקשות מזויפות.
-4. **הגנת שרת ותשתיות:** שימוש ב-`Helmet` להגדרת HTTP Security Headers, הגדרת הרשאות `CORS`, וניקוי קלטים (Sanitization) למניעת התקפות הזרקת NoSQL (NoSQL Injection).
+1. **הצפנת סיסמאות (Password Hashing):** שימוש בספריית `bcryptjs` עם סאלט (Salt Rounds = 10) לערבוב סיסמאות לפני שמירתן במסד הנתונים (הצפנה חד-כיוונית לאחור).
+2. **אימות והרשאות (Authentication & Authorization):** אימות מבוסס **JSON Web Tokens (JWT)**. השרת מנפיק טוקן מוצפן וחתום המועבר ב-HTTP Header (`Bearer <token>`). Middlewares מיוחדים (`authMiddleware`, `requireAdmin`, `requireVIP`) בודקים הרשאות גישה בכל בקשת REST API.
+3. **הגנות קלט בצד הלקוח (Client-Side Input Protections & Regex Filters):** המערכת כוללת מנגנון סינון Regex מותאם בזמן אמת המגביל הזנת תווים באנגלית בלבד בשדות האימות (`handleEnglishOnlyInput`), לצד מדד ויזואלי בזמן אמת לבדיקת חוזק סיסמה (Visual Password Strength Checklist).
+4. **אימות חתימה קריפטוגרפית ב-Stripe Webhooks (Stripe Webhook Verification):** נתיב ה-Webhook משתמש ב-Raw Body Parser ובודק קריפטוגרפית את חתימת ה-HMAC SHA-256 (`stripe-signature`) מול המפתח הסודי `STRIPE_WEBHOOK_SECRET` למניעת בקשות מזויפות.
+5. **אימות תקשורת דוא"ל (Brevo TLS Email Verification):** שימוש בפרוטוקול TLS מוצפן מול שרתי Brevo API לשליחת הודעות דוא"ל מאומתות עבור אימוצי חשבון חדשים וקישורי איפוס סיסמה חד-פעמיים בעלי תוקף מוגבל.
+6. **הגנת שרת, מכולות ותשתיות (Server & Container Security):** שימוש ב-`Helmet` להגדרת HTTP Security Headers, הגדרת הרשאות `CORS` דינמיות ב-Socket.IO/Express, ניקוי קלטים (Sanitization) למניעת התקפות הזרקת NoSQL (NoSQL Injection), ובידוד רשת מוחלט במכולות Docker מול שרת ה-AWS EC2.
+7. **אבטחת תשתיות וניהול מפתחות סודיים במשתני סביבה (.env Secrets Management & Security Groups):** בידוד מוחלט של מפתחות ה-Production (מחרוזת MongoDB Atlas, מפתחות Stripe API & Webhook Secret, ומפתחות Brevo SMTP/API) באמצעות הזרקתם הישירה לקובץ `.env` המאובטח בשרת AWS EC2 בלבד (אינו מועלה למאגר הקוד בחסות `.gitignore`), ומניעת חשיפת פורטים מיותרים ברמת AWS Security Groups (פתיחה ייעודית בלבד של פורט 443 ל-HTTPS ו-Nginx Reverse Proxy ופורט 80 להפניית 301).
+8. **מנגנון ניתוב API מרכזי בארכיטקטורה מנותקת (Centralized API Routing Helper):** למניעת שגיאות ניתוב 405 ואבטחת תקשורת בין אירוח ה-SPA ב-GitHub Pages לשרת ה-AWS EC2, פותח הליפר מרכזי `getApiUrl` (`src/lib/api.js`). השרת מצמיד דינמית את `VITE_API_BASE_URL` (`https://api.mypopvault.online`) בסביבת הייצור (מוזרק ב-GitHub Actions via `deploy.yml`) ושומר על Vite proxy בסביבה מקומית.
+9. **מנגנון הגנה דו-שכבתי לסינון אורחים בצ'אט (Two-Layer Defense Socket.IO Guest Filtering):** 
+   - ברמת השרת (`server.js`): אירוע `joinChat` מאמת טוקן, משייך אורחים למצב Read-Only, ומסנן אותם מפורשות ממערך `onlineUsers` המשודר ב-Broadcast.
+   - ברמת הלקוח (`CommunityChat.jsx`): מנגנון Defensive Filtering מונע שידור אירועי נוכחות של אורחים ומונע הצגתם בווידג'ט האספנים המחוברים ב-UI.
 
 ---
 

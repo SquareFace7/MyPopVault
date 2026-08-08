@@ -7,9 +7,10 @@ const crypto = require('crypto');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/emailService');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Helper function to generate a JWT token including role
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+// Helper function to generate a JWT token including synchronized role and isVip
+const generateToken = (id, role, isVip) => {
+  const actualIsVip = role === 'user' ? false : (role === 'vip' || Boolean(isVip));
+  return jwt.sign({ id, role, isVip: actualIsVip }, process.env.JWT_SECRET, {
     expiresIn: '30d'
   });
 };
@@ -110,8 +111,9 @@ router.post('/register', async (req, res) => {
       });
     }
     
-    // Generate JWT token including role
-    const token = generateToken(savedUser._id, savedUser.role);
+    // Generate JWT token including role and synchronized isVip
+    const actualIsVip = savedUser.role === 'user' ? false : (savedUser.role === 'vip' || Boolean(savedUser.isVip));
+    const token = generateToken(savedUser._id, savedUser.role, actualIsVip);
 
     // Exclude password from the returned user object
     res.status(201).json({
@@ -121,7 +123,7 @@ router.post('/register', async (req, res) => {
         username: savedUser.username,
         email: savedUser.email,
         role: savedUser.role,
-        isVip: savedUser.isVip,
+        isVip: actualIsVip,
         isVerified: savedUser.isVerified
       }
     });
@@ -174,8 +176,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Generate JWT token including role
-    const token = generateToken(user._id, user.role);
+    // Generate JWT token including role and synchronized isVip
+    const actualIsVip = user.role === 'user' ? false : (user.role === 'vip' || Boolean(user.isVip));
+    const token = generateToken(user._id, user.role, actualIsVip);
 
     // Return token and user info, strictly excluding password
     res.json({
@@ -185,7 +188,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        isVip: user.isVip,
+        isVip: actualIsVip,
         isVerified: user.isVerified
       }
     });
@@ -227,13 +230,14 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    const actualIsVip = user.role === 'user' ? false : (user.role === 'vip' || Boolean(user.isVip));
     res.json({
       user: {
         _id: user._id,
         username: user.username,
         email: user.email,
         role: user.role,
-        isVip: user.isVip,
+        isVip: actualIsVip,
         isVerified: user.isVerified
       }
     });

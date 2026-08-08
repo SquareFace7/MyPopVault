@@ -129,9 +129,12 @@ router.put('/users/:id/role', async (req, res) => {
       });
     }
 
+    // Synchronously update role and isVip flag
+    const isVip = role === 'vip';
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: { role } },
+      { $set: { role, isVip } },
       { new: true }
     ).select('-password');
 

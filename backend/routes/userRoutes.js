@@ -15,10 +15,11 @@ router.put('/upgrade/:role', authMiddleware, async (req, res) => {
       });
     }
 
-    // Update the authenticated user's role in the database
+    // Update the authenticated user's role and isVip flag in the database
+    const isVip = role === 'vip';
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { $set: { role } },
+      { $set: { role, isVip } },
       { new: true }
     ).select('-password');
 

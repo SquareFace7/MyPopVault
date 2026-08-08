@@ -12,12 +12,13 @@ export const AuthProvider = ({ children }) => {
     if (savedToken && savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
+        const isUserVip = parsedUser.role === 'user' ? false : (parsedUser.role === 'vip' || parsedUser.role === 'admin' || Boolean(parsedUser.isVIP || parsedUser.isVip));
         return {
           id: parsedUser.id || parsedUser._id,
           _id: parsedUser._id || parsedUser.id,
           isLoggedIn: true,
           role: parsedUser.role || 'user',
-          isVIP: parsedUser.isVIP || false,
+          isVIP: isUserVip,
           username: parsedUser.username,
           email: parsedUser.email,
           token: savedToken,
@@ -54,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Persist session
+    const isVipUser = data.user.role === 'user' ? false : (data.user.role === 'vip' || data.user.role === 'admin' || Boolean(data.user.isVip));
     localStorage.setItem('token', data.token);
     const userProfile = {
       id: data.user.id || data.user._id,
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }) => {
       username: data.user.username,
       email: data.user.email,
       role: data.user.role || 'user',
-      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: isVipUser,
       isVerified: data.user.isVerified || false
     };
     localStorage.setItem('user', JSON.stringify(userProfile));
@@ -71,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       _id: data.user._id || data.user.id,
       isLoggedIn: true,
       role: data.user.role || 'user',
-      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: isVipUser,
       username: data.user.username,
       email: data.user.email,
       token: data.token,
@@ -97,6 +99,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Persist session
+    const isVipUser = data.user.role === 'user' ? false : (data.user.role === 'vip' || data.user.role === 'admin' || Boolean(data.user.isVip));
     localStorage.setItem('token', data.token);
     const userProfile = {
       id: data.user.id || data.user._id,
@@ -104,7 +107,7 @@ export const AuthProvider = ({ children }) => {
       username: data.user.username,
       email: data.user.email,
       role: data.user.role || 'user',
-      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: isVipUser,
       isVerified: data.user.isVerified || false
     };
     localStorage.setItem('user', JSON.stringify(userProfile));
@@ -114,7 +117,7 @@ export const AuthProvider = ({ children }) => {
       _id: data.user._id || data.user.id,
       isLoggedIn: true,
       role: data.user.role || 'user',
-      isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+      isVIP: isVipUser,
       username: data.user.username,
       email: data.user.email,
       token: data.token,
@@ -213,13 +216,14 @@ export const AuthProvider = ({ children }) => {
       });
       if (response.ok) {
         const data = await response.json();
+        const isVipUser = data.user.role === 'user' ? false : (data.user.role === 'vip' || data.user.role === 'admin' || Boolean(data.user.isVip));
         const userProfile = {
           id: data.user.id || data.user._id,
           _id: data.user._id || data.user.id,
           username: data.user.username,
           email: data.user.email,
           role: data.user.role || 'user',
-          isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+          isVIP: isVipUser,
           isVerified: data.user.isVerified || false
         };
         localStorage.setItem('user', JSON.stringify(userProfile));
@@ -228,7 +232,7 @@ export const AuthProvider = ({ children }) => {
           _id: data.user._id || data.user.id,
           isLoggedIn: true,
           role: data.user.role || 'user',
-          isVIP: data.user.isVip || data.user.role === 'vip' || data.user.role === 'admin',
+          isVIP: isVipUser,
           username: data.user.username,
           email: data.user.email,
           token,
