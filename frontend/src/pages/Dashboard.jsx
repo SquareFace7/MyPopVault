@@ -17,6 +17,42 @@ import BouncyButton from '@/components/BouncyButton';
 import { SeriesPieChart, RarityBarChart, ValueTrendChart } from '@/components/CollectionChart';
 import { getConditionMultiplier } from '@/lib/conditionHelper';
 
+function GrailAlertCard({ item, onClick }) {
+  const [imgError, setImgError] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white dark:bg-gray-900 border-3 border-gray-800 dark:border-slate-600 rounded-2xl p-3 shadow-[3px_3px_0px_#FFD700] hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+    >
+      <div className="flex items-center justify-between text-xs font-black mb-2">
+        <span className="text-amber-500 uppercase truncate max-w-[90px]">{item.series}</span>
+        <span className="text-gray-400">#{item.itemNumber}</span>
+      </div>
+      <div className="w-full h-28 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-2 flex items-center justify-center border-2 border-gray-200 dark:border-slate-700 mb-2">
+        {item.imageUrl && !imgError ? (
+          <img 
+            src={item.imageUrl} 
+            alt={item.name} 
+            className="w-full h-full object-contain"
+            onError={() => setImgError(true)} 
+          />
+        ) : (
+          <Sparkles className="w-6 h-6 text-amber-400" />
+        )}
+      </div>
+      <div>
+        <p className="font-black text-xs text-gray-800 dark:text-white truncate">{item.name}</p>
+        <div className="flex justify-between items-center mt-1">
+          <span className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded">
+            GRAIL
+          </span>
+          <span className="text-xs font-black text-cyan-500">${(item.marketPrice || 0).toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedPop, setSelectedPop] = useState(null);
@@ -471,32 +507,11 @@ export default function Dashboard() {
             {grailAlerts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {grailAlerts.map((item, idx) => (
-                  <div
+                  <GrailAlertCard
                     key={item._id || idx}
-                    onClick={() => navigate(`/pop/${item._id}`)}
-                    className="bg-white dark:bg-gray-900 border-3 border-gray-800 dark:border-slate-600 rounded-2xl p-3 shadow-[3px_3px_0px_#FFD700] hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
-                  >
-                    <div className="flex items-center justify-between text-xs font-black mb-2">
-                      <span className="text-amber-500 uppercase truncate max-w-[90px]">{item.series}</span>
-                      <span className="text-gray-400">#{item.itemNumber}</span>
-                    </div>
-                    <div className="w-full h-28 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-2 flex items-center justify-center border-2 border-gray-200 dark:border-slate-700 mb-2">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <Sparkles className="w-6 h-6 text-amber-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-black text-xs text-gray-800 dark:text-white truncate">{item.name}</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded">
-                          GRAIL
-                        </span>
-                        <span className="text-xs font-black text-cyan-500">${(item.marketPrice || 0).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
+                    item={item}
+                    onClick={() => item._id && navigate(`/pop/${item._id}`)}
+                  />
                 ))}
               </div>
             ) : (

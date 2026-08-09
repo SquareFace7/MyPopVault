@@ -12,6 +12,21 @@ const BADGE_STYLES = {
   'CHASE': 'bg-pink-500 text-white',
 };
 
+function CatalogItemImage({ src, alt }) {
+  const [imgError, setImgError] = useState(false);
+  if (src && !imgError) {
+    return (
+      <img 
+        src={src} 
+        alt={alt} 
+        className="w-full h-full object-contain" 
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+  return <span className="text-4xl">✨</span>;
+}
+
 export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
   const [catalog, setCatalog] = useState([]);
   const [query, setQuery] = useState('');
@@ -195,11 +210,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
 
                         {/* Image area */}
                         <div className={`aspect-square bg-gradient-to-br ${pop.color} flex items-center justify-center border-b-4 border-gray-800 p-3 overflow-hidden`}>
-                          {pop.image ? (
-                            <img src={pop.image} alt={pop.name} className="w-full h-full object-contain" />
-                          ) : (
-                            <span className="text-4xl">✨</span>
-                          )}
+                          <CatalogItemImage src={pop.image} alt={pop.name} />
                         </div>
 
                         {/* Info */}
