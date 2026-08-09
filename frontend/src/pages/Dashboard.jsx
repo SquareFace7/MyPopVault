@@ -54,7 +54,7 @@ export default function Dashboard() {
               name: popDetails.name || 'Unknown Pop',
               series: popDetails.series || 'Other',
               number: popDetails.itemNumber || 2024,
-              rarity: marketVal > 40 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common',
+              rarity: marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common',
               purchasePrice: item.purchasePrice || 0,
               boxCondition: item.boxCondition || 'Mint',
               quantity: item.quantity || 1,

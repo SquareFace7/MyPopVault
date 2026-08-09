@@ -40,7 +40,7 @@ const parseItem = (item) => {
   const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
   let computedRarity = catalog.rarity || item.boxCondition;
   if (!computedRarity) {
-    computedRarity = marketVal > 40 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
+    computedRarity = marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
   }
 
   return {

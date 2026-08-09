@@ -108,7 +108,7 @@ export default function PopDetails() {
     );
   }
 
-  const isGrail = pop.marketPrice > 40;
+  const isGrail = pop.marketPrice >= 100;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 font-sans">

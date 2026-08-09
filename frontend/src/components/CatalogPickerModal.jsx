@@ -28,10 +28,10 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
             name: pop.name,
             series: pop.series,
             number: pop.itemNumber,
-            rarity: pop.marketPrice > 40 ? 'Epic' : 'Common',
+            rarity: pop.marketPrice >= 100 ? 'Epic' : 'Common',
             image: pop.imageUrl || null,
             price: pop.marketPrice || 15,
-            badge: pop.marketPrice > 40 ? 'CHASE' : null,
+            badge: pop.marketPrice >= 100 ? 'CHASE' : null,
             color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
           }));
           setCatalog(mapped);
