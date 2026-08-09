@@ -15,7 +15,7 @@ export const getConditionBadgeStyle = (condition) => {
   if (c.includes('damaged') || c.includes('6-')) {
     return 'bg-red-100 text-red-800 border-red-400 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700';
   }
-  if (c.includes('very good') || c.includes('7-8')) {
+  if (c.includes('very good') || c.includes('7-8') || c.includes('good') || c.includes('fair')) {
     return 'bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700';
   }
   if (c.includes('near mint') || c.includes('8.5-9')) {

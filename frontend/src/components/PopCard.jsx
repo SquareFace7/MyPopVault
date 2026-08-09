@@ -147,11 +147,9 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
           {/* Rarity & Condition Badges */}
           <div className="absolute bottom-2 left-2 flex items-center gap-1.5 flex-wrap">
             <CategoryBadge category={item.rarity} type="rarity" size="sm" />
-            {item.boxCondition && (
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition)}`}>
-                {item.boxCondition}
-              </span>
-            )}
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition || 'Mint (9.5-10)')}`}>
+              {item.boxCondition || 'Mint (9.5-10)'}
+            </span>
           </div>
         </div>
 

@@ -291,16 +291,15 @@ export default function PopExplorer() {
                         e.stopPropagation();
                         handleInitiateAdd(pop);
                       }}
-                      disabled={addedIds.has(pop.id)}
-                      className={`w-full py-3 font-black text-xs border-t-4 border-gray-800 dark:border-slate-600 tracking-wider uppercase ${
+                      className={`w-full py-3 font-black text-xs border-t-4 border-gray-800 dark:border-slate-600 tracking-wider uppercase transition-all ${
                         addedIds.has(pop.id)
-                          ? 'bg-green-400 text-white cursor-default'
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
                           : 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
                       }`}
-                      whileHover={addedIds.has(pop.id) ? {} : { filter: 'brightness(1.08)' }}
-                      whileTap={addedIds.has(pop.id) ? {} : { scale: 0.98 }}
+                      whileHover={{ filter: 'brightness(1.08)' }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      {addedIds.has(pop.id) ? '✓ Added to Vault' : 'Add to Vault'}
+                      {addedIds.has(pop.id) ? '✓ In Vault (+ Add More)' : '+ Add to Vault'}
                     </motion.button>
                   </motion.div>
                 );

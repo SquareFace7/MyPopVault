@@ -209,20 +209,20 @@ export default function Collection() {
       setPops(prev => prev.map(p => {
         if (p.id === vaultItemId) {
           const popDetails = data.vaultItem.pop || {};
+          const mVal = popDetails.marketPrice || p.marketValue || 15.00;
           return {
+            ...p,
             id: data.vaultItem._id,
-            popId: popDetails._id,
-            name: popDetails.name || 'Unknown Pop',
-            series: popDetails.series || 'Other',
-            number: popDetails.releaseYear || 2024,
-            rarity: popDetails.isVaulted ? 'Epic' : 'Common',
+            popId: popDetails._id || p.popId,
+            name: popDetails.name || p.name,
+            series: popDetails.series || p.series,
+            number: popDetails.itemNumber || p.number,
+            rarity: mVal >= 100 ? 'Grail' : (mVal > 25 ? 'Rare' : 'Common'),
             purchasePrice: data.vaultItem.purchasePrice || 0,
-            boxCondition: data.vaultItem.boxCondition || 'Mint',
+            boxCondition: data.vaultItem.boxCondition || 'Mint (9.5-10)',
             quantity: data.vaultItem.quantity || 1,
-            marketValue: popDetails.isVaulted ? 45.00 : 15.00,
-            image: popDetails.image || null,
-            isExclusive: popDetails.isVaulted,
-            created_date: data.vaultItem.addedAt
+            marketValue: mVal,
+            image: popDetails.imageUrl || p.image || null
           };
         }
         return p;
