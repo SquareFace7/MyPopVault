@@ -35,14 +35,16 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
           const catalog = item.pop || {};
           const mVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
           return {
-            id: catalog._id || item._id,
+            id: item._id,
+            popId: catalog._id || item.pop,
             name: catalog.name || 'Unknown Pop',
             series: catalog.series || 'General',
             number: catalog.itemNumber || catalog.number || '0',
             marketValue: mVal,
             image: catalog.imageUrl || catalog.image || '',
             rarity: mVal >= 100 ? 'Grail' : mVal > 25 ? 'Rare' : 'Common',
-            boxCondition: item.boxCondition || 'Mint (9.5-10)'
+            boxCondition: item.boxCondition || 'Mint (9.5-10)',
+            quantity: item.quantity || 1
           };
         });
         setMyPops(mapped);
@@ -66,8 +68,8 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
       },
       body: JSON.stringify({
         receiverId: receiverId,
-        offeredPopId: selectedId,
-        requestedPopId: targetPop.id
+        offeredPopId: selectedPop?.popId || selectedId,
+        requestedPopId: targetPop.id || targetPop.popId
       })
     })
       .then(res => res.json())
@@ -224,8 +226,20 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                           )}
                         </div>
                         <p className="font-black text-gray-805 text-xs leading-tight truncate">{pop.name}</p>
-                        <p className="text-xs text-gray-500 font-bold truncate">#{pop.number} · {pop.series}</p>
-                        <p className="text-sm font-black text-cyan-500 mt-1">${(pop.marketValue || 0).toFixed(0)}</p>
+                        <p className="text-[10px] text-gray-500 font-bold truncate">#{pop.number} · {pop.series}</p>
+                        <div className="flex items-center justify-between mt-1.5 flex-wrap gap-1">
+                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(pop.boxCondition)}`}>
+                            {pop.boxCondition}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {pop.quantity > 1 && (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-gray-900 text-yellow-400 border border-gray-800">
+                                x{pop.quantity}
+                              </span>
+                            )}
+                            <span className="text-xs font-black text-cyan-600">${(pop.marketValue || 0).toFixed(0)}</span>
+                          </div>
+                        </div>
                       </motion.button>
                     ))}
                   </div>
