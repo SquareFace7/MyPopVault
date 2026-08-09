@@ -65,6 +65,7 @@ const tradeRoutes = require('./routes/tradeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const grailAlertsRoutes = require('./routes/grailAlertsRoutes');
+const recommendationsRoutes = require('./routes/recommendationsRoutes');
 
 app.use('/api/pops', popRoutes);
 app.use('/api/auth', authRoutes);
@@ -75,7 +76,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/trades', tradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/catalog', catalogRoutes);
-app.use('/api/recommendations', catalogRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/grail-alerts', grailAlertsRoutes);
 
 // Health Check Route
