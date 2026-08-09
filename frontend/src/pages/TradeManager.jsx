@@ -489,11 +489,11 @@ export default function TradeManager() {
             
             <div className="relative z-10">
               <motion.div
-                className="w-20 h-20 bg-gray-805 rounded-3xl border-4 border-gray-900 mx-auto flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,0.5)] mb-6"
+                className="w-20 h-20 bg-yellow-400 rounded-3xl border-4 border-gray-900 mx-auto flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,0.5)] mb-6"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Crown className="w-10 h-10 text-yellow-400" />
+                <Crown className="w-10 h-10 text-gray-900" />
               </motion.div>
 
               <div className="inline-block bg-gray-800 text-yellow-400 font-black text-xs px-3 py-1 rounded-full border-2 border-gray-900 mb-4 tracking-widest uppercase">
