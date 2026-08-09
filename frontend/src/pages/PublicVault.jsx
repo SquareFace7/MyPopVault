@@ -76,7 +76,14 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
         <div className="relative bg-white rounded-2xl overflow-hidden border-4 border-gray-800">
           {/* Top bar */}
           <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
-            <span className="text-white font-black text-lg">#{item.number}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-white font-black text-lg">#{item.number}</span>
+              {item.quantity > 1 && (
+                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-yellow-400 text-gray-900 border border-gray-800 shadow-sm">
+                  Qty: {item.quantity}
+                </span>
+              )}
+            </div>
             <CategoryBadge category={item.series} size="sm" />
           </div>
 
@@ -234,7 +241,8 @@ export default function PublicVault() {
                 marketValue: marketVal,
                 purchasePrice: item.purchasePrice || 10,
                 rarity: marketVal >= 100 ? 'Grail' : (marketVal > 25 ? 'Rare' : 'Common'),
-                boxCondition: item.boxCondition || 'Mint (9.5-10)'
+                boxCondition: item.boxCondition || 'Mint (9.5-10)',
+                quantity: item.quantity || 1
               };
             });
 

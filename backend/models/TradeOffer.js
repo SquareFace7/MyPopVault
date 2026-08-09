@@ -25,6 +25,10 @@ const TradeOfferSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
+  requestedQuantity: {
+    type: Number,
+    default: 1
+  },
   offeredCondition: {
     type: String,
     default: 'Mint (9.5-10)'

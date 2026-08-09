@@ -8,7 +8,7 @@ const authorizeRoles = authMiddleware.authorizeRoles;
 // POST /api/trades - Create a new trade offer
 router.post('/', authMiddleware, authMiddleware.requireVerification, authorizeRoles('vip', 'admin'), async (req, res) => {
   try {
-    const { receiverId, offeredPopId, requestedPopId, offeredQuantity, offeredCondition, requestedCondition } = req.body;
+    const { receiverId, offeredPopId, requestedPopId, offeredQuantity, requestedQuantity, offeredCondition, requestedCondition } = req.body;
 
     if (!receiverId || !offeredPopId || !requestedPopId) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -27,16 +27,21 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, authorizeRo
       });
     }
 
-    const targetQty = typeof offeredQuantity === 'number' && offeredQuantity > 0 
+    const targetOfferedQty = typeof offeredQuantity === 'number' && offeredQuantity > 0 
       ? offeredQuantity 
       : (parseInt(offeredQuantity, 10) > 0 ? parseInt(offeredQuantity, 10) : 1);
+
+    const targetRequestedQty = typeof requestedQuantity === 'number' && requestedQuantity > 0 
+      ? requestedQuantity 
+      : (parseInt(requestedQuantity, 10) > 0 ? parseInt(requestedQuantity, 10) : 1);
 
     const trade = new TradeOffer({
       sender: req.user._id,
       receiver: receiverId,
       offeredItem: offeredPopId,
       requestedItem: requestedPopId,
-      offeredQuantity: targetQty,
+      offeredQuantity: targetOfferedQty,
+      requestedQuantity: targetRequestedQty,
       offeredCondition: offeredCondition || 'Mint (9.5-10)',
       requestedCondition: requestedCondition || 'Mint (9.5-10)',
       status: 'pending'
@@ -183,6 +188,7 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
       const offeredPop = trade.offeredItem; // PopCatalog ID
       const requestedPop = trade.requestedItem; // PopCatalog ID
       const offeredQty = typeof trade.offeredQuantity === 'number' && trade.offeredQuantity > 0 ? trade.offeredQuantity : 1;
+      const requestedQty = typeof trade.requestedQuantity === 'number' && trade.requestedQuantity > 0 ? trade.requestedQuantity : 1;
       const offeredCond = trade.offeredCondition || 'Mint (9.5-10)';
       const requestedCond = trade.requestedCondition || 'Mint (9.5-10)';
 
@@ -206,8 +212,8 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
         return res.status(400).json({ error: `Trade invalid: Sender only has ${senderVaultItem.quantity} unit(s) available in ${senderVaultItem.boxCondition} condition.` });
       }
 
-      if (receiverVaultItem.quantity < 1) {
-        return res.status(400).json({ error: `Trade invalid: Receiver no longer has this item in ${receiverVaultItem.boxCondition} condition.` });
+      if (receiverVaultItem.quantity < requestedQty) {
+        return res.status(400).json({ error: `Trade invalid: Receiver only has ${receiverVaultItem.quantity} unit(s) available in ${receiverVaultItem.boxCondition} condition.` });
       }
 
       console.log(`🔄 [Trade Acceptance] Transferring ${offeredQty} unit(s) of Pop ${offeredPop} (${offeredCond}) from Sender ${sender} to Receiver ${receiver}`);
@@ -234,10 +240,10 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
         }).save();
       }
 
-      console.log(`🔄 [Trade Acceptance] Transferring 1 unit of Pop ${requestedPop} (${requestedCond}) from Receiver ${receiver} to Sender ${sender}`);
+      console.log(`🔄 [Trade Acceptance] Transferring ${requestedQty} unit(s) of Pop ${requestedPop} (${requestedCond}) from Receiver ${receiver} to Sender ${sender}`);
 
       // --- DECREMENT RECEIVER REQUESTED ITEM ---
-      receiverVaultItem.quantity -= 1;
+      receiverVaultItem.quantity -= requestedQty;
       if (receiverVaultItem.quantity <= 0) {
         await VaultItem.deleteOne({ _id: receiverVaultItem._id });
       } else {
@@ -247,14 +253,14 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
       // --- CREDIT SENDER REQUESTED ITEM ---
       const senderExistingRequested = await VaultItem.findOne({ user: sender, pop: requestedPop, boxCondition: requestedCond });
       if (senderExistingRequested) {
-        senderExistingRequested.quantity += 1;
+        senderExistingRequested.quantity += requestedQty;
         await senderExistingRequested.save();
       } else {
         await new VaultItem({
           user: sender,
           pop: requestedPop,
           boxCondition: requestedCond,
-          quantity: 1
+          quantity: requestedQty
         }).save();
       }
 

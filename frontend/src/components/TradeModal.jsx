@@ -18,6 +18,7 @@ const rarityColors = {
 export default function TradeModal({ targetPop, collectorName, receiverId, onClose }) {
   const [selectedId, setSelectedId] = useState(null);
   const [offeredQty, setOfferedQty] = useState(1);
+  const [requestedQty, setRequestedQty] = useState(1);
   const [sent, setSent] = useState(false);
   const [myPops, setMyPops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +62,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
     if (!selectedId) return;
 
     const targetOfferedQty = typeof offeredQty === 'number' && offeredQty > 0 ? offeredQty : 1;
+    const targetRequestedQty = typeof requestedQty === 'number' && requestedQty > 0 ? requestedQty : 1;
 
     // Build payload using MongoDB ObjectIds or mock ids
     fetch(getApiUrl('/api/trades'), {
@@ -74,6 +76,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
         offeredPopId: selectedPop?.popId || selectedPop?.id || selectedId,
         requestedPopId: targetPop?.popId || targetPop?.id || targetPop?._id,
         offeredQuantity: targetOfferedQty,
+        requestedQuantity: targetRequestedQty,
         offeredCondition: selectedPop?.boxCondition || 'Mint (9.5-10)',
         requestedCondition: targetPop?.boxCondition || 'Mint (9.5-10)'
       })
@@ -179,6 +182,33 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                     <p className="text-xl font-black text-cyan-500">${(targetPop.marketValue || 0).toFixed(0)}</p>
                   </div>
                 </div>
+
+                {/* Stepper for Requested Quantity if targetPop.quantity > 1 */}
+                {targetPop && targetPop.quantity > 1 && (
+                  <div className="mt-2.5 p-3 bg-pink-50 dark:bg-gray-800 border-2 border-pink-300 dark:border-pink-700 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div>
+                      <p className="text-xs font-black text-gray-800 dark:text-white uppercase">Units Requested</p>
+                      <p className="text-[10px] font-bold text-gray-500">Collector owns {targetPop.quantity} units in this condition</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRequestedQty(Math.max(1, requestedQty - 1))}
+                        className="w-8 h-8 bg-white dark:bg-gray-900 border-2 border-gray-800 text-gray-800 dark:text-white rounded-xl font-black text-sm flex items-center justify-center hover:bg-gray-100 shadow-sm"
+                      >
+                        -
+                      </button>
+                      <span className="font-black text-base text-pink-600 dark:text-pink-400 w-6 text-center">{requestedQty}</span>
+                      <button
+                        type="button"
+                        onClick={() => setRequestedQty(Math.min(targetPop.quantity, requestedQty + 1))}
+                        className="w-8 h-8 bg-white dark:bg-gray-900 border-2 border-gray-800 text-gray-800 dark:text-white rounded-xl font-black text-sm flex items-center justify-center hover:bg-gray-100 shadow-sm"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Swap icon */}
