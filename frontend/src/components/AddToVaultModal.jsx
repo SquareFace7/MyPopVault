@@ -14,13 +14,13 @@ export default function AddToVaultModal({ pop, isOpen, onClose, onConfirm, isLoa
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (pop) {
+    if (isOpen && pop) {
       const p = typeof pop.marketPrice === 'number' ? pop.marketPrice : (typeof pop.marketValue === 'number' ? pop.marketValue : 15);
       setPurchasePrice(p);
       setBoxCondition('Mint (9.5-10)');
       setQuantity(1);
     }
-  }, [pop]);
+  }, [pop?._id || pop?.id, isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
