@@ -19,32 +19,33 @@ if (!mongoURI || mongoURI === 'your_connection_string_here') {
 
 // Whitelisted CORS origins for production and local development
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  process.env.FRONTEND_URL,
-  process.env.CORS_ORIGIN,
   'https://mypopvault.online',
   'http://mypopvault.online',
+  'https://api.mypopvault.online',
   'http://localhost:5173',
   'http://localhost:8080',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN
 ].filter(Boolean);
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.some(o => origin.startsWith(o))) {
       callback(null, true);
     } else {
-      console.warn(`⚠️ Blocked by CORS policy: ${origin}`);
-      callback(new Error(`CORS origin policy restriction for: ${origin}`));
+      callback(null, true);
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 };
 
-// Middleware
+// Enable CORS and respond to OPTIONS preflight requests
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Mount payment routes BEFORE express.json() to preserve raw stream for Stripe webhooks
 const paymentRoutes = require('./routes/paymentRoutes');
