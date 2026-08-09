@@ -18,8 +18,10 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, async (req,
       return res.status(404).json({ error: 'Catalog item not found' });
     }
 
-    const targetCondition = boxCondition || 'Mint (9.5-10)';
-    const targetQuantity = typeof quantity === 'number' && quantity > 0 ? quantity : 1;
+    const targetCondition = boxCondition || req.body.condition || 'Mint (9.5-10)';
+    const targetQuantity = typeof quantity === 'number' && quantity > 0 
+      ? quantity 
+      : (typeof req.body.quantity === 'string' && parseInt(req.body.quantity) > 0 ? parseInt(req.body.quantity) : 1);
 
     // Check if user already owns this exact popId in the SAME condition
     const existingItem = await VaultItem.findOne({

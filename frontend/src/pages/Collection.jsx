@@ -104,15 +104,27 @@ export default function Collection() {
 
   const handleAddPop = async (popData) => {
     try {
-      const popId = popData.popId || popData.id || popData._id || popData;
+      const popId = popData.popId || popData.id || popData._id || (typeof popData === 'string' ? popData : null);
       if (!popId) throw new Error('Pop ID is missing.');
+
+      const boxCondition = popData.boxCondition || popData.condition || 'Mint (9.5-10)';
+      const quantity = typeof popData.quantity === 'number' && popData.quantity > 0 
+        ? popData.quantity 
+        : (parseInt(popData.quantity) || 1);
+      const purchasePrice = typeof popData.purchasePrice === 'number' ? popData.purchasePrice : (parseFloat(popData.purchasePrice) || 0);
+
       const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ popId })
+        body: JSON.stringify({
+          popId,
+          boxCondition,
+          quantity,
+          purchasePrice
+        })
       });
       
       const data = await response.json();

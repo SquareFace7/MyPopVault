@@ -87,10 +87,11 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
       series: selectedPopForVault.series,
       number: selectedPopForVault.number,
       rarity: selectedPopForVault.rarity,
-      purchasePrice,
+      purchasePrice: typeof purchasePrice === 'number' ? purchasePrice : parseFloat(purchasePrice) || 0,
       marketValue: selectedPopForVault.price,
       condition: boxCondition,
-      quantity,
+      boxCondition: boxCondition,
+      quantity: typeof quantity === 'number' && quantity > 0 ? quantity : parseInt(quantity) || 1,
       isExclusive: selectedPopForVault.badge === 'WEB EXCLUSIVE',
       popId: selectedPopForVault.id,
     });
