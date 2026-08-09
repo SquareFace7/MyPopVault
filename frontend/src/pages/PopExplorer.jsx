@@ -159,7 +159,7 @@ export default function PopExplorer() {
       <div className="max-w-7xl mx-auto">
         {/* Banner header */}
         <motion.div
-          className="relative bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 p-8 rounded-3xl border-4 border-gray-800 shadow-[6px_6px_0px_rgba(0,0,0,0.85)] mb-8 overflow-hidden"
+          className="relative bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 p-8 rounded-3xl border-4 border-gray-800 dark:border-slate-600 shadow-[6px_6px_0px_rgba(0,0,0,0.85)] dark:shadow-[6px_6px_0px_#EC008C] mb-8 overflow-hidden"
           initial={{ opacity: 0, y: -25 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -181,7 +181,7 @@ export default function PopExplorer() {
         </motion.div>
 
         {/* Filter Controls Bar */}
-        <div className="bg-white dark:bg-gray-900 rounded-3xl border-4 border-gray-850 p-6 mb-8 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl border-4 border-gray-850 dark:border-slate-600 p-6 mb-8 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_#00AEEF] flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 sm:w-80">
@@ -229,17 +229,21 @@ export default function PopExplorer() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               <AnimatePresence>
-                {catalog.map((pop, i) => (
-                  <motion.div
-                    key={pop.id}
-                    onClick={() => navigate(`/pop/${pop.id}`)}
-                    className={`relative bg-white border-4 border-gray-805 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col justify-between transition-all cursor-pointer ${GLOW_EFFECTS[pop.rarity] || ''}`}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2, delay: i * 0.02 }}
-                    whileHover={{ y: -4, shadow: '4px 6px 0px rgba(0,0,0,1)' }}
-                  >
+                {catalog.map((pop, i) => {
+                  const neonShadow = i % 2 === 0
+                    ? 'dark:shadow-[5px_5px_0px_#00AEEF] dark:hover:shadow-[7px_7px_0px_#00AEEF]'
+                    : 'dark:shadow-[5px_5px_0px_#EC008C] dark:hover:shadow-[7px_7px_0px_#EC008C]';
+                  return (
+                    <motion.div
+                      key={pop.id}
+                      onClick={() => navigate(`/pop/${pop.id}`)}
+                      className={`relative bg-white dark:bg-gray-900 border-4 border-gray-805 dark:border-slate-600 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] ${neonShadow} overflow-hidden flex flex-col justify-between transition-all cursor-pointer ${GLOW_EFFECTS[pop.rarity] || ''}`}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2, delay: i * 0.02 }}
+                      whileHover={{ y: -4 }}
+                    >
                     <div>
                       {/* Header */}
                       <div className="bg-gray-800 px-4 py-2.5 flex items-center justify-between text-white text-xs font-black">
@@ -248,7 +252,7 @@ export default function PopExplorer() {
                       </div>
 
                       {/* Window Image Box */}
-                      <div className="bg-gradient-to-br from-gray-50 to-gray-200 w-full h-48 flex items-center justify-center relative p-3 border-b-4 border-gray-800">
+                      <div className="bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-800 dark:to-gray-900 w-full h-48 flex items-center justify-center relative p-3 border-b-4 border-gray-800 dark:border-slate-600">
                         {/* Rarity Ribbon */}
                         <span className={`absolute top-2 left-2 px-2 py-0.5 rounded border-2 text-[9px] font-black uppercase tracking-wider ${RARITY_STYLES[pop.rarity]} z-10 shadow-[2px_2px_0px_rgba(0,0,0,0.15)]`}>
                           {pop.rarity}
@@ -263,7 +267,7 @@ export default function PopExplorer() {
 
                       {/* Title Footer */}
                       <div className="p-4">
-                        <h2 className="font-black text-base text-gray-855 truncate">{pop.name}</h2>
+                        <h2 className="font-black text-base text-gray-855 dark:text-white truncate">{pop.name}</h2>
                         <div className="flex justify-between items-center mt-1">
                           <p className="text-gray-400 text-xs font-bold">Catalog Record</p>
                           <p className="text-sm font-black text-cyan-600">${pop.price.toFixed(2)}</p>
@@ -278,7 +282,7 @@ export default function PopExplorer() {
                         handleAdd(pop.id);
                       }}
                       disabled={addedIds.has(pop.id)}
-                      className={`w-full py-3 font-black text-xs border-t-4 border-gray-800 tracking-wider uppercase ${
+                      className={`w-full py-3 font-black text-xs border-t-4 border-gray-800 dark:border-slate-600 tracking-wider uppercase ${
                         addedIds.has(pop.id)
                           ? 'bg-green-400 text-white cursor-default'
                           : 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
@@ -289,7 +293,8 @@ export default function PopExplorer() {
                       {addedIds.has(pop.id) ? '✓ Added to Vault' : 'Add to Vault'}
                     </motion.button>
                   </motion.div>
-                ))}
+                );
+              })}
               </AnimatePresence>
             </div>
 

@@ -26,7 +26,7 @@ const statusConfig = {
 
 function PopPill({ pop }) {
   return (
-    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border-4 border-gray-805 rounded-2xl px-3 py-2 shadow-[3px_3px_0px_rgba(0,0,0,0.75)]">
+    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border-4 border-gray-805 dark:border-slate-700 rounded-2xl px-3 py-2 shadow-[3px_3px_0px_rgba(0,0,0,0.75)] dark:shadow-[3px_3px_0px_rgba(0,174,239,0.3)]">
       <div className="w-10 h-10 bg-gradient-to-br from-cyan-100 to-pink-100 dark:from-cyan-900 dark:to-pink-900 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0">
         <Sparkles className="w-5 h-5 text-pink-400" />
       </div>
@@ -52,9 +52,10 @@ function IncomingCard({ trade, onAccept, onReject, onCounter, onHide }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       layout
+      whileHover={{ y: -4 }}
     >
-      <div className="absolute inset-0 bg-black/25 rounded-3xl translate-x-1.5 translate-y-1.5" />
-      <div className="relative bg-white border-4 border-gray-800 rounded-3xl overflow-hidden">
+      <div className="absolute inset-0 bg-black/25 dark:bg-[#00AEEF] rounded-3xl translate-x-1.5 translate-y-1.5" />
+      <div className="relative bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl overflow-hidden dark:shadow-[5px_5px_0px_#00AEEF] dark:hover:shadow-[7px_7px_0px_#00AEEF] transition-all">
         {/* Header */}
         <div className="bg-gray-800 px-5 py-3 flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${trade.fromGradient} border-2 border-white/30 flex items-center justify-center text-white font-black text-sm shrink-0`}>
@@ -153,9 +154,10 @@ function OutgoingCard({ trade, index, onCancel, onHide }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07 }}
+      whileHover={{ y: -4 }}
     >
-      <div className="absolute inset-0 bg-black/20 rounded-3xl translate-x-1.5 translate-y-1.5" />
-      <div className="relative bg-white border-4 border-gray-800 rounded-3xl overflow-hidden">
+      <div className="absolute inset-0 bg-black/20 dark:bg-[#EC008C] rounded-3xl translate-x-1.5 translate-y-1.5" />
+      <div className="relative bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl overflow-hidden dark:shadow-[5px_5px_0px_#EC008C] dark:hover:shadow-[7px_7px_0px_#EC008C] transition-all">
         {/* Header */}
         <div className="bg-gray-800 px-5 py-3 flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${trade.toGradient} border-2 border-white/30 flex items-center justify-center text-white font-black text-sm shrink-0`}>

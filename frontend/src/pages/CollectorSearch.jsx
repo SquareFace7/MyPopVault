@@ -12,13 +12,17 @@ function CollectorCard({ collector, index, onMessage }) {
   const currentIsVipOrAdmin = user?.isVIP || user?.role === 'vip' || user?.role === 'admin';
   const targetIsVipOrAdmin = collector.role === 'vip' || collector.role === 'admin';
 
+  const neonShadow = index % 2 === 0
+    ? 'dark:shadow-[5px_5px_0px_#EC008C]'
+    : 'dark:shadow-[5px_5px_0px_#00AEEF]';
+
   return (
     <motion.div
-      className="bg-white border-4 border-gray-800 rounded-3xl shadow-[5px_5px_0px_rgba(0,0,0,0.85)] overflow-hidden"
+      className={`bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl shadow-[5px_5px_0px_rgba(0,0,0,0.85)] ${neonShadow} overflow-hidden`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07 }}
-      whileHover={{ y: -4, boxShadow: '5px 9px 0px rgba(0,0,0,0.85)' }}
+      whileHover={{ y: -4 }}
     >
       {/* Top color bar */}
       <div className={`h-2 bg-gradient-to-r ${collector.gradient}`} />
@@ -31,7 +35,7 @@ function CollectorCard({ collector, index, onMessage }) {
             <span className="text-white font-black text-sm">{collector.initials}</span>
           </div>
           <div className="min-w-0">
-            <p className="font-black text-gray-805 text-sm truncate">{collector.name}</p>
+            <p className="font-black text-gray-805 dark:text-white text-sm truncate">{collector.name}</p>
             <span className="inline-block bg-cyan-100 border-2 border-cyan-400 text-cyan-700 text-xs font-black px-2 py-0.5 rounded-full">
               ⭐ {collector.badge}
             </span>
@@ -40,13 +44,13 @@ function CollectorCard({ collector, index, onMessage }) {
 
         {/* Stats */}
         <div className="flex gap-3 mb-4">
-          <div className="flex-1 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 text-center">
-            <p className="text-xl font-black text-gray-800">{collector.collectionSize}</p>
-            <p className="text-xs font-bold text-gray-500">Pops</p>
+          <div className="flex-1 bg-gray-50 dark:bg-gray-800/80 border-2 border-gray-200 dark:border-slate-700 rounded-xl p-2 text-center">
+            <p className="text-xl font-black text-gray-800 dark:text-white">{collector.collectionSize}</p>
+            <p className="text-xs font-bold text-gray-500 dark:text-gray-400">Pops</p>
           </div>
-          <div className="flex-1 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 text-center">
-            <p className="text-sm font-black text-gray-800 truncate">{collector.topSeries}</p>
-            <p className="text-xs font-bold text-gray-500">Top Series</p>
+          <div className="flex-1 bg-gray-50 dark:bg-gray-800/80 border-2 border-gray-200 dark:border-slate-700 rounded-xl p-2 text-center">
+            <p className="text-sm font-black text-gray-800 dark:text-white truncate">{collector.topSeries}</p>
+            <p className="text-xs font-bold text-gray-500 dark:text-gray-400">Top Series</p>
           </div>
         </div>
 
@@ -166,7 +170,7 @@ export default function CollectorSearch() {
             <Radar className="w-4 h-4 text-cyan-600 animate-pulse" />
             <span className="text-sm font-black text-cyan-700">Collector Hub</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-gray-805">
+          <h1 className="text-3xl md:text-4xl font-black text-gray-805 dark:text-white">
             Collector <span className="text-pink-500">Search</span>
           </h1>
           <p className="text-gray-500 font-bold mt-1">Find fellow collectors, browse vaults, and send messages</p>
@@ -179,14 +183,14 @@ export default function CollectorSearch() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <div className="flex items-center gap-3 bg-white border-4 border-gray-800 rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,0.85)] px-4 py-3">
+          <div className="flex items-center gap-3 bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,0.85)] dark:shadow-[5px_5px_0px_#00AEEF] px-4 py-3">
             <Search className="w-6 h-6 text-pink-500 shrink-0" />
             <input
               type="text"
               placeholder="Search by name or series…"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="flex-1 text-lg font-bold text-gray-800 placeholder-gray-400 bg-transparent outline-none"
+              className="flex-1 text-lg font-bold text-gray-800 dark:text-white placeholder-gray-400 bg-transparent outline-none"
             />
             {query && (
               <button
