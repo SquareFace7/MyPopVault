@@ -54,12 +54,14 @@ for (let i = 4; i <= 6; i++) {
 function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, isAlreadyInVault, index }) {
   const { user } = useAuth();
   const [tradeTarget, setTradeTarget] = useState(null);
+  const [imgError, setImgError] = useState(false);
   const roi = item.marketValue && item.purchasePrice
     ? ((item.marketValue - item.purchasePrice) / item.purchasePrice * 100).toFixed(1)
     : 0;
   const isPositiveRoi = parseFloat(roi) >= 0;
 
   const currentIsVipOrAdmin = user?.isLoggedIn && (user?.isVIP || user?.role === 'vip' || user?.role === 'admin');
+  const hasValidImage = Boolean(item.image && typeof item.image === 'string' && item.image.trim() !== '' && item.image !== 'null' && item.image !== 'undefined');
 
   return (
     <>
@@ -101,8 +103,13 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
                 </div>
               )}
               <div className="aspect-square bg-gradient-to-br from-cyan-50 to-pink-50 rounded-lg flex items-center justify-center">
-                {item.image ? (
-                  <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                {hasValidImage && !imgError ? (
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-full h-full object-contain"
+                    onError={() => setImgError(true)} 
+                  />
                 ) : (
                   <Sparkles className="w-14 h-14 text-pink-300" />
                 )}
