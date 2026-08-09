@@ -25,6 +25,14 @@ const TradeOfferSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
+  offeredCondition: {
+    type: String,
+    default: 'Mint (9.5-10)'
+  },
+  requestedCondition: {
+    type: String,
+    default: 'Mint (9.5-10)'
+  },
   status: {
     type: String,
     enum: ['pending', 'accepted', 'rejected', 'canceled'],

@@ -313,8 +313,8 @@ export default function TradeManager() {
           fromGradient: trade.sender?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-pink-500 to-rose-500',
-          theyOffer: { ...parseItem(trade.offeredItem), quantity: trade.offeredQuantity || 1 },
-          forYour: parseItem(trade.requestedItem),
+          theyOffer: { ...parseItem(trade.offeredItem), boxCondition: trade.offeredCondition || parseItem(trade.offeredItem).boxCondition, quantity: trade.offeredQuantity || 1 },
+          forYour: { ...parseItem(trade.requestedItem), boxCondition: trade.requestedCondition || parseItem(trade.requestedItem).boxCondition, quantity: 1 },
           senderId: trade.sender?._id || trade.sender,
           status: trade.status
         }));
@@ -327,8 +327,8 @@ export default function TradeManager() {
           toGradient: trade.receiver?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-yellow-500 to-orange-500',
-          youOffered: { ...parseItem(trade.offeredItem), quantity: trade.offeredQuantity || 1 },
-          forTheir: parseItem(trade.requestedItem),
+          youOffered: { ...parseItem(trade.offeredItem), boxCondition: trade.offeredCondition || parseItem(trade.offeredItem).boxCondition, quantity: trade.offeredQuantity || 1 },
+          forTheir: { ...parseItem(trade.requestedItem), boxCondition: trade.requestedCondition || parseItem(trade.requestedItem).boxCondition, quantity: 1 },
           status: trade.status
         }));
 
