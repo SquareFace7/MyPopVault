@@ -62,7 +62,7 @@ export default function StatCard({ title, value, subtitle, icon: Icon, type = 'v
       <div className={`
         relative bg-gradient-to-br ${theme.gradient}
         rounded-3xl p-6 overflow-hidden
-        border-4 border-white shadow-2xl
+        border-4 border-white dark:border-slate-600 shadow-2xl dark:shadow-[5px_5px_0px_#00AEEF]
         min-h-[180px] flex flex-col justify-between
       `}>
         {/* Trading Card Pattern Overlay */}

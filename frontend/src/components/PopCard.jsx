@@ -62,8 +62,13 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
       />
 
       {/* Funko Box Style Card */}
-      <div className="relative bg-white rounded-2xl overflow-hidden border-4 border-gray-800">
-        {/* Top Section - Number Badge & Series */}
+      {(() => {
+        const neonShadow = index % 2 === 0
+          ? 'dark:shadow-[5px_5px_0px_#00AEEF] dark:hover:shadow-[7px_7px_0px_#00AEEF]'
+          : 'dark:shadow-[5px_5px_0px_#EC008C] dark:hover:shadow-[7px_7px_0px_#EC008C]';
+        return (
+          <div className={`relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border-4 border-gray-800 dark:border-slate-600 ${neonShadow} transition-all`}>
+            {/* Top Section - Number Badge & Series */}
         <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
           <span className="text-white font-black text-lg">#{item.number}</span>
           <div className="flex items-center gap-2">
@@ -85,9 +90,9 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
         </div>
 
         {/* Window Section - Image */}
-        <div className="relative bg-gradient-to-b from-gray-100 to-gray-200 p-4">
+        <div className="relative bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-4">
           {/* Window Frame */}
-          <div className="relative bg-white rounded-xl p-2 border-4 border-gray-300 shadow-inner">
+          <div className="relative bg-white dark:bg-gray-950 rounded-xl p-2 border-4 border-gray-300 dark:border-slate-700 shadow-inner">
             {/* Exclusive Badge */}
             {item.isExclusive && (
               <motion.div 
@@ -141,7 +146,7 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
         </div>
 
         {/* Bottom Section - Info */}
-        <div className="bg-gray-800 px-4 py-3">
+        <div className="bg-gray-800 dark:bg-gray-900 px-4 py-3">
           <h3 className="text-white font-bold text-lg truncate">{item.name}</h3>
           
           {/* Price Info */}
@@ -170,6 +175,8 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
           </div>
         </div>
       </div>
-    </motion.div>
+    );
+  })()}
+</motion.div>
   );
 }

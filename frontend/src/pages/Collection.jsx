@@ -319,7 +319,7 @@ export default function Collection() {
   const hasActiveFilters = searchQuery || selectedSeries !== 'All' || selectedRarity !== 'All';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-955 dark:via-gray-900 dark:to-gray-955 p-4 md:p-8 font-sans transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -328,11 +328,11 @@ export default function Collection() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div>
-            <h1 className="text-4xl md:text-5xl font-black text-gray-800 flex items-center gap-3">
+            <h1 className="text-4xl md:text-5xl font-black text-gray-800 dark:text-white flex items-center gap-3">
               <Package className="w-10 h-10 text-cyan-500" />
               Collection
             </h1>
-            <p className="text-gray-500 mt-1">{pops.length} Pops in your vault</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{pops.length} Pops in your vault</p>
           </div>
 
           <BouncyButton
@@ -346,7 +346,7 @@ export default function Collection() {
 
         {/* Search and Filters */}
         <motion.div
-          className="bg-white rounded-3xl shadow-lg border-4 border-gray-850 p-6 mb-8"
+          className="bg-white dark:bg-gray-900 rounded-3xl shadow-lg border-4 border-gray-850 dark:border-slate-600 p-6 mb-8 dark:shadow-[4px_4px_0px_#00AEEF]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -359,7 +359,7 @@ export default function Collection() {
                 placeholder="Search by name, series, or number..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 text-base border-2 border-gray-200 rounded-2xl focus:border-cyan-500 bg-white"
+                className="pl-12 h-12 text-base border-2 border-gray-200 dark:border-slate-700 rounded-2xl focus:border-cyan-500 bg-white dark:bg-gray-955 dark:text-white"
               />
             </div>
 
@@ -378,7 +378,7 @@ export default function Collection() {
             {/* Filters (Desktop always visible, Mobile toggle) */}
             <div className={`flex flex-col lg:flex-row gap-4 ${showFilters ? 'block' : 'hidden lg:flex'}`}>
               <Select value={selectedSeries} onValueChange={setSelectedSeries}>
-                <SelectTrigger className="w-full lg:w-40 h-12 border-2 border-gray-200 rounded-2xl bg-white">
+                <SelectTrigger className="w-full lg:w-40 h-12 border-2 border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-gray-800 dark:text-white">
                   <SelectValue placeholder="Series" />
                 </SelectTrigger>
                 <SelectContent>
@@ -392,7 +392,7 @@ export default function Collection() {
               </Select>
 
               <Select value={selectedRarity} onValueChange={setSelectedRarity}>
-                <SelectTrigger className="w-full lg:w-40 h-12 border-2 border-gray-200 rounded-2xl bg-white">
+                <SelectTrigger className="w-full lg:w-40 h-12 border-2 border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-gray-800 dark:text-white">
                   <SelectValue placeholder="Rarity" />
                 </SelectTrigger>
                 <SelectContent>
@@ -403,7 +403,7 @@ export default function Collection() {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full lg:w-48 h-12 border-2 border-gray-200 rounded-2xl bg-white">
+                <SelectTrigger className="w-full lg:w-48 h-12 border-2 border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-gray-800 dark:text-white">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -448,8 +448,8 @@ export default function Collection() {
 
         {/* Results Count & View Toggle */}
         <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
-            Showing <span className="font-bold text-gray-800">{filteredPops.length}</span> 
+          <p className="text-gray-600 dark:text-gray-300">
+            Showing <span className="font-bold text-gray-800 dark:text-white">{filteredPops.length}</span> 
             {filteredPops.length !== pops.length && ` of ${pops.length}`} Pops
           </p>
           <div className="flex gap-2">

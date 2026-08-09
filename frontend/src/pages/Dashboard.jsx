@@ -270,7 +270,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-955 dark:via-gray-900 dark:to-gray-955 p-4 md:p-8 font-sans transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -279,7 +279,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div>
-            <h1 className="text-4xl md:text-5xl font-black text-gray-800 flex items-center gap-3">
+            <h1 className="text-4xl md:text-5xl font-black text-gray-800 dark:text-white flex items-center gap-3">
               <motion.span
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -288,7 +288,7 @@ export default function Dashboard() {
               </motion.span>
               The Vault
             </h1>
-            <p className="text-gray-500 mt-1">Your Personal Funko Pop Command Center</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Your Personal Funko Pop Command Center</p>
           </div>
 
           <div className="flex gap-3">
@@ -363,11 +363,11 @@ export default function Dashboard() {
         >
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-black text-gray-800 flex items-center gap-2">
+              <h2 className="text-2xl font-black text-gray-800 dark:text-white flex items-center gap-2">
                 <Star className="w-6 h-6 text-yellow-500" fill="#FFD700" />
                 Crown Jewels
               </h2>
-              <p className="text-gray-500 text-sm">Your most valuable Pops</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Your most valuable Pops</p>
             </div>
             <Link to={createPageUrl('Collection')}>
               <BouncyButton variant="ghost" icon={ArrowRight} iconPosition="right" size="sm">
@@ -396,7 +396,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <motion.div
-              className="bg-gradient-to-br from-pink-50 to-cyan-50 rounded-3xl p-12 text-center border-4 border-dashed border-gray-300 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] max-w-lg mx-auto"
+              className="bg-gradient-to-br from-pink-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-12 text-center border-4 border-dashed border-gray-300 dark:border-slate-600 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_#EC008C] max-w-lg mx-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
             >
@@ -422,7 +422,7 @@ export default function Dashboard() {
         {/* Quick Stats Bar */}
         {pops.length > 0 && (
           <motion.div
-            className="bg-gradient-to-r from-gray-800 to-gray-950 rounded-2xl p-6 flex flex-wrap justify-around items-center gap-6 border-4 border-gray-900 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]"
+            className="bg-gradient-to-r from-gray-800 to-gray-950 rounded-2xl p-6 flex flex-wrap justify-around items-center gap-6 border-4 border-gray-900 dark:border-slate-600 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] dark:shadow-[4px_4px_0px_#00AEEF]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
