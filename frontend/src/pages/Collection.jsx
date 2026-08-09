@@ -15,6 +15,7 @@ import CatalogPickerModal from '@/components/CatalogPickerModal';
 import PopDetailModal from '@/components/PopDetailModal';
 import BouncyButton from '@/components/BouncyButton';
 import CategoryBadge from '@/components/CategoryBadge';
+import { getConditionMultiplier } from '@/lib/conditionHelper';
 
 const seriesOptions = ['All', 'Marvel', 'Disney', 'Star Wars', 'DC', 'Anime'];
 const rarityOptions = ['All', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Grail'];
@@ -65,7 +66,9 @@ export default function Collection() {
         if (Array.isArray(data)) {
           const mapped = data.map(item => {
             const popDetails = item.pop || {};
-            const marketVal = popDetails.marketPrice || 15.00;
+            const basePrice = popDetails.marketPrice || 15.00;
+            const multiplier = getConditionMultiplier(item.boxCondition);
+            const marketVal = basePrice * multiplier;
             return {
               id: item._id,
               popId: popDetails._id,
@@ -74,7 +77,7 @@ export default function Collection() {
               number: popDetails.itemNumber || 2024,
               rarity: marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common',
               purchasePrice: item.purchasePrice || 0,
-              boxCondition: item.boxCondition || 'Mint',
+              boxCondition: item.boxCondition || 'Mint (9.5-10)',
               quantity: item.quantity || 1,
               marketValue: marketVal,
               image: popDetails.imageUrl || null,

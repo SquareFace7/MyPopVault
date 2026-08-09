@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Heart, TrendingUp, TrendingDown, Sparkles, Star, Trash2 } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 
+import { getConditionBadgeStyle } from '@/lib/conditionHelper';
+
 export default function PopCard({ item, index = 0, onClick, onRemove }) {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -139,9 +141,14 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
             </div>
           </div>
 
-          {/* Rarity Badge */}
-          <div className="absolute bottom-2 left-2">
+          {/* Rarity & Condition Badges */}
+          <div className="absolute bottom-2 left-2 flex items-center gap-1.5 flex-wrap">
             <CategoryBadge category={item.rarity} type="rarity" size="sm" />
+            {item.boxCondition && (
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition)}`}>
+                {item.boxCondition}
+              </span>
+            )}
           </div>
         </div>
 

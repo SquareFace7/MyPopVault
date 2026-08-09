@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown, Calendar, DollarSign, Package, Sparkles, Trash2, Edit } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
-import BouncyButton from './BouncyButton';
+import { BOX_CONDITIONS, getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 export default function PopDetailModal({ item, isOpen, onClose, onDelete, onEdit }) {
   if (!item) return null;
 
   const [isEditing, setIsEditing] = useState(false);
   const [editPrice, setEditPrice] = useState(item.purchasePrice || 0);
-  const [editCondition, setEditCondition] = useState(item.boxCondition || 'Mint');
+  const [editCondition, setEditCondition] = useState(item.boxCondition || 'Mint (9.5-10)');
   const [editQuantity, setEditQuantity] = useState(item.quantity || 1);
 
   // Synchronize internal state when the active item changes
   useEffect(() => {
     if (item) {
       setEditPrice(item.purchasePrice || 0);
-      setEditCondition(item.boxCondition || 'Mint');
+      setEditCondition(item.boxCondition || 'Mint (9.5-10)');
       setEditQuantity(item.quantity || 1);
       setIsEditing(false);
     }
@@ -148,10 +148,9 @@ export default function PopDetailModal({ item, isOpen, onClose, onDelete, onEdit
                           onChange={e => setEditCondition(e.target.value)}
                           className="w-full h-11 px-4 border-4 border-gray-850 rounded-2xl font-bold text-sm bg-gray-50 focus:bg-white focus:border-cyan-500 focus:outline-none transition-all"
                         >
-                          <option value="Mint">Mint</option>
-                          <option value="Good">Good</option>
-                          <option value="Damaged">Damaged</option>
-                          <option value="Out of Box">Out of Box</option>
+                          {BOX_CONDITIONS.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
                         </select>
                       </div>
 
@@ -186,8 +185,10 @@ export default function PopDetailModal({ item, isOpen, onClose, onDelete, onEdit
                       {/* Attributes */}
                       <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-950/30 p-4 border-2 border-purple-300 dark:border-purple-900/60 rounded-2xl">
-                          <p className="text-[10px] text-purple-700 dark:text-purple-400 uppercase font-black">Condition</p>
-                          <p className="text-base font-black text-purple-800 dark:text-purple-305 mt-0.5">{item.boxCondition || 'Mint'}</p>
+                          <p className="text-[10px] text-purple-700 dark:text-purple-400 uppercase font-black mb-1">Condition</p>
+                          <span className={`inline-block font-black text-xs px-2.5 py-1 rounded-lg border ${getConditionBadgeStyle(item.boxCondition)}`}>
+                            {item.boxCondition || 'Mint (9.5-10)'}
+                          </span>
                         </div>
                         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950/30 dark:to-yellow-950/30 p-4 border-2 border-yellow-300 dark:border-yellow-900/60 rounded-2xl">
                           <p className="text-[10px] text-yellow-700 dark:text-yellow-400 uppercase font-black">Quantity Owned</p>

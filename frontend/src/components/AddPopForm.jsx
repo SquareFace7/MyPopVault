@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import BouncyButton from './BouncyButton';
 
+import { BOX_CONDITIONS } from '@/lib/conditionHelper';
+
 const seriesOptions = ['Marvel', 'Disney', 'Star Wars', 'DC', 'Anime', 'Movies', 'TV', 'Games', 'Music', 'Sports'];
 const rarityOptions = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Grail'];
-const conditionOptions = ['Mint', 'Near Mint', 'Good', 'Fair'];
+const conditionOptions = BOX_CONDITIONS;
 
 export default function AddPopForm({ isOpen, onClose, onSubmit, isLoading }) {
   const [formData, setFormData] = useState({
@@ -21,7 +23,7 @@ export default function AddPopForm({ isOpen, onClose, onSubmit, isLoading }) {
     marketValue: '',
     image: '',
     rarity: 'Common',
-    condition: 'Mint',
+    condition: 'Mint (9.5-10)',
     purchaseDate: '',
     isExclusive: false,
     notes: ''

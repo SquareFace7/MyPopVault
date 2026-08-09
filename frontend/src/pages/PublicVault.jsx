@@ -7,6 +7,7 @@ import CategoryBadge from '@/components/CategoryBadge';
 import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
+import { getConditionMultiplier, getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 const COLLECTORS = {
   1: { id: '1', name: 'Alex "PopKing" Rivera', badge: 'Grail Hunter', gradient: 'from-pink-500 to-rose-500', initials: 'AR' },
@@ -50,7 +51,7 @@ for (let i = 4; i <= 6; i++) {
   ];
 }
 
-function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, index }) {
+function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, isAlreadyInVault, index }) {
   const { user } = useAuth();
   const [tradeTarget, setTradeTarget] = useState(null);
   const roi = item.marketValue && item.purchasePrice
@@ -92,6 +93,13 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
                   </div>
                 </motion.div>
               )}
+              {isAlreadyInVault && (
+                <div className="absolute top-2 left-2 z-20">
+                  <div className="bg-purple-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full border-2 border-gray-900 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] flex items-center gap-1">
+                    <span>📦</span> Already in Vault
+                  </div>
+                </div>
+              )}
               <div className="aspect-square bg-gradient-to-br from-cyan-50 to-pink-50 rounded-lg flex items-center justify-center">
                 {item.image ? (
                   <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
@@ -100,8 +108,13 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
                 )}
               </div>
             </div>
-            <div className="absolute bottom-2 left-2">
+            <div className="absolute bottom-2 left-2 flex items-center gap-1.5 flex-wrap">
               <CategoryBadge category={item.rarity} type="rarity" size="sm" />
+              {item.boxCondition && (
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition)}`}>
+                  {item.boxCondition}
+                </span>
+              )}
             </div>
           </div>
 
@@ -201,16 +214,24 @@ export default function PublicVault() {
               badge: data.user.role.toUpperCase()
             });
 
-            const mappedPops = data.vaultItems.map(item => ({
-              id: item.pop?._id || item._id,
-              name: item.pop?.name || 'Unknown Pop',
-              series: item.pop?.series || 'General',
-              number: item.pop?.itemNumber || 0,
-              image: item.pop?.imageUrl || '',
-              marketValue: item.pop?.marketPrice || 25,
-              purchasePrice: item.purchasePrice || 10,
-              rarity: item.boxCondition || 'Common'
-            }));
+            const mappedPops = data.vaultItems.map(item => {
+              const catalog = item.pop || {};
+              const basePrice = catalog.marketPrice || 25;
+              const multiplier = getConditionMultiplier(item.boxCondition);
+              const marketVal = basePrice * multiplier;
+              return {
+                id: catalog._id || item._id,
+                popId: catalog._id || item._id,
+                name: catalog.name || 'Unknown Pop',
+                series: catalog.series || 'General',
+                number: catalog.itemNumber || catalog.number || 0,
+                image: catalog.imageUrl || catalog.image || '',
+                marketValue: marketVal,
+                purchasePrice: item.purchasePrice || 10,
+                rarity: marketVal >= 100 ? 'Grail' : (marketVal > 25 ? 'Rare' : 'Common'),
+                boxCondition: item.boxCondition || 'Mint (9.5-10)'
+              };
+            });
 
             setCollection(mappedPops);
           }
@@ -229,6 +250,24 @@ export default function PublicVault() {
       setLoading(false);
     }
   }, [collectorId]);
+
+  const [userVaultPopIds, setUserVaultPopIds] = useState(new Set());
+
+  useEffect(() => {
+    if (currentUser && currentUser.isLoggedIn) {
+      fetch(getApiUrl('/api/vault'), {
+        headers: { 'Authorization': `Bearer ${currentUser.token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const ids = new Set(data.map(item => String(item.pop?._id || item._id)));
+            setUserVaultPopIds(ids);
+          }
+        })
+        .catch(err => console.error('Error fetching user vault:', err));
+    }
+  }, [currentUser]);
 
   if (loading) {
     return (
@@ -403,6 +442,7 @@ export default function PublicVault() {
               collectorName={collector.name}
               collectorId={collector.id}
               targetIsVipOrAdmin={targetIsVipOrAdmin}
+              isAlreadyInVault={userVaultPopIds.has(String(item.popId || item.id))}
               index={i}
             />
           ))}

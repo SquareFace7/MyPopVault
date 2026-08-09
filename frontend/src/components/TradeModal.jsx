@@ -4,6 +4,7 @@ import { X, ArrowDownUp, Sparkles, CheckCircle, Send } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
+import { getConditionMultiplier, getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -32,7 +33,9 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
       .then(data => {
         const mapped = data.map(item => {
           const catalog = item.pop || {};
-          const mVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
+          const basePrice = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
+          const multiplier = getConditionMultiplier(item.boxCondition);
+          const mVal = basePrice * multiplier;
           return {
             id: catalog._id || item._id,
             name: catalog.name || 'Unknown Pop',
@@ -40,7 +43,8 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
             number: catalog.itemNumber || catalog.number || '0',
             marketValue: mVal,
             image: catalog.imageUrl || catalog.image || '',
-            rarity: mVal >= 100 ? 'Grail' : mVal > 25 ? 'Rare' : 'Common'
+            rarity: mVal >= 100 ? 'Grail' : mVal > 25 ? 'Rare' : 'Common',
+            boxCondition: item.boxCondition || 'Mint (9.5-10)'
           };
         });
         setMyPops(mapped);
@@ -144,11 +148,25 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                     )}
                   </div>
                   <div>
-                    <p className="font-black text-gray-800 text-base leading-tight">{targetPop.name}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-black text-gray-800 text-base leading-tight">{targetPop.name}</p>
+                      {myPops.some(p => String(p.id) === String(targetPop.id || targetPop.popId)) && (
+                        <span className="bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full border border-gray-900 shadow-sm">
+                          📦 Already in Vault
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm font-bold text-gray-550">#{targetPop.number} · {targetPop.series}</p>
-                    <span className={`inline-block mt-1 text-xs font-black px-2 py-0.5 rounded-full border-2 ${rarityColors[targetPop.rarity] || rarityColors.Common}`}>
-                      {targetPop.rarity}
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span className={`inline-block text-xs font-black px-2 py-0.5 rounded-full border-2 ${rarityColors[targetPop.rarity] || rarityColors.Common}`}>
+                        {targetPop.rarity}
+                      </span>
+                      {targetPop.boxCondition && (
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${getConditionBadgeStyle(targetPop.boxCondition)}`}>
+                          {targetPop.boxCondition}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="ml-auto text-right">
                     <p className="text-xs font-bold text-gray-400">Value</p>
