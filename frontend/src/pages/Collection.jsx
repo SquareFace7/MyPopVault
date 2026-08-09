@@ -67,9 +67,10 @@ export default function Collection() {
           const mapped = data.map(item => {
             const popDetails = item.pop || {};
             const marketVal = popDetails.marketPrice || 15.00;
+            const resolvedPopId = popDetails._id || (typeof item.pop === 'string' ? item.pop : item._id);
             return {
               id: item._id,
-              popId: popDetails._id,
+              popId: resolvedPopId,
               name: popDetails.name || 'Unknown Pop',
               series: popDetails.series || 'Other',
               number: popDetails.itemNumber || 2024,
@@ -78,7 +79,7 @@ export default function Collection() {
               boxCondition: item.boxCondition || 'Mint (9.5-10)',
               quantity: item.quantity || 1,
               marketValue: marketVal,
-              image: popDetails.imageUrl || null,
+              image: popDetails.imageUrl || popDetails.image || null,
               isExclusive: marketVal > 50,
               created_date: item.addedAt
             };
@@ -495,7 +496,7 @@ export default function Collection() {
                   key={pop.id}
                   item={pop}
                   index={index}
-                  onClick={() => navigate(`/pop/${pop.popId}`)}
+                  onClick={() => pop.popId && navigate(`/pop/${pop.popId}`)}
                   onRemove={(item) => handleDeletePop(item.id)}
                 />
               ))}

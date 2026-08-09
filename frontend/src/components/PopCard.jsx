@@ -7,6 +7,7 @@ import { getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 export default function PopCard({ item, index = 0, onClick, onRemove }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imgError, setImgError] = useState(false);
   
   const roi = item.marketValue && item.purchasePrice 
     ? ((item.marketValue - item.purchasePrice) / item.purchasePrice * 100).toFixed(1)
@@ -114,11 +115,12 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
 
             {/* Image */}
             <div className="aspect-square relative overflow-hidden rounded-lg bg-gradient-to-br from-cyan-50 to-pink-50">
-              {item.image ? (
+              {item.image && !imgError ? (
                 <img 
                   src={item.image} 
                   alt={item.name}
                   className="w-full h-full object-contain"
+                  onError={() => setImgError(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
