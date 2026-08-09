@@ -17,6 +17,7 @@ const rarityColors = {
 
 export default function TradeModal({ targetPop, collectorName, receiverId, onClose }) {
   const [selectedId, setSelectedId] = useState(null);
+  const [offeredQty, setOfferedQty] = useState(1);
   const [sent, setSent] = useState(false);
   const [myPops, setMyPops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,8 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
       body: JSON.stringify({
         receiverId: receiverId,
         offeredPopId: selectedPop?.popId || selectedId,
-        requestedPopId: targetPop.id || targetPop.popId
+        requestedPopId: targetPop.id || targetPop.popId,
+        offeredQuantity: selectedPop?.quantity > 1 ? offeredQty : 1
       })
     })
       .then(res => res.json())
@@ -204,7 +206,10 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                       <motion.button
                         key={pop.id}
                         type="button"
-                        onClick={() => setSelectedId(pop.id)}
+                        onClick={() => {
+                          setSelectedId(pop.id);
+                          setOfferedQty(1);
+                        }}
                         className={`text-left p-3 rounded-2xl border-4 transition-colors ${
                           selectedId === pop.id
                             ? 'border-pink-500 bg-pink-50 shadow-[3px_3px_0px_rgba(236,72,153,0.5)]'
@@ -242,6 +247,33 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                         </div>
                       </motion.button>
                     ))}
+                  </div>
+                )}
+
+                {/* Quantity Stepper Selector if selectedPop has quantity > 1 */}
+                {selectedPop && selectedPop.quantity > 1 && (
+                  <div className="mt-3 p-3 bg-cyan-50 dark:bg-gray-800 border-2 border-cyan-300 dark:border-cyan-700 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div>
+                      <p className="text-xs font-black text-gray-800 dark:text-white uppercase">Units to Trade</p>
+                      <p className="text-[10px] font-bold text-gray-500">You own {selectedPop.quantity} units in this condition</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setOfferedQty(Math.max(1, offeredQty - 1))}
+                        className="w-8 h-8 bg-white dark:bg-gray-900 border-2 border-gray-800 text-gray-800 dark:text-white rounded-xl font-black text-base flex items-center justify-center hover:bg-gray-100 shadow-sm"
+                      >
+                        -
+                      </button>
+                      <span className="font-black text-base text-cyan-600 dark:text-cyan-400 w-6 text-center">{offeredQty}</span>
+                      <button
+                        type="button"
+                        onClick={() => setOfferedQty(Math.min(selectedPop.quantity, offeredQty + 1))}
+                        className="w-8 h-8 bg-white dark:bg-gray-900 border-2 border-gray-800 text-gray-800 dark:text-white rounded-xl font-black text-base flex items-center justify-center hover:bg-gray-100 shadow-sm"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

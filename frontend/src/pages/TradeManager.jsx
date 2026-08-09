@@ -293,7 +293,7 @@ export default function TradeManager() {
           fromGradient: trade.sender?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-pink-500 to-rose-500',
-          theyOffer: parseItem(trade.offeredItem),
+          theyOffer: { ...parseItem(trade.offeredItem), quantity: trade.offeredQuantity || 1 },
           forYour: parseItem(trade.requestedItem),
           senderId: trade.sender?._id || trade.sender,
           status: trade.status
@@ -307,7 +307,7 @@ export default function TradeManager() {
           toGradient: trade.receiver?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-yellow-500 to-orange-500',
-          youOffered: parseItem(trade.offeredItem),
+          youOffered: { ...parseItem(trade.offeredItem), quantity: trade.offeredQuantity || 1 },
           forTheir: parseItem(trade.requestedItem),
           status: trade.status
         }));

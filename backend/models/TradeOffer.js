@@ -21,6 +21,10 @@ const TradeOfferSchema = new mongoose.Schema({
     ref: 'PopCatalog',
     required: true
   },
+  offeredQuantity: {
+    type: Number,
+    default: 1
+  },
   status: {
     type: String,
     enum: ['pending', 'accepted', 'rejected', 'canceled'],

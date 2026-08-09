@@ -8,7 +8,7 @@ const authorizeRoles = authMiddleware.authorizeRoles;
 // POST /api/trades - Create a new trade offer
 router.post('/', authMiddleware, authMiddleware.requireVerification, authorizeRoles('vip', 'admin'), async (req, res) => {
   try {
-    const { receiverId, offeredPopId, requestedPopId } = req.body;
+    const { receiverId, offeredPopId, requestedPopId, offeredQuantity } = req.body;
 
     if (!receiverId || !offeredPopId || !requestedPopId) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -32,6 +32,7 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, authorizeRo
       receiver: receiverId,
       offeredItem: offeredPopId,
       requestedItem: requestedPopId,
+      offeredQuantity: typeof offeredQuantity === 'number' && offeredQuantity > 0 ? offeredQuantity : 1,
       status: 'pending'
     });
 
