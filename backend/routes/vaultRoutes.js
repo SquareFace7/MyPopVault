@@ -61,6 +61,33 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, async (req,
     }
   } catch (error) {
     console.error('❌ Vault Add Error:', error);
+
+    // If E11000 duplicate key error occurs due to legacy user_1_pop_1 index
+    if (error.code === 11000) {
+      try {
+        await VaultItem.collection.dropIndex('user_1_pop_1').catch(() => {});
+
+        const targetCondition = req.body.boxCondition || 'Mint (9.5-10)';
+        const targetQuantity = typeof req.body.quantity === 'number' && req.body.quantity > 0 ? req.body.quantity : 1;
+
+        const fallbackItem = await VaultItem.findOneAndUpdate(
+          { user: req.user._id, pop: req.body.popId },
+          { 
+            $inc: { quantity: targetQuantity },
+            $set: { boxCondition: targetCondition }
+          },
+          { new: true, upsert: true }
+        ).populate('pop');
+
+        return res.status(200).json({
+          message: 'Updated vault item!',
+          vaultItem: fallbackItem
+        });
+      } catch (fallbackErr) {
+        console.error('❌ Vault Fallback Error:', fallbackErr);
+      }
+    }
+
     res.status(500).json({
       error: 'Failed to add Pop to vault',
       message: error.message
