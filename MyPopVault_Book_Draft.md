@@ -228,6 +228,18 @@
    * *איזה:* JSON Web Tokens (JWT) להרשאות, ו-Bcryptjs להצפנת סיסמאות.
    * *מדוע:* ניהול הרשאות Stateless ב-JWT והצפנה חד-כיוונית מוצפנת Salt ב-Bcrypt להגנה על סיסמאות.
 
+7. **תקשורת אסינכרונית בזמן אמת — Socket.IO (WebSockets):**
+   * *איזה:* מנוע WebSockets Socket.IO בצד השרת ובצד הלקוח.
+   * *מדוע:* אספקת תקשורת דו-כיוונית בזמן אמת (Real-Time Bidirectional Messaging) עבור הצ'אט הקהילתי, תוך הגדרה דינמית של משתני סביבה המאפשרת התחברות מאובטחת (Cross-Origin Setup).
+
+8. **מכולות ותזמור — Docker & Docker Compose:**
+   * *איזה:* פלטפורמת המכולות Docker וכלי התזמור Docker Compose.
+   * *מדוע:* בידוד מוחלט של סביבות הריצה (Frontend & Backend Containers), ביטול בעיות "It works on my machine", ואפשרות לפריסה אחידה ומהירה בסביבת ייצור (Production).
+
+9. **שרת אינטרנט ו-Reverse Proxy — Nginx:**
+   * *איזה:* שרת Nginx הרץ במכולת Docker ייעודית.
+   * *מדוע:* ניתוב בקשות, טיפול בטרמינציית SSL/TLS, והעברה חלקה (Reverse Proxying) של בקשות API לשרת ה-Node.js בשרת ה-AWS.
+
 ### 10.2 שפות הפיתוח (איזה שפות ומדוע)
 
 1. **JavaScript (ES6+):** שפת הפיתוח המרכזית (Full-Stack JS). צד שרת ב-Node.js (CommonJS) וצד לקוח ב-React (ES Modules).
