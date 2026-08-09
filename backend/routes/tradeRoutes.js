@@ -27,12 +27,16 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, authorizeRo
       });
     }
 
+    const targetQty = typeof offeredQuantity === 'number' && offeredQuantity > 0 
+      ? offeredQuantity 
+      : (parseInt(offeredQuantity, 10) > 0 ? parseInt(offeredQuantity, 10) : 1);
+
     const trade = new TradeOffer({
       sender: req.user._id,
       receiver: receiverId,
       offeredItem: offeredPopId,
       requestedItem: requestedPopId,
-      offeredQuantity: typeof offeredQuantity === 'number' && offeredQuantity > 0 ? offeredQuantity : 1,
+      offeredQuantity: targetQty,
       offeredCondition: offeredCondition || 'Mint (9.5-10)',
       requestedCondition: requestedCondition || 'Mint (9.5-10)',
       status: 'pending'

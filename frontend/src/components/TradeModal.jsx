@@ -60,6 +60,8 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
   const handleSend = () => {
     if (!selectedId) return;
 
+    const targetOfferedQty = typeof offeredQty === 'number' && offeredQty > 0 ? offeredQty : 1;
+
     // Build payload using MongoDB ObjectIds or mock ids
     fetch(getApiUrl('/api/trades'), {
       method: 'POST',
@@ -71,7 +73,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
         receiverId: receiverId,
         offeredPopId: selectedPop?.popId || selectedPop?.id || selectedId,
         requestedPopId: targetPop?.popId || targetPop?.id || targetPop?._id,
-        offeredQuantity: selectedPop?.quantity > 1 ? offeredQty : 1,
+        offeredQuantity: targetOfferedQty,
         offeredCondition: selectedPop?.boxCondition || 'Mint (9.5-10)',
         requestedCondition: targetPop?.boxCondition || 'Mint (9.5-10)'
       })
