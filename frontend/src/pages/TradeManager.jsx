@@ -25,7 +25,7 @@ const statusConfig = {
   canceled: { label: 'CANCELED', bg: 'bg-gray-400', text: 'text-white', border: 'border-gray-600', icon: X },
 };
 
-const parseItem = (item) => {
+const parseItem = (item, fallbackCondition, fallbackQuantity) => {
   if (!item) {
     return {
       name: 'Unknown Pop',
@@ -34,27 +34,27 @@ const parseItem = (item) => {
       image: '',
       marketValue: 15,
       rarity: 'Common',
-      boxCondition: 'Mint (9.5-10)',
-      quantity: 1
+      boxCondition: fallbackCondition || 'Mint (9.5-10)',
+      quantity: fallbackQuantity || 1
     };
   }
 
   const catalog = item.pop || item;
-  const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
-  let computedRarity = catalog.rarity;
+  const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : (typeof item.marketValue === 'number' ? item.marketValue : 15));
+  let computedRarity = catalog.rarity || item.rarity;
   if (!computedRarity) {
     computedRarity = marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
   }
 
   return {
-    name: catalog.name || 'Unknown Pop',
-    series: catalog.series || 'General',
-    number: catalog.itemNumber || catalog.number || catalog.releaseYear || '0',
-    image: catalog.imageUrl || catalog.image || '',
+    name: catalog.name || item.name || 'Unknown Pop',
+    series: catalog.series || item.series || 'General',
+    number: catalog.itemNumber || catalog.number || catalog.releaseYear || item.number || '0',
+    image: catalog.imageUrl || catalog.image || item.imageUrl || item.image || '',
     marketValue: marketVal,
     rarity: computedRarity,
-    boxCondition: item.boxCondition || catalog.boxCondition || 'Mint (9.5-10)',
-    quantity: item.quantity || item.offeredQuantity || catalog.quantity || 1
+    boxCondition: fallbackCondition || item.boxCondition || catalog.boxCondition || 'Mint (9.5-10)',
+    quantity: typeof fallbackQuantity === 'number' && fallbackQuantity > 0 ? fallbackQuantity : (item.offeredQuantity || item.quantity || catalog.quantity || 1)
   };
 };
 

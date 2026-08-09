@@ -69,8 +69,8 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
       },
       body: JSON.stringify({
         receiverId: receiverId,
-        offeredPopId: selectedPop?.popId || selectedId,
-        requestedPopId: targetPop.id || targetPop.popId,
+        offeredPopId: selectedPop?.popId || selectedPop?.id || selectedId,
+        requestedPopId: targetPop?.popId || targetPop?.id || targetPop?._id,
         offeredQuantity: selectedPop?.quantity > 1 ? offeredQty : 1,
         offeredCondition: selectedPop?.boxCondition || 'Mint (9.5-10)',
         requestedCondition: targetPop?.boxCondition || 'Mint (9.5-10)'

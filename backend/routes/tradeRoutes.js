@@ -176,52 +176,95 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
     if (status === 'accepted') {
       const sender = trade.sender;
       const receiver = trade.receiver;
-      const offeredItem = trade.offeredItem; // PopCatalog ID
-      const requestedItem = trade.requestedItem; // PopCatalog ID
+      const offeredPop = trade.offeredItem; // PopCatalog ID
+      const requestedPop = trade.requestedItem; // PopCatalog ID
+      const offeredQty = typeof trade.offeredQuantity === 'number' && trade.offeredQuantity > 0 ? trade.offeredQuantity : 1;
+      const offeredCond = trade.offeredCondition || 'Mint (9.5-10)';
+      const requestedCond = trade.requestedCondition || 'Mint (9.5-10)';
 
-      // Find original VaultItems
-      const senderVaultItem = await VaultItem.findOne({ user: sender, pop: offeredItem });
-      const receiverVaultItem = await VaultItem.findOne({ user: receiver, pop: requestedItem });
-
-      if (!senderVaultItem || !receiverVaultItem) {
-        return res.status(400).json({ error: 'Trade invalid: Offered or requested items are no longer available in the respective vaults' });
+      // 1. Find Sender's exact VaultItem matching pop & boxCondition
+      let senderVaultItem = await VaultItem.findOne({ user: sender, pop: offeredPop, boxCondition: offeredCond });
+      if (!senderVaultItem) {
+        senderVaultItem = await VaultItem.findOne({ user: sender, pop: offeredPop });
       }
 
-      console.log(`🔄 [Trade Swap] Transferring offeredItem: ${offeredItem} from sender: ${sender} to receiver: ${receiver}`);
-      // Move Offered Item from sender to receiver
-      const receiverExisting = await VaultItem.findOne({ user: receiver, pop: offeredItem });
-      if (receiverExisting) {
-        receiverExisting.quantity += senderVaultItem.quantity || 1;
-        await receiverExisting.save();
+      // 2. Find Receiver's exact VaultItem matching pop & boxCondition
+      let receiverVaultItem = await VaultItem.findOne({ user: receiver, pop: requestedPop, boxCondition: requestedCond });
+      if (!receiverVaultItem) {
+        receiverVaultItem = await VaultItem.findOne({ user: receiver, pop: requestedPop });
+      }
+
+      if (!senderVaultItem || !receiverVaultItem) {
+        return res.status(400).json({ error: 'Trade invalid: Offered or requested items are no longer available in the respective vaults.' });
+      }
+
+      if (senderVaultItem.quantity < offeredQty) {
+        return res.status(400).json({ error: `Trade invalid: Sender only has ${senderVaultItem.quantity} unit(s) available in ${senderVaultItem.boxCondition} condition.` });
+      }
+
+      if (receiverVaultItem.quantity < 1) {
+        return res.status(400).json({ error: `Trade invalid: Receiver no longer has this item in ${receiverVaultItem.boxCondition} condition.` });
+      }
+
+      console.log(`🔄 [Trade Acceptance] Transferring ${offeredQty} unit(s) of Pop ${offeredPop} (${offeredCond}) from Sender ${sender} to Receiver ${receiver}`);
+
+      // --- DECREMENT SENDER OFFERED ITEM ---
+      senderVaultItem.quantity -= offeredQty;
+      if (senderVaultItem.quantity <= 0) {
         await VaultItem.deleteOne({ _id: senderVaultItem._id });
       } else {
-        senderVaultItem.user = receiver;
         await senderVaultItem.save();
       }
 
-      console.log(`🔄 [Trade Swap] Transferring requestedItem: ${requestedItem} from receiver: ${receiver} to sender: ${sender}`);
-      // Move Requested Item from receiver to sender
-      const senderExisting = await VaultItem.findOne({ user: sender, pop: requestedItem });
-      if (senderExisting) {
-        senderExisting.quantity += receiverVaultItem.quantity || 1;
-        await senderExisting.save();
+      // --- CREDIT RECEIVER OFFERED ITEM ---
+      const receiverExistingOffered = await VaultItem.findOne({ user: receiver, pop: offeredPop, boxCondition: offeredCond });
+      if (receiverExistingOffered) {
+        receiverExistingOffered.quantity += offeredQty;
+        await receiverExistingOffered.save();
+      } else {
+        await new VaultItem({
+          user: receiver,
+          pop: offeredPop,
+          boxCondition: offeredCond,
+          quantity: offeredQty
+        }).save();
+      }
+
+      console.log(`🔄 [Trade Acceptance] Transferring 1 unit of Pop ${requestedPop} (${requestedCond}) from Receiver ${receiver} to Sender ${sender}`);
+
+      // --- DECREMENT RECEIVER REQUESTED ITEM ---
+      receiverVaultItem.quantity -= 1;
+      if (receiverVaultItem.quantity <= 0) {
         await VaultItem.deleteOne({ _id: receiverVaultItem._id });
       } else {
-        receiverVaultItem.user = sender;
         await receiverVaultItem.save();
       }
 
-      // Auto-cancel any other pending TradeOffers that include these exact same items
-      console.log(`🗑️ [Trade Swap] Auto-cancelling duplicate pending trades for catalog items: ${offeredItem} & ${requestedItem}`);
+      // --- CREDIT SENDER REQUESTED ITEM ---
+      const senderExistingRequested = await VaultItem.findOne({ user: sender, pop: requestedPop, boxCondition: requestedCond });
+      if (senderExistingRequested) {
+        senderExistingRequested.quantity += 1;
+        await senderExistingRequested.save();
+      } else {
+        await new VaultItem({
+          user: sender,
+          pop: requestedPop,
+          boxCondition: requestedCond,
+          quantity: 1
+        }).save();
+      }
+
+      // Auto-cancel duplicate pending trade offers for the traded items
+      console.log(`🗑️ [Trade Acceptance] Auto-cancelling duplicate pending trades for catalog items: ${offeredPop} & ${requestedPop}`);
       await TradeOffer.updateMany(
         {
           _id: { $ne: trade._id },
           status: 'pending',
           $or: [
-            { sender: sender, offeredItem: offeredItem },
-            { receiver: sender, requestedItem: offeredItem },
-            { sender: receiver, offeredItem: requestedItem },
-            { receiver: receiver, requestedItem: requestedItem }
+            { sender: sender, offeredItem: offeredPop },
+            { receiver: sender, requestedItem: offeredPop },
+            { sender: receiver, offeredItem: requestedPop },
+            { receiver: receiver, requestedItem: requestedPop }
           ]
         },
         { $set: { status: 'canceled' } }
