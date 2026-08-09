@@ -893,7 +893,7 @@ graph TD
 ### 18.4 סוג משתמש 4: מנהל מערכת (System Admin)
 
 * **שם סוג המשתמש:** מנהל מערכת (System Admin).
-* **הסבר על הרשאות והגבלות גישה:** תפקיד הנהלה בעל הרשאות-על (Role `admin`). נהנה מגישה מלאה לכל מסכי האפליקציה, ובנוסף מחזיק בגישה בלעדית ללוח בקרת מנהל מערכת (`/AdminPanel`). בעל סמכות לשנות תפקידי משתמשים בלייב (הענקת/שלילת VIP), לנהל את הקטלוג המרכזי, ולצפות בגרפים ואנליטיקות עסקיות של האתר.
+* **הסבר על הרשאות והגבלות גישה:** תפקיד הנהלה בעל הרשאות-על (Role `admin`). נהנה מגישה מלאה לכל מסכי האפליקציה, ובנוסף מחזיק בגישה בלעדית ללוח בקרת מנהל מערכת (`/AdminPanel`). בעל סמכות לשנות תפקידי משתמשים בלייב (הענקת/שלילת VIP) ולצפות בגרפים ואנליטיקות עסקיות של האתר.
 
 * **תרשים עץ מסכים של המשתמש (Screen Navigation Tree):**
 
@@ -902,7 +902,6 @@ graph TD
     Admin_Auth["Admin Login Verification"] --> Admin_Panel["Admin Control Panel (מסך 14)"]
     Admin_Panel --> Admin_Users["User Management & Role Toggles"]
     Admin_Panel --> Admin_Stats["System Growth & Aggregate Metrics"]
-    Admin_Panel --> Admin_Catalog["Global Catalog Management"]
 ```
 
 #### פירוט מסכי המשתמש בעץ:
