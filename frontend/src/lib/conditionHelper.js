@@ -6,12 +6,6 @@ export const BOX_CONDITIONS = [
 ];
 
 export const getConditionMultiplier = (condition) => {
-  if (!condition) return 1.0;
-  const c = String(condition).toLowerCase();
-  if (c.includes('damaged') || c.includes('6-')) return 0.50;
-  if (c.includes('very good') || c.includes('7-8')) return 0.85;
-  if (c.includes('near mint') || c.includes('8.5-9')) return 1.0;
-  if (c.includes('mint') || c.includes('9.5-10')) return 1.0;
   return 1.0;
 };
 

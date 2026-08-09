@@ -33,9 +33,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
       .then(data => {
         const mapped = data.map(item => {
           const catalog = item.pop || {};
-          const basePrice = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
-          const multiplier = getConditionMultiplier(item.boxCondition);
-          const mVal = basePrice * multiplier;
+          const mVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
           return {
             id: catalog._id || item._id,
             name: catalog.name || 'Unknown Pop',

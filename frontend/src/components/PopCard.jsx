@@ -74,6 +74,9 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
         <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
           <span className="text-white font-black text-lg">#{item.number}</span>
           <div className="flex items-center gap-2">
+            <span className="text-yellow-400 bg-gray-900 border border-yellow-400/50 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">
+              Qty: {item.quantity || 1}
+            </span>
             <CategoryBadge category={item.series} size="sm" />
             {onRemove && (
               <button

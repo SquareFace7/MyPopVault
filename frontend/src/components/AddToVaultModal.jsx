@@ -103,36 +103,19 @@ export default function AddToVaultModal({ pop, isOpen, onClose, onConfirm, isLoa
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase mb-1.5">
-                      Purchase Price ($)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={purchasePrice}
-                      onChange={(e) => setPurchasePrice(e.target.value)}
-                      className="w-full h-12 px-4 bg-white dark:bg-gray-800 border-4 border-gray-800 dark:border-slate-600 rounded-2xl font-bold text-sm text-gray-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.6)]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase mb-1.5">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      className="w-full h-12 px-4 bg-white dark:bg-gray-800 border-4 border-gray-800 dark:border-slate-600 rounded-2xl font-bold text-sm text-gray-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.6)]"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase mb-1.5">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    className="w-full h-12 px-4 bg-white dark:bg-gray-800 border-4 border-gray-800 dark:border-slate-600 rounded-2xl font-bold text-sm text-gray-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.6)]"
+                    required
+                  />
                 </div>
 
                 <div className="pt-3 flex gap-3">

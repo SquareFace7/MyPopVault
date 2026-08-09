@@ -48,9 +48,7 @@ export default function Dashboard() {
         if (Array.isArray(data)) {
           const mapped = data.map(item => {
             const popDetails = item.pop || {};
-            const basePrice = popDetails.marketPrice || 15.00;
-            const multiplier = getConditionMultiplier(item.boxCondition);
-            const marketVal = basePrice * multiplier;
+            const marketVal = popDetails.marketPrice || 15.00;
             return {
               id: item._id,
               popId: popDetails._id,

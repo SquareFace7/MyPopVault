@@ -216,9 +216,7 @@ export default function PublicVault() {
 
             const mappedPops = data.vaultItems.map(item => {
               const catalog = item.pop || {};
-              const basePrice = catalog.marketPrice || 25;
-              const multiplier = getConditionMultiplier(item.boxCondition);
-              const marketVal = basePrice * multiplier;
+              const marketVal = catalog.marketPrice || 25;
               return {
                 id: catalog._id || item._id,
                 popId: catalog._id || item._id,

@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 // POST /api/vault - Add a Pop to the user's personal vault
 router.post('/', authMiddleware, authMiddleware.requireVerification, async (req, res) => {
   try {
-    const { popId } = req.body;
+    const { popId, purchasePrice, boxCondition, quantity } = req.body;
 
     if (!popId) {
       return res.status(400).json({ error: 'popId is required' });
@@ -21,7 +21,9 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, async (req,
     const newVaultItem = new VaultItem({
       user: req.user._id,
       pop: popId,
-      purchasePrice: popCatalogItem.marketPrice || 15
+      purchasePrice: typeof purchasePrice === 'number' ? purchasePrice : 0,
+      boxCondition: boxCondition || 'Mint (9.5-10)',
+      quantity: typeof quantity === 'number' && quantity > 0 ? quantity : 1
     });
 
     const savedItem = await newVaultItem.save();

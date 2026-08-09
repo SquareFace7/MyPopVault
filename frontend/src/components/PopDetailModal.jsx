@@ -128,18 +128,6 @@ export default function PopDetailModal({ item, isOpen, onClose, onDelete, onEdit
                   {isEditing ? (
                     /* Edit Form Layout */
                     <div key="edit-mode" className="space-y-4 mb-6">
-                      <div>
-                        <label className="block text-xs font-black text-gray-700 mb-1.5 uppercase">Purchase Price ($)</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={editPrice}
-                          onChange={e => setEditPrice(parseFloat(e.target.value) || 0)}
-                          className="w-full h-11 px-4 border-4 border-gray-850 rounded-2xl font-bold text-sm bg-gray-50 focus:bg-white focus:border-cyan-500 focus:outline-none transition-all"
-                          required
-                        />
-                      </div>
 
                       <div>
                         <label className="block text-xs font-black text-gray-700 mb-1.5 uppercase">Box Condition</label>
