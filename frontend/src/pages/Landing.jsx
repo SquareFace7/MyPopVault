@@ -298,31 +298,32 @@ export default function Landing() {
               {/* Benefits grid */}
               <div className="grid sm:grid-cols-2 gap-4 mb-10">
                 {[
-                  { icon: Search, title: 'Search Collectors', desc: 'Find & browse any collector in the community by series, rarity, or name.' },
-                  { icon: Eye, title: 'View Public Vaults', desc: 'Browse other collectors\' full inventories and scout items you want.' },
-                  { icon: MessageSquare, title: 'Private 1-on-1 Chat', desc: 'Message collectors directly to negotiate deals in private.' },
-                  { icon: ArrowDownUp, title: 'Send Trade Offers', desc: 'Propose trades directly from any public vault with a single click.' },
+                  { icon: Search, title: 'Search Collectors', desc: 'Find & browse any collector in the community by series, rarity, or name.', path: '/CollectorSearch' },
+                  { icon: Eye, title: 'View Public Vaults', desc: 'Browse other collectors\' full inventories and scout items you want.', path: '/CollectorSearch' },
+                  { icon: MessageSquare, title: 'Private 1-on-1 Chat', desc: 'Message collectors directly to negotiate deals in private.', path: '/PopMessenger' },
+                  { icon: ArrowDownUp, title: 'Send Trade Offers', desc: 'Propose trades directly from any public vault with a single click.', path: '/TradeManager' },
                 ].map((benefit, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex items-start gap-4 bg-white/70 border-4 border-gray-850 rounded-2xl p-4 shadow-[4px_4px_0px_rgba(0,0,0,0.7)]"
-                    initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    whileHover={{ y: -3 }}
-                  >
-                    <div className="w-12 h-12 bg-gray-800 rounded-2xl border-2 border-gray-900 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                      <benefit.icon className="w-6 h-6 text-yellow-400" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <h3 className="font-black text-gray-950 text-base">{benefit.title}</h3>
+                  <Link key={i} to={benefit.path} className="block">
+                    <motion.div
+                      className="flex items-start gap-4 bg-white/70 border-4 border-gray-850 rounded-2xl p-4 shadow-[4px_4px_0px_rgba(0,0,0,0.7)] hover:bg-white/90 transition-colors"
+                      initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      whileHover={{ y: -3 }}
+                    >
+                      <div className="w-12 h-12 bg-gray-800 rounded-2xl border-2 border-gray-900 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                        <benefit.icon className="w-6 h-6 text-yellow-400" />
                       </div>
-                      <p className="text-gray-900 font-semibold text-sm mt-0.5">{benefit.desc}</p>
-                    </div>
-                  </motion.div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <h3 className="font-black text-gray-950 text-base">{benefit.title}</h3>
+                        </div>
+                        <p className="text-gray-900 font-semibold text-sm mt-0.5">{benefit.desc}</p>
+                      </div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
 
