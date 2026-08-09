@@ -145,23 +145,32 @@ function IncomingCard({ trade, onAccept, onReject, onCounter, onHide }) {
             </span>
           </div>
         ) : (
-          <div className="px-4 pb-4 flex gap-3">
+          <div className="px-4 pb-4 flex gap-2 sm:gap-3">
             <motion.button
               onClick={() => onReject(trade.id)}
-              className="flex-1 h-10 bg-gradient-to-r from-red-500 to-pink-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1.5"
+              className="flex-1 h-10 bg-gradient-to-r from-red-500 to-pink-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1"
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
             >
-              <X className="w-4 h-4" /> Decline
+              <X className="w-3.5 h-3.5" /> Decline
+            </motion.button>
+
+            <motion.button
+              onClick={() => onCounter(trade.senderId)}
+              className="flex-1 h-10 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1"
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 0 }}
+            >
+              <ArrowDownUp className="w-3.5 h-3.5" /> Counter
             </motion.button>
 
             <motion.button
               onClick={() => onAccept(trade.id, trade.senderId, trade.from)}
-              className="flex-1 h-10 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1.5"
+              className="flex-1 h-10 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1"
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
             >
-              <Check className="w-4 h-4" /> Accept
+              <Check className="w-3.5 h-3.5" /> Accept
             </motion.button>
           </div>
         )}
