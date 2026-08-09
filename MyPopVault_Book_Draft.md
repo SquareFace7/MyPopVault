@@ -245,7 +245,7 @@
 
 ### 10.4 חלוקה לתכניות ומודולים
 * **צד לקוח (Client Modules):** `AuthContext`, דפים (`Dashboard`, `Collection`, `Explorer`, `TradeManager`, `VipUpgrade`, `AdminPanel`), ורכיבי תצוגה.
-* **צד שרת (Server Modules):** `authRoutes`, `vaultRoutes`, `catalogRoutes`, `paymentRoutes`, `tradeRoutes`, `messageRoutes`, `cronService` ו-`seedCatalog`.
+* **צד שרת (Server Modules):** `authRoutes`, `vaultRoutes`, `catalogRoutes`, `paymentRoutes`, `tradeRoutes`, `messageRoutes`, `recommendationsRoutes`, `cronService` ו-`seedCatalog`.
 
 ### 10.5 סביבת השרת והטמעה
 * **פיתוח (Development):** הרצה מקומית בסביבת `Node.js Environment` (Localhost:5000 / Vite Dev Server).
