@@ -30,14 +30,19 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
     })
       .then(res => res.json())
       .then(data => {
-        const mapped = data.map(item => ({
-          id: item.pop?._id || item._id,
-          name: item.pop?.name || 'Unknown Pop',
-          series: item.pop?.series || 'General',
-          number: item.pop?.releaseYear || 0,
-          marketValue: item.pop?.isVaulted ? 150 : 25,
-          rarity: item.boxCondition || 'Common'
-        }));
+        const mapped = data.map(item => {
+          const catalog = item.pop || {};
+          const mVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
+          return {
+            id: catalog._id || item._id,
+            name: catalog.name || 'Unknown Pop',
+            series: catalog.series || 'General',
+            number: catalog.itemNumber || catalog.number || '0',
+            marketValue: mVal,
+            image: catalog.imageUrl || catalog.image || '',
+            rarity: mVal >= 100 ? 'Grail' : mVal > 25 ? 'Rare' : 'Common'
+          };
+        });
         setMyPops(mapped);
         setLoading(false);
       })
@@ -191,8 +196,12 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                         whileTap={{ scale: 0.97 }}
                       >
                         <div className="flex items-center gap-2 mb-1.5">
-                          <div className="w-8 h-8 bg-gradient-to-br from-cyan-105 to-blue-105 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0">
-                            <Sparkles className="w-4 h-4 text-cyan-500" />
+                          <div className="w-8 h-8 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0 overflow-hidden">
+                            {pop.image ? (
+                              <img src={pop.image} alt={pop.name} className="w-full h-full object-contain" />
+                            ) : (
+                              <Sparkles className="w-4 h-4 text-cyan-500" />
+                            )}
                           </div>
                           {selectedId === pop.id && (
                             <CheckCircle className="w-4 h-4 text-pink-500 ml-auto" />
@@ -200,7 +209,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
                         </div>
                         <p className="font-black text-gray-805 text-xs leading-tight truncate">{pop.name}</p>
                         <p className="text-xs text-gray-500 font-bold truncate">#{pop.number} · {pop.series}</p>
-                        <p className="text-sm font-black text-cyan-500 mt-1">${pop.marketValue}</p>
+                        <p className="text-sm font-black text-cyan-500 mt-1">${(pop.marketValue || 0).toFixed(0)}</p>
                       </motion.button>
                     ))}
                   </div>
