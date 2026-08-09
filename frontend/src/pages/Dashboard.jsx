@@ -25,7 +25,7 @@ export default function Dashboard() {
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const isVipOrAdmin = user?.isVIP || user?.role === 'vip' || user?.role === 'admin';
+  const isVipOrAdmin = user?.isVIP || user?.isVip || user?.role?.toLowerCase() === 'vip' || user?.role?.toLowerCase() === 'admin';
 
   const fetchVault = () => {
     setIsLoading(true);
@@ -357,72 +357,13 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* VIP Live Grail Alerts Widget */}
-        {isVipOrAdmin && grailAlerts.length > 0 && (
-          <motion.div
-            className="mb-8 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-cyan-500/10 border-4 border-amber-400 dark:border-amber-500/50 rounded-3xl p-6 shadow-[5px_5px_0px_#FFD700] relative overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl border-2 border-gray-800 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
-                  <Crown className="w-6 h-6 text-gray-900" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-wider">
-                      🔥 Live Grail Alerts
-                    </h2>
-                    <span className="bg-amber-400 text-gray-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full border border-gray-900 shadow-[1px_1px_0px_rgba(0,0,0,1)] animate-pulse">
-                      VIP Exclusive
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                    High-value catalog items currently trending on valuation market
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/PopExplorer')}
-                className="hidden sm:flex items-center gap-1 text-xs font-black text-amber-600 dark:text-amber-400 hover:underline"
-              >
-                Browse Catalog <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {grailAlerts.map((item, idx) => (
-                <div
-                  key={item._id || idx}
-                  onClick={() => navigate(`/pop/${item._id}`)}
-                  className="bg-white dark:bg-gray-900 border-3 border-gray-800 dark:border-slate-600 rounded-2xl p-3 shadow-[3px_3px_0px_#FFD700] hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
-                >
-                  <div className="flex items-center justify-between text-xs font-black mb-2">
-                    <span className="text-amber-500 uppercase truncate max-w-[90px]">{item.series}</span>
-                    <span className="text-gray-400">#{item.itemNumber}</span>
-                  </div>
-                  <div className="w-full h-28 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-2 flex items-center justify-center border-2 border-gray-200 dark:border-slate-700 mb-2">
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
-                    ) : (
-                      <Sparkles className="w-6 h-6 text-amber-400" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-black text-xs text-gray-800 dark:text-white truncate">{item.name}</p>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded">
-                        GRAIL
-                      </span>
-                      <span className="text-xs font-black text-cyan-500">${(item.marketPrice || 0).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+        {/* Charts Section */}
+        {pops.length > 0 && (
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <SeriesPieChart data={pops} />
+            <RarityBarChart data={pops} />
+            <ValueTrendChart data={pops} />
+          </div>
         )}
 
         {/* Top Valuable Section */}
@@ -489,6 +430,82 @@ export default function Dashboard() {
             </motion.div>
           )}
         </motion.div>
+
+        {/* VIP Live Grail Alerts Widget (Positioned Below Crown Jewels) */}
+        {isVipOrAdmin && (
+          <motion.div
+            className="mb-8 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-cyan-500/10 border-4 border-amber-400 dark:border-amber-500/50 rounded-3xl p-6 shadow-[5px_5px_0px_#FFD700] relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl border-2 border-gray-800 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
+                  <Crown className="w-6 h-6 text-gray-900" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-wider">
+                      🔥 Live Grail Alerts
+                    </h2>
+                    <span className="bg-amber-400 text-gray-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full border border-gray-900 shadow-[1px_1px_0px_rgba(0,0,0,1)] animate-pulse">
+                      VIP Exclusive
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                    High-value catalog items currently trending on valuation market
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/PopExplorer')}
+                className="hidden sm:flex items-center gap-1 text-xs font-black text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                Browse Catalog <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {grailAlerts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {grailAlerts.map((item, idx) => (
+                  <div
+                    key={item._id || idx}
+                    onClick={() => navigate(`/pop/${item._id}`)}
+                    className="bg-white dark:bg-gray-900 border-3 border-gray-800 dark:border-slate-600 rounded-2xl p-3 shadow-[3px_3px_0px_#FFD700] hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between text-xs font-black mb-2">
+                      <span className="text-amber-500 uppercase truncate max-w-[90px]">{item.series}</span>
+                      <span className="text-gray-400">#{item.itemNumber}</span>
+                    </div>
+                    <div className="w-full h-28 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-2 flex items-center justify-center border-2 border-gray-200 dark:border-slate-700 mb-2">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <Sparkles className="w-6 h-6 text-amber-400" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-black text-xs text-gray-800 dark:text-white truncate">{item.name}</p>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded">
+                          GRAIL
+                        </span>
+                        <span className="text-xs font-black text-cyan-500">${(item.marketPrice || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white/60 dark:bg-gray-900/60 border-2 border-dashed border-amber-400 dark:border-amber-500/40 rounded-2xl p-8 text-center">
+                <p className="font-black text-amber-700 dark:text-amber-400 text-sm">
+                  No trending grails found in the market right now. Check back later!
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Quick Stats Bar */}
         {pops.length > 0 && (
