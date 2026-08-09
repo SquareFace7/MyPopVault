@@ -75,6 +75,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/trades', tradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/recommendations', catalogRoutes);
 app.use('/api/grail-alerts', grailAlertsRoutes);
 
 // Health Check Route

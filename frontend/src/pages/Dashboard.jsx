@@ -58,6 +58,8 @@ export default function Dashboard() {
   const [selectedPop, setSelectedPop] = useState(null);
   const [pops, setPops] = useState([]);
   const [grailAlerts, setGrailAlerts] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [recommendationSeries, setRecommendationSeries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const { user, logout } = useAuth();
@@ -115,6 +117,22 @@ export default function Dashboard() {
   useEffect(() => {
     if (user && user.isLoggedIn) {
       fetchVault();
+
+      // Fetch AI Smart Recommendations
+      fetch(getApiUrl('/api/recommendations'), {
+        headers: {
+          'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && Array.isArray(data.recommendations)) {
+            setRecommendations(data.recommendations);
+            setRecommendationSeries(data.favoriteSeries || []);
+          }
+        })
+        .catch(err => console.error('Failed to fetch recommendations:', err));
+
       if (isVipOrAdmin) {
         fetch(getApiUrl('/api/grail-alerts'))
           .then(res => res.json())
@@ -536,7 +554,77 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Quick Stats Bar */}
+        {/* AI Smart Recommendations Widget */}
+        {recommendations.length > 0 && (
+          <motion.div
+            className="mb-8 bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl p-6 shadow-[5px_5px_0px_#00AEEF] relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.48 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl border-2 border-gray-800 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-wider">
+                      🤖 Smart Recommendations
+                    </h2>
+                    <span className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300 font-black text-[10px] uppercase px-2 py-0.5 rounded-full border border-cyan-400">
+                      AI Heuristic
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                    {recommendationSeries.length > 0
+                      ? `Curated unowned catalog items based on your interest in ${recommendationSeries.join(', ')}`
+                      : 'Trending high-ROI Pops tailored for your vault expansion'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/PopExplorer')}
+                className="hidden sm:flex items-center gap-1 text-xs font-black text-cyan-600 dark:text-cyan-400 hover:underline"
+              >
+                Explore All <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {recommendations.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => navigate(`/pop/${item._id}`)}
+                  className="bg-gray-50 dark:bg-gray-800/80 border-3 border-gray-800 dark:border-slate-700 rounded-2xl p-3 shadow-[3px_3px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between text-[10px] font-black mb-1">
+                    <span className="text-cyan-600 dark:text-cyan-400 uppercase truncate max-w-[80px]">{item.series}</span>
+                    <span className="text-gray-400">#{item.itemNumber || item.number || '0'}</span>
+                  </div>
+                  <div className="w-full h-24 bg-white dark:bg-gray-900 rounded-xl p-1.5 flex items-center justify-center border-2 border-gray-200 dark:border-slate-600 mb-2">
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <Sparkles className="w-6 h-6 text-cyan-400" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-black text-xs text-gray-800 dark:text-white truncate">{item.name}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-[10px] font-black text-green-600 dark:text-green-400">
+                        ${(item.marketPrice || 15).toFixed(2)}
+                      </span>
+                      <span className="bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300 text-[9px] font-black px-1.5 py-0.5 rounded">
+                        RECOMMENDED
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
         {pops.length > 0 && (
           <motion.div
             className="bg-gradient-to-r from-gray-800 to-gray-950 rounded-2xl p-6 flex flex-wrap justify-around items-center gap-6 border-4 border-gray-900 dark:border-slate-600 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] dark:shadow-[4px_4px_0px_#00AEEF]"

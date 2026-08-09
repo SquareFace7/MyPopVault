@@ -50,6 +50,67 @@ router.get('/grail-alerts', async (req, res) => {
   }
 });
 
+// GET /api/catalog/recommendations - Smart Heuristic Recommendation Engine
+router.get('/recommendations', async (req, res) => {
+  try {
+    const VaultItem = require('../models/VaultItem');
+    let userId = null;
+    
+    // Optional auth token check
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const jwt = require('jsonwebtoken');
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mypopvault_secret');
+        userId = decoded.id || decoded._id;
+      } catch (e) {}
+    }
+
+    let ownedPopIds = [];
+    let seriesCounts = {};
+
+    if (userId) {
+      const userVaultItems = await VaultItem.find({ user: userId }).populate('pop');
+      ownedPopIds = userVaultItems
+        .map(item => (item.pop?._id ? item.pop._id.toString() : item.pop?.toString()))
+        .filter(Boolean);
+
+      userVaultItems.forEach(item => {
+        if (item.pop && item.pop.series) {
+          seriesCounts[item.pop.series] = (seriesCounts[item.pop.series] || 0) + (item.quantity || 1);
+        }
+      });
+    }
+
+    const topSeries = Object.keys(seriesCounts).sort((a, b) => seriesCounts[b] - seriesCounts[a]);
+
+    let query = { _id: { $nin: ownedPopIds } };
+    if (topSeries.length > 0) {
+      query.series = { $in: topSeries.slice(0, 3) };
+    }
+
+    let recommendations = await PopCatalog.find(query)
+      .sort({ marketPrice: -1, releaseYear: -1 })
+      .limit(6);
+
+    if (recommendations.length < 4) {
+      const fallbackItems = await PopCatalog.find({ _id: { $nin: ownedPopIds } })
+        .sort({ marketPrice: -1 })
+        .limit(6);
+      recommendations = fallbackItems;
+    }
+
+    res.json({
+      recommendations,
+      favoriteSeries: topSeries.slice(0, 3)
+    });
+  } catch (error) {
+    console.error('❌ Smart Recommendation Engine Error:', error);
+    res.status(500).json({ error: 'Failed to generate recommendations' });
+  }
+});
+
 // GET /api/catalog/:id - Retrieve a single pop from the catalog by ID
 router.get('/:id', async (req, res) => {
   try {

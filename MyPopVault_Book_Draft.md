@@ -559,7 +559,8 @@ flowchart LR
      $$\text{Total Investment} = \sum_{i=1}^{n} \text{Item Investment}_i, \quad \text{Total Market Value} = \sum_{i=1}^{n} \text{Item Market Value}_i$$
    * *תשואה אחוזית משוקללת (Portfolio ROI %):*
      $$\text{Portfolio ROI (\%)} = \begin{cases} \left( \frac{\text{Total Market Value} - \text{Total Investment}}{\text{Total Investment}} \right) \times 100 & \text{if } \text{Total Investment} > 0 \\ 0\% & \text{if } \text{Total Investment} = 0 \end{cases}$$
-3. **אלגוריתם סיווג פריטי דגל (Grail Classifier) ומיון חכם:** סיווג אוטומטי של פריטי Grail (מחיר שוק $\ge \$40$ או תשואה יחסית $\ge 150\%$) ומיון דינמי בזמן אמת.
+3. **אלגוריתם סיווג פריטי דגל (Grail Classifier) ומיון חכם:** סיווג אוטומטי של פריטי Grail (מחיר שוק $\ge \$100$ או תשואה יחסית $\ge 150\%$) ומיון דינמי בזמן אמת.
+4. **מנוע המלצות רכישה חכם (AI Smart Recommendation Engine):** ניתוח אגרגטיבי של התפלגות הסדרות הנאספות ביותר ע"י המשתמש (למשל Marvel, Star Wars) והמלצה על פריטי קטלוג בעלי שווי שוק גבוה מתוך סדרות אלו שאינם קיימים עדיין בכספת המשתמש.
 
 ### 12.2 מימוש אלגוריתמי ברמת בסיס הנתונים (MongoDB Aggregation Pipeline)
 
@@ -587,7 +588,7 @@ const portfolioStats = await VaultItem.aggregate([
         ]
       },
       series: '$popDetails.series',
-      isGrail: { $gte: ['$popDetails.marketPrice', 40] }
+      isGrail: { $gte: ['$popDetails.marketPrice', 100] }
     }
   },
   {
@@ -1147,7 +1148,7 @@ export default function PopExplorer() {
           name: pop.name,
           series: pop.series,
           number: pop.itemNumber,
-          rarity: pop.marketPrice > 40 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
+          rarity: pop.marketPrice >= 100 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
           price: pop.marketPrice || 15,
           image: pop.imageUrl
         }));
