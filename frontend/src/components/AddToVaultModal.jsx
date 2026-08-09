@@ -89,6 +89,26 @@ export default function AddToVaultModal({ pop, isOpen, onClose, onConfirm, isLoa
               {/* Configuration Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                  <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase mb-1.5 flex items-center justify-between">
+                    <span>Purchase Price ($)</span>
+                    <span className="text-[10px] text-gray-400 font-bold lowercase">Required for ROI</span>
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={purchasePrice}
+                      onChange={(e) => setPurchasePrice(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full h-12 pl-11 pr-4 bg-white dark:bg-gray-800 border-4 border-gray-800 dark:border-slate-600 rounded-2xl font-bold text-sm text-gray-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.6)]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase mb-1.5">
                     Box Condition
                   </label>

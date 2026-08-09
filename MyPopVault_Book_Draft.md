@@ -255,8 +255,19 @@
   - **תזמור Docker Compose:** שרת `backend` (פורט 5000 פנימי), שרת `nginx` כ-Reverse Proxy (ניהול תעודות SSL Let's Encrypt, הפניית HTTP 301 מפורט 80 ל-443, וניהול Websocket Headers עבור `/socket.io/`), ושירות `certbot`.
   - **Database:** מסד נתונים מנוהל בענן ב-**MongoDB Atlas Cloud**.
 
-### 10.6 ממשק המשתמש / לקוח (GUI)
-ממשק משתמש רספונסיבי מודרני בסגנון Pop-Art Neo-Brutalism (גבולות שחורים מודגשים, צבעוניות עזה, מיקרו-אנמציות ב-Framer Motion, ותמיכה מלאה במסכי Mobile). 
+### 10.6 ממשק המשתמש / לקוח (GUI) & תקן עיצוב אחיד
+ממשק משתמש רספונסיבי מודרני בסגנון Pop-Art Neo-Brutalism (גבולות שחורים מודגשים, צבעוניות עזה, מיקרו-אנמציות ב-Framer Motion, ותמיכה מלאה במסכי Mobile).
+* **נורמליזציית העיצוב (Design System Normalization):**
+  - **מסגרות כרטיסים גלובליות:** האחדת כל כרטיסי הפריטים במערכת (`PublicVault.jsx`, `TradeModal.jsx`, `PopExplorer.jsx`) למסגרת אחידה `border-4 border-gray-800 dark:border-slate-600` בשילוב הצללות ניאון מתחלפות בציאן (`#00AEEF`) ומג'נטה (`#EC008C`), תוך הסרת גבולות דינמיים חיצוניים לפי מצב קופסה.
+  - **מסגרות פנימיות לתמונות:** האחדת חלונות התמונות של הבובות לתצוגת עומק שקועה (`shadow-inner, border-gray-300 dark:border-slate-700`).
+  - **תגי נדירות ומצב קופסה (Condition & Rarity Badges):** עיצוב מצבי הקופסה (`Mint` = Emerald, `Near Mint` = Cyan, `Very Good` = Amber, `Damaged` = Rose) מוחל כעת בבלעדיות על גבי תגיות (Pills/Badging via `getConditionBadgeStyle`) בתוך הכרטיסים.
+  - **אינדיקטורי כמות ציבוריים:** הצגת תגית כמות מפורשת (`Qty: {quantity}`) בכרטיסי אספן ציבוריים עבור משתמשים המחזיקים בכמה יחידות מפריט מסוים.
+* **ייצוב State ואיגוד Payloads בטפסים:**
+  - **מודאל הוספה לכספת (`AddToVaultModal.jsx`):** ייצוב תלויות `useEffect` (`[pop?._id, isOpen]`) למניעת איפוס ערכי מצב הקופסה והכמות לערכי ברירת מחדל (`Mint` / כמות 1) בעת שליחה.
+  - **מודאל הצעת סחר (`TradeModal.jsx`):** חיבור קשיח של רכיבי ה-Stepper להבטחת העברה מדויקת של `offeredQuantity` ו-`requestedQuantity` בבקשת הפריסה `POST /api/trades`.
+* **ניתוב ופתרון נתיבים גלובלי (Global Route Resolution):**
+  - רישום מרכזי של כל נתיבי ה-VIP והקהילה (`CollectorSearch`, `PublicVault`, `TradeManager`, `PopExplorer`, `PopMessenger`, `CommunityChat`) במילון `pages.config.js` למניעת שגיאות ניתוב 404.
+  - חיבור רכיבי ניווט אבסולוטיים (`<Link to="...">`) בדף הנחיתה הראשי (`Landing.jsx`) למניעת קישורים שבורים.
 * **אופטימיזציית CSS ופתרון גלישה (Signup Form UI/CSS Overflow Fix):** פתרון בעיית גלישת תוכן וסרגל גלילה פנימי במסך ההרשמה (`Login.jsx` - Signup mode) באמצעות החלפת אילוצי `h-full` ו-`overflow-hidden` נוקשים ב-`min-h-full` ברכיב מעטפת הרקע (`PopArtBackground.jsx`), הגדרת גודל `h-auto` בכרטיס הטופס, צמצום המרווחים הפנימיים (`space-y-2`), והוספת פדינג חיצוני נדיב (`py-8`, `my-auto`, `pb-6`) המבטיחים מרכזיות אנכית מושלמת ללא חיתוכי תוכן או סרגלי גלילה פנימיים.
 
 ### 10.7 ממשקים למערכות אחרות (APIs)
@@ -290,7 +301,7 @@
 1. **אוסף משתמשים (`User` Collection):** `username`, `email`, `password` (Hashed), `role`, `isVip`, `createdAt`.
 2. **אוסף פריטי קטלוג (`PopCatalog` Collection):** `name`, `series`, `itemNumber`, `imageUrl`, `marketPrice`, `updatedAt`. אינדקס מורכב `{ name: 1, series: 1 }`.
 3. **אוסף כספת אישית (`VaultItem` Collection):** `user` (Ref User), `pop` (Ref PopCatalog), `purchasePrice`, `boxCondition`, `quantity`, `addedAt`. אינדקס ייחודי מורכב `{ user: 1, pop: 1 }`.
-4. **אוסף הצעות סחר (`TradeOffer` Collection):** `sender`, `receiver`, `offeredItem`, `requestedItem`, `status`, `createdAt`.
+4. **אוסף הצעות סחר (`TradeOffer` Collection):** `sender`, `receiver`, `offeredItem`, `requestedItem`, `offeredCondition`, `requestedCondition`, `offeredQuantity`, `requestedQuantity`, `status`, `createdAt`.
 
 ### 11.2 תרשימי מערכת מרכזיים (UML Diagram Suite)
 
@@ -434,6 +445,10 @@ classDiagram
         +ObjectId receiver
         +ObjectId offeredItem
         +ObjectId requestedItem
+        +String offeredCondition
+        +String requestedCondition
+        +Number offeredQuantity
+        +Number requestedQuantity
         +String status
         +Date createdAt
     }
@@ -861,7 +876,7 @@ graph TD
 ##### מסך 10: מסך מרכז ההחלפות והצעות סחר (Trade Manager)
 * **שם מסך:** מרכז ניהול הצעות סחר והחלפות (`TradeManager.jsx`).
 * **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** ניהול תהליך החלפת פריטים (Barter Trade Swap) דו-צדדי, ומעקב בזמן אמת אחר מכונת המצבים (`pending`, `accepted`, `rejected`, `canceled`).
-* **מה המשתמש עושה בפועל במסך:** צופה בתצוגת גריד רספונסיבית מקבילה (Side-by-Side Responsive Grid Layout) של הצעות נכנסות (Incoming) מול הצעות יוצאות (Sent) בעלות עיצוב Pop-Art Neon עם גבולות זוהרים (#00AEEF / #EC008C) ואייקון החלפה ממורכז. בהצעות נכנסות: לוחץ "Accept" לאישור עסקה והפעלת החלפת בעלות אטומית ב-DB, לוחץ "Decline" לדחיית עסקה, או לוחץ "Counter" להגשת הצעה נגדית. בהצעות יוצאות: לוחץ "Cancel" לביטול הצעה שנשלחה, ולוחץ על כפתור הסרת ההיסטוריה למחיקת עסקאות שהסתיימו.
+* **מה המשתמש עושה בפועל במסך:** צופה בתצוגת גריד רספונסיבית מקבילה (Side-by-Side Responsive Grid Layout) של הצעות נכנסות (Incoming) מול הצעות יוצאות (Sent) בעלות עיצוב Pop-Art Neon עם גבולות זוהרים (#00AEEF / #EC008C) ואייקון החלפה ממורכז. זרימת העבודה מיועלת לתצורת בינארית (Binary Workflow): בהצעות נכנסות המשתמש לוחץ "Accept" לאישור עסקה והפעלת החלפת בעלות אטומית ומודעת-כמויות ב-DB, או לוחץ "Decline" לדחיית עסקה. בהצעות יוצאות המשתמש לוחץ "Cancel" לביטול הצעה שנשלחה, ולוחץ על כפתור הסרת ההיסטוריה למחיקת עסקאות שהסתיימו.
 * **צילום מסך:**
 > 📷 **[צילום מסך: מסך 10 - מרכז הצעות סחר | UI Screenshot Placeholder]**
 
@@ -1376,8 +1391,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * PUT /api/trades/:id/status
- * Manages the state transitions of a trade offer (accepted, rejected, canceled).
- * Performs atomic vault item ownership transfers upon acceptance.
+ * Condition-Aware & Quantity-Aware Atomic Trade Execution Engine.
+ * Manages state transitions (accepted, rejected, canceled) in a binary workflow.
  */
 router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, authMiddleware.authorizeRoles('vip', 'admin'), async (req, res) => {
   try {
@@ -1407,41 +1422,82 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
       return res.status(400).json({ error: 'Can only update status on pending trades' });
     }
 
-    // Atomic vault item ownership swap logic when trade is ACCEPTED
+    // Condition-Aware & Quantity-Aware Inventory Control Logic upon ACCEPTANCE
     if (status === 'accepted') {
-      const { sender, receiver, offeredItem, requestedItem } = trade;
+      const { 
+        sender, receiver, 
+        offeredItem, requestedItem, 
+        offeredCondition = 'Mint', requestedCondition = 'Mint',
+        offeredQuantity = 1, requestedQuantity = 1 
+      } = trade;
 
-      // Locate original vault items
-      const senderVaultItem = await VaultItem.findOne({ user: sender, pop: offeredItem });
-      const receiverVaultItem = await VaultItem.findOne({ user: receiver, pop: requestedItem });
+      // 1. Precise query matching exact Pop ID and specific boxCondition
+      const senderVaultItem = await VaultItem.findOne({ 
+        user: sender, pop: offeredItem, boxCondition: offeredCondition 
+      });
+      const receiverVaultItem = await VaultItem.findOne({ 
+        user: receiver, pop: requestedItem, boxCondition: requestedCondition 
+      });
 
-      if (!senderVaultItem || !receiverVaultItem) {
-        return res.status(400).json({ error: 'Trade invalid: Items no longer available in vaults' });
+      // 2. Validate current inventory stock levels before executing transfer
+      if (!senderVaultItem || senderVaultItem.quantity < offeredQuantity) {
+        return res.status(400).json({ error: 'Sender no longer has sufficient stock for this offered condition' });
+      }
+      if (!receiverVaultItem || receiverVaultItem.quantity < requestedQuantity) {
+        return res.status(400).json({ error: 'Receiver no longer has sufficient stock for this requested condition' });
       }
 
-      // Transfer Offered Item from sender to receiver
-      const receiverExisting = await VaultItem.findOne({ user: receiver, pop: offeredItem });
-      if (receiverExisting) {
-        receiverExisting.quantity += senderVaultItem.quantity || 1;
-        await receiverExisting.save();
+      // 3. Decrement or remove offered stock from sender's vault
+      senderVaultItem.quantity -= offeredQuantity;
+      if (senderVaultItem.quantity <= 0) {
         await VaultItem.deleteOne({ _id: senderVaultItem._id });
       } else {
-        senderVaultItem.user = receiver; // Mutate ownership
         await senderVaultItem.save();
       }
 
-      // Transfer Requested Item from receiver to sender
-      const senderExisting = await VaultItem.findOne({ user: sender, pop: requestedItem });
-      if (senderExisting) {
-        senderExisting.quantity += receiverVaultItem.quantity || 1;
-        await senderExisting.save();
+      // 4. Decrement or remove requested stock from receiver's vault
+      receiverVaultItem.quantity -= requestedQuantity;
+      if (receiverVaultItem.quantity <= 0) {
         await VaultItem.deleteOne({ _id: receiverVaultItem._id });
       } else {
-        receiverVaultItem.user = sender; // Mutate ownership
         await receiverVaultItem.save();
       }
 
-      // Auto-cancel any conflicting pending trade offers involving these exact items
+      // 5. Add/Merge offered item into receiver's vault matching exact condition
+      const receiverTargetItem = await VaultItem.findOne({ 
+        user: receiver, pop: offeredItem, boxCondition: offeredCondition 
+      });
+      if (receiverTargetItem) {
+        receiverTargetItem.quantity += offeredQuantity;
+        await receiverTargetItem.save();
+      } else {
+        await VaultItem.create({
+          user: receiver,
+          pop: offeredItem,
+          boxCondition: offeredCondition,
+          quantity: offeredQuantity,
+          purchasePrice: senderVaultItem.purchasePrice || 0
+        });
+      }
+
+      // 6. Add/Merge requested item into sender's vault matching exact condition
+      const senderTargetItem = await VaultItem.findOne({ 
+        user: sender, pop: requestedItem, boxCondition: requestedCondition 
+      });
+      if (senderTargetItem) {
+        senderTargetItem.quantity += requestedQuantity;
+        await senderTargetItem.save();
+      } else {
+        await VaultItem.create({
+          user: sender,
+          pop: requestedItem,
+          boxCondition: requestedCondition,
+          quantity: requestedQuantity,
+          purchasePrice: receiverVaultItem.purchasePrice || 0
+        });
+      }
+
+      // 7. Auto-cancel conflicting pending trades involving these exact items
       await TradeOffer.updateMany(
         {
           _id: { $ne: trade._id },
@@ -1471,7 +1527,7 @@ module.exports = router;
 
 #### 19.12 בסיס נתונים (DB Impact)
 * **אוספים מושפעים:** `TradeOffer` Collection ו-`VaultItem` Collection.
-* **שדות מפתח מעודכנים:** `TradeOffer.status` (משתנה ל-`'accepted'`), `VaultItem.user` (העברת בעלות אטומית), `VaultItem.quantity` (מיזוג כמיות במקרה של כספת קיימת).
-* **השפעה ארכיטקטונית:** ביצוע העברת הבעלות ברמת בסיס הנתונים מעדכן מיידית את האוספים האישיים של שני המשתמשים, מבטל באופן אוטומטי הצעות סחר מתחרות, ומבטיח עקביות מלאה בנכסי הכספות.
+* **שדות מפתח מעודכנים:** `TradeOffer.status` (מצב בינארי `accepted` / `rejected` / `canceled`), `TradeOffer.offeredCondition`, `TradeOffer.requestedCondition`, `TradeOffer.offeredQuantity`, `TradeOffer.requestedQuantity`, `VaultItem.boxCondition` (סנכרון מצב מזהה), `VaultItem.quantity` (הפחתה/מיזוג/מחיקת רשומה בעת כמות 0).
+* **השפעה ארכיטקטונית:** מנגנון סחר מודע-מצב ומודע-כמויות (Condition-Aware & Quantity-Aware Inventory Control) המבצע הפחתת כמויות מדויקת, מונע חריגת מלאי, מעדכן או מוחק רשומות כספת באופן אטומי, ומבטיח עקביות הרמטית במסד הנתונים.
 
 ---

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Star, TrendingUp, Package, Tag, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Sparkles, Star, TrendingUp, Package, Tag, ShieldCheck, DollarSign } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
+import CategoryBadge from '@/components/CategoryBadge';
+import { getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 export default function PopDetails() {
   const { id } = useParams();
@@ -15,6 +17,7 @@ export default function PopDetails() {
   const [pop, setPop] = useState(null);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
+  const [userVaultItem, setUserVaultItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,8 +51,15 @@ export default function PopDetails() {
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            const alreadyOwned = data.some(item => (item.pop?._id || item.pop) === id);
-            setAdded(alreadyOwned);
+            const ownedItem = data.find(item => (item.pop?._id || item.pop) === id);
+            if (ownedItem) {
+              setAdded(true);
+              setUserVaultItem({
+                purchasePrice: typeof ownedItem.purchasePrice === 'number' ? ownedItem.purchasePrice : 0,
+                boxCondition: ownedItem.boxCondition || 'Mint (9.5-10)',
+                quantity: ownedItem.quantity || 1
+              });
+            }
           }
         })
         .catch(err => console.error(err));
@@ -83,6 +93,11 @@ export default function PopDetails() {
       }
 
       setAdded(true);
+      setUserVaultItem({
+        purchasePrice: typeof purchasePrice === 'number' ? purchasePrice : parseFloat(purchasePrice) || 0,
+        boxCondition: boxCondition || 'Mint (9.5-10)',
+        quantity: parseInt(quantity, 10) || 1
+      });
       setIsModalOpen(false);
       toast.success('🎉 Successfully added to your personal vault!');
     } catch (err) {
@@ -118,7 +133,8 @@ export default function PopDetails() {
     );
   }
 
-  const isGrail = pop.marketPrice >= 100;
+  const isGrail = (pop.marketPrice || pop.price || 0) >= 100;
+  const itemRarity = pop.rarity || ((pop.marketPrice || pop.price || 0) >= 100 ? 'Grail' : (pop.marketPrice || pop.price || 0) > 25 ? 'Rare' : 'Common');
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 font-sans">
@@ -126,7 +142,7 @@ export default function PopDetails() {
         {/* Back navigation button */}
         <motion.button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 border-4 border-gray-800 text-gray-300 rounded-2xl font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_rgba(0,0,0,0.85)] mb-8 transition-colors hover:text-white"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 border-4 border-gray-808 border-gray-800 text-gray-300 rounded-2xl font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_rgba(0,0,0,0.85)] mb-8 transition-colors hover:text-white"
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -158,14 +174,20 @@ export default function PopDetails() {
           {/* Details Column */}
           <div className="flex flex-col justify-between py-2">
             <div>
-              {/* Series badge */}
-              <div className="flex items-center gap-2 mb-3">
+              {/* Badges bar (Series, Item #, Rarity, Box Condition) */}
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="bg-cyan-500/20 border-2 border-cyan-500 text-cyan-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
                   {pop.series}
                 </span>
                 <span className="bg-gray-800 border-2 border-gray-700 text-gray-300 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                  #{pop.itemNumber}
+                  #{pop.itemNumber || pop.number || '0'}
                 </span>
+                <CategoryBadge category={itemRarity} type="rarity" size="sm" />
+                {userVaultItem?.boxCondition && (
+                  <span className={`text-[10px] font-black px-3 py-1 rounded-full border shadow-sm ${getConditionBadgeStyle(userVaultItem.boxCondition)}`}>
+                    {userVaultItem.boxCondition}
+                  </span>
+                )}
               </div>
 
               {/* Title */}
@@ -176,16 +198,41 @@ export default function PopDetails() {
               <hr className="border-gray-800 my-4" />
 
               {/* Stats Block */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-950 border-2 border-gray-800 rounded-xl">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-green-400" />
                     <span className="text-gray-400 font-bold text-xs">Market Value</span>
                   </div>
                   <span className="text-2xl font-black text-green-400">
-                    ${pop.marketPrice?.toFixed(2)}
+                    ${(pop.marketPrice || pop.price || 0).toFixed(2)}
                   </span>
                 </div>
+
+                {added && userVaultItem && (
+                  <div className="flex items-center justify-between p-3 bg-cyan-950/40 border-2 border-cyan-500/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-cyan-400" />
+                      <div>
+                        <p className="text-cyan-400 font-black text-xs uppercase">Your Purchase Price</p>
+                        <p className="text-[10px] text-gray-400 font-bold">Recorded in Vault</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xl font-black text-cyan-300">
+                        ${userVaultItem.purchasePrice.toFixed(2)}
+                      </span>
+                      {(pop.marketPrice || pop.price || 0) > 0 && userVaultItem.purchasePrice > 0 && (
+                        <p className={`text-[10px] font-black ${
+                          (pop.marketPrice || pop.price || 0) >= userVaultItem.purchasePrice ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          {(pop.marketPrice || pop.price || 0) >= userVaultItem.purchasePrice ? '+' : ''}
+                          {((((pop.marketPrice || pop.price || 0) - userVaultItem.purchasePrice) / userVaultItem.purchasePrice) * 100).toFixed(1)}% ROI
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between p-3 bg-gray-950 border-2 border-gray-800 rounded-xl">
                   <div className="flex items-center gap-2">
