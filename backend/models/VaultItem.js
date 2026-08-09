@@ -17,8 +17,7 @@ const VaultItemSchema = new mongoose.Schema({
   },
   boxCondition: {
     type: String,
-    enum: ['Mint', 'Good', 'Damaged', 'Out of Box'],
-    default: 'Mint'
+    default: 'Mint (9.5-10)'
   },
   quantity: {
     type: Number,
@@ -30,7 +29,7 @@ const VaultItemSchema = new mongoose.Schema({
   }
 });
 
-// Enforce that a user cannot add the exact same Pop twice
-VaultItemSchema.index({ user: 1, pop: 1 }, { unique: true });
+// Enforce uniqueness per user + pop + boxCondition combination
+VaultItemSchema.index({ user: 1, pop: 1, boxCondition: 1 }, { unique: true });
 
 module.exports = mongoose.model('VaultItem', VaultItemSchema);

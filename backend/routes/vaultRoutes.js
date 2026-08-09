@@ -18,34 +18,49 @@ router.post('/', authMiddleware, authMiddleware.requireVerification, async (req,
       return res.status(404).json({ error: 'Catalog item not found' });
     }
 
-    const newVaultItem = new VaultItem({
+    const targetCondition = boxCondition || 'Mint (9.5-10)';
+    const targetQuantity = typeof quantity === 'number' && quantity > 0 ? quantity : 1;
+
+    // Check if user already owns this exact popId in the SAME condition
+    const existingItem = await VaultItem.findOne({
       user: req.user._id,
       pop: popId,
-      purchasePrice: typeof purchasePrice === 'number' ? purchasePrice : 0,
-      boxCondition: boxCondition || 'Mint (9.5-10)',
-      quantity: typeof quantity === 'number' && quantity > 0 ? quantity : 1
+      boxCondition: targetCondition
     });
 
-    const savedItem = await newVaultItem.save();
-    
-    // Populate pop details before returning
-    const populatedItem = await savedItem.populate('pop');
+    if (existingItem) {
+      // IF YES & SAME CONDITION: Increment quantity of existing item
+      existingItem.quantity = (existingItem.quantity || 1) + targetQuantity;
+      if (typeof purchasePrice === 'number' && purchasePrice > 0) {
+        existingItem.purchasePrice = purchasePrice;
+      }
+      const savedItem = await existingItem.save();
+      const populatedItem = await savedItem.populate('pop');
 
-    res.status(201).json({
-      message: 'Pop successfully added to your vault!',
-      vaultItem: populatedItem
-    });
-  } catch (error) {
-    console.error('❌ Vault Add Error:', error);
+      return res.status(200).json({
+        message: 'Increased quantity of item in your vault!',
+        vaultItem: populatedItem
+      });
+    } else {
+      // IF NO OR DIFFERENT CONDITION: Create brand new independent VaultItem record
+      const newVaultItem = new VaultItem({
+        user: req.user._id,
+        pop: popId,
+        purchasePrice: typeof purchasePrice === 'number' ? purchasePrice : 0,
+        boxCondition: targetCondition,
+        quantity: targetQuantity
+      });
 
-    // Handle compound index duplicate key error
-    if (error.code === 11000) {
-      return res.status(400).json({
-        error: 'Duplicate item error',
-        message: 'This Pop is already in your vault.'
+      const savedItem = await newVaultItem.save();
+      const populatedItem = await savedItem.populate('pop');
+
+      return res.status(201).json({
+        message: 'Pop successfully added to your vault!',
+        vaultItem: populatedItem
       });
     }
-
+  } catch (error) {
+    console.error('❌ Vault Add Error:', error);
     res.status(500).json({
       error: 'Failed to add Pop to vault',
       message: error.message
