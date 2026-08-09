@@ -7,6 +7,7 @@ import BouncyButton from '@/components/BouncyButton';
 import { toast as hotToast } from 'react-hot-toast';
 import PrivateChatModal from '@/components/PrivateChatModal';
 import { getApiUrl } from '@/lib/api';
+import { getConditionBadgeStyle } from '@/lib/conditionHelper';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -32,13 +33,15 @@ const parseItem = (item) => {
       number: '0',
       image: '',
       marketValue: 15,
-      rarity: 'Common'
+      rarity: 'Common',
+      boxCondition: 'Mint (9.5-10)',
+      quantity: 1
     };
   }
 
   const catalog = item.pop || item;
   const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
-  let computedRarity = catalog.rarity || item.boxCondition;
+  let computedRarity = catalog.rarity;
   if (!computedRarity) {
     computedRarity = marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
   }
@@ -49,18 +52,27 @@ const parseItem = (item) => {
     number: catalog.itemNumber || catalog.number || catalog.releaseYear || '0',
     image: catalog.imageUrl || catalog.image || '',
     marketValue: marketVal,
-    rarity: computedRarity
+    rarity: computedRarity,
+    boxCondition: item.boxCondition || catalog.boxCondition || 'Mint (9.5-10)',
+    quantity: item.quantity || item.offeredQuantity || catalog.quantity || 1
   };
 };
 
 function PopPill({ pop }) {
   const item = parseItem(pop);
+  const [imgError, setImgError] = useState(false);
+  const hasValidImage = Boolean(item.image && typeof item.image === 'string' && item.image.trim() !== '' && item.image !== 'null');
 
   return (
     <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border-4 border-gray-805 dark:border-slate-700 rounded-2xl px-3 py-2 shadow-[3px_3px_0px_rgba(0,0,0,0.75)] dark:shadow-[3px_3px_0px_rgba(0,174,239,0.3)]">
       <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-pink-100 dark:from-cyan-900 dark:to-pink-900 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0 overflow-hidden p-1">
-        {item.image ? (
-          <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+        {hasValidImage && !imgError ? (
+          <img 
+            src={item.image} 
+            alt={item.name} 
+            className="w-full h-full object-contain" 
+            onError={() => setImgError(true)}
+          />
         ) : (
           <Sparkles className="w-5 h-5 text-pink-400" />
         )}
@@ -68,11 +80,19 @@ function PopPill({ pop }) {
       <div className="min-w-0 flex-1">
         <p className="font-black text-gray-800 dark:text-white text-sm truncate leading-tight">{item.name}</p>
         <p className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate">#{item.number} · {item.series}</p>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <span className={`text-xs font-black px-1.5 py-0.5 rounded-full border-2 ${rarityColors[item.rarity] || rarityColors.Common}`}>
+        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+          <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 ${rarityColors[item.rarity] || rarityColors.Common}`}>
             {item.rarity}
           </span>
-          <span className="text-xs font-black text-cyan-500">${typeof item.marketValue === 'number' ? item.marketValue.toFixed(2) : item.marketValue}</span>
+          <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition)}`}>
+            {item.boxCondition}
+          </span>
+          {item.quantity > 1 && (
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-gray-900 text-yellow-400 border border-gray-800">
+              x{item.quantity}
+            </span>
+          )}
+          <span className="text-xs font-black text-cyan-500 ml-auto">${typeof item.marketValue === 'number' ? item.marketValue.toFixed(2) : item.marketValue}</span>
         </div>
       </div>
     </div>
