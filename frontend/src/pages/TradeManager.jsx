@@ -99,7 +99,7 @@ function PopPill({ pop }) {
   );
 }
 
-function IncomingCard({ trade, onAccept, onReject, onCounter, onHide }) {
+function IncomingCard({ trade, onAccept, onReject, onHide }) {
   return (
     <motion.div
       className="relative"
@@ -173,15 +173,6 @@ function IncomingCard({ trade, onAccept, onReject, onCounter, onHide }) {
               whileTap={{ y: 0 }}
             >
               <X className="w-3.5 h-3.5" /> Decline
-            </motion.button>
-
-            <motion.button
-              onClick={() => onCounter(trade.senderId)}
-              className="flex-1 h-10 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-black text-xs rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.75)] flex items-center justify-center gap-1"
-              whileHover={{ y: -1 }}
-              whileTap={{ y: 0 }}
-            >
-              <ArrowDownUp className="w-3.5 h-3.5" /> Counter
             </motion.button>
 
             <motion.button
@@ -467,15 +458,6 @@ export default function TradeManager() {
       });
   };
 
-  const handleCounter = (senderId) => {
-    if (senderId) {
-      navigate(`/PublicVault?id=${senderId}`);
-      hotToast.success("Propose a counter trade offer!");
-    } else {
-      hotToast.error("Failed to redirect to profile.");
-    }
-  };
-
   // VIP Access Guard Layout
   if (!isVipOrAdmin) {
     return (
@@ -631,7 +613,6 @@ export default function TradeManager() {
                         trade={trade}
                         onAccept={handleAccept}
                         onReject={handleReject}
-                        onCounter={handleCounter}
                         onHide={handleHide}
                       />
                     ))
