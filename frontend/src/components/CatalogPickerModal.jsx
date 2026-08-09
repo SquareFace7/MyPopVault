@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Heart, X, Sparkles } from 'lucide-react';
 import { getApiUrl } from '@/lib/api';
+import AddToVaultModal from '@/components/AddToVaultModal';
 
 const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
 
@@ -17,6 +18,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
   const [activeSeries, setActiveSeries] = useState('All');
   const [favorites, setFavorites] = useState(new Set());
   const [addedIds, setAddedIds] = useState(new Set());
+  const [selectedPopForVault, setSelectedPopForVault] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -58,19 +60,26 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
     });
   };
 
-  const handleAdd = (pop) => {
-    setAddedIds(prev => new Set([...prev, pop.id]));
+  const handleInitiateAdd = (pop) => {
+    setSelectedPopForVault(pop);
+  };
+
+  const handleConfirmAdd = ({ popId, purchasePrice, boxCondition, quantity }) => {
+    if (!selectedPopForVault) return;
+    setAddedIds(prev => new Set([...prev, selectedPopForVault.id]));
     onAdd({
-      name: pop.name,
-      series: pop.series,
-      number: pop.number,
-      rarity: pop.rarity,
-      purchasePrice: pop.price,
-      marketValue: pop.price,
-      condition: 'Mint',
-      isExclusive: pop.badge === 'WEB EXCLUSIVE',
-      popId: pop.id,
+      name: selectedPopForVault.name,
+      series: selectedPopForVault.series,
+      number: selectedPopForVault.number,
+      rarity: selectedPopForVault.rarity,
+      purchasePrice,
+      marketValue: selectedPopForVault.price,
+      condition: boxCondition,
+      quantity,
+      isExclusive: selectedPopForVault.badge === 'WEB EXCLUSIVE',
+      popId: selectedPopForVault.id,
     });
+    setSelectedPopForVault(null);
   };
 
   const handleClose = () => {
@@ -202,7 +211,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
 
                         {/* Add button */}
                         <motion.button
-                          onClick={() => handleAdd(pop)}
+                          onClick={() => handleInitiateAdd(pop)}
                           disabled={addedIds.has(pop.id)}
                           className={`w-full py-2.5 font-black text-xs border-t-4 border-gray-800 ${
                             addedIds.has(pop.id)
@@ -221,6 +230,13 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
               </div>
             </div>
           </motion.div>
+
+          <AddToVaultModal
+            pop={selectedPopForVault}
+            isOpen={!!selectedPopForVault}
+            onClose={() => setSelectedPopForVault(null)}
+            onConfirm={handleConfirmAdd}
+          />
         </motion.div>
       )}
     </AnimatePresence>

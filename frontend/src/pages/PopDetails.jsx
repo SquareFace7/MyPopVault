@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles, Star, TrendingUp, Package, Tag, ShieldCheck } from
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
+import AddToVaultModal from '@/components/AddToVaultModal';
 
 export default function PopDetails() {
   const { id } = useParams();
@@ -14,6 +15,8 @@ export default function PopDetails() {
   const [pop, setPop] = useState(null);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -53,13 +56,17 @@ export default function PopDetails() {
     }
   }, [id, user]);
 
-  const handleAddToVault = async () => {
+  const handleInitiateAdd = () => {
     if (!user || !user.isLoggedIn) {
       toast.error('⚠️ Please log in to add items.');
       navigate('/Login');
       return;
     }
+    setIsModalOpen(true);
+  };
 
+  const handleConfirmAddToVault = async ({ popId, purchasePrice, boxCondition, quantity }) => {
+    setIsSubmitting(true);
     try {
       const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
@@ -67,7 +74,7 @@ export default function PopDetails() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ popId: id })
+        body: JSON.stringify({ popId, purchasePrice, boxCondition, quantity })
       });
 
       const data = await response.json();
@@ -76,10 +83,13 @@ export default function PopDetails() {
       }
 
       setAdded(true);
+      setIsModalOpen(false);
       toast.success('🎉 Successfully added to your personal vault!');
     } catch (err) {
       console.error(err);
       toast.error(`⚠️ ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -197,7 +207,7 @@ export default function PopDetails() {
                 </div>
               ) : (
                 <motion.button
-                  onClick={handleAddToVault}
+                  onClick={handleInitiateAdd}
                   className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white border-4 border-gray-800 rounded-2xl font-black text-xs uppercase tracking-widest shadow-[4px_4px_0px_rgba(0,0,0,1)]"
                   whileHover={{ y: -2, boxShadow: '4px 6px 0px rgba(0,0,0,1)' }}
                   whileTap={{ scale: 0.98 }}
@@ -209,6 +219,14 @@ export default function PopDetails() {
           </div>
         </div>
       </div>
+
+      <AddToVaultModal
+        pop={pop}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmAddToVault}
+        isLoading={isSubmitting}
+      />
     </div>
   );
 }

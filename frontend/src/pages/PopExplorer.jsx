@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
+import AddToVaultModal from '@/components/AddToVaultModal';
 
 const CATEGORIES = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
 
@@ -34,6 +35,8 @@ export default function PopExplorer() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [selectedPopForVault, setSelectedPopForVault] = useState(null);
+  const [isSubmittingVault, setIsSubmittingVault] = useState(false);
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -96,7 +99,7 @@ export default function PopExplorer() {
     }
   }, [user]);
 
-  const handleAdd = async (id) => {
+  const handleInitiateAdd = (pop) => {
     if (!user || !user.isLoggedIn) {
       toast.error('⚠️ Please log in or sign up to access this page!', {
         duration: 4000,
@@ -112,7 +115,11 @@ export default function PopExplorer() {
       navigate('/Login');
       return;
     }
+    setSelectedPopForVault(pop);
+  };
 
+  const handleConfirmAddToVault = async ({ popId, purchasePrice, boxCondition, quantity }) => {
+    setIsSubmittingVault(true);
     try {
       const response = await fetch(getApiUrl('/api/vault'), {
         method: 'POST',
@@ -120,7 +127,7 @@ export default function PopExplorer() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ popId: id })
+        body: JSON.stringify({ popId, purchasePrice, boxCondition, quantity })
       });
 
       const data = await response.json();
@@ -128,7 +135,8 @@ export default function PopExplorer() {
         throw new Error(data.message || data.error || 'Failed to add Pop to vault');
       }
 
-      setAddedIds(prev => new Set([...prev, id]));
+      setAddedIds(prev => new Set([...prev, popId]));
+      setSelectedPopForVault(null);
       toast.success('🎉 Added to your Personal Vault!', {
         style: {
           border: '4px solid #1f2937',
@@ -151,6 +159,8 @@ export default function PopExplorer() {
           boxShadow: '4px 4px 0px rgba(0,0,0,0.85)'
         }
       });
+    } finally {
+      setIsSubmittingVault(false);
     }
   };
 
@@ -279,7 +289,7 @@ export default function PopExplorer() {
                     <motion.button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAdd(pop.id);
+                        handleInitiateAdd(pop);
                       }}
                       disabled={addedIds.has(pop.id)}
                       className={`w-full py-3 font-black text-xs border-t-4 border-gray-800 dark:border-slate-600 tracking-wider uppercase ${
@@ -327,6 +337,14 @@ export default function PopExplorer() {
           </>
         )}
       </div>
+
+      <AddToVaultModal
+        pop={selectedPopForVault}
+        isOpen={!!selectedPopForVault}
+        onClose={() => setSelectedPopForVault(null)}
+        onConfirm={handleConfirmAddToVault}
+        isLoading={isSubmittingVault}
+      />
     </div>
   );
 }
