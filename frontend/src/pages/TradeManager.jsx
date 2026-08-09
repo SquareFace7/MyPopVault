@@ -467,7 +467,7 @@ export default function TradeManager() {
             className="w-12 h-12 bg-gradient-to-br from-yellow-300 to-yellow-400 border-4 border-gray-800 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
             title="Back to Dashboard"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-800 dark:text-white" />
+            <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
           <h1 className="text-2xl font-black text-gray-850 dark:text-white uppercase tracking-wider">
             Trade Manager
@@ -500,10 +500,10 @@ export default function TradeManager() {
                 VIP Feature Required
               </div>
 
-              <h2 className="text-3xl font-black text-gray-800 mb-3 uppercase tracking-wide leading-tight">
+              <h2 className="text-3xl font-black text-gray-950 mb-3 uppercase tracking-wide leading-tight">
                 Unlock Trade Manager 👑
               </h2>
-              <p className="text-gray-700 font-bold text-sm mb-6 leading-relaxed">
+              <p className="text-gray-950 font-bold text-sm mb-6 leading-relaxed">
                 Negotiate, send, and review trade offers directly with Funko Pop collectors around the globe. Upgrade to VIP to gain access now!
               </p>
 

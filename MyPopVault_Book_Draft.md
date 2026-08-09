@@ -407,6 +407,21 @@ classDiagram
         +Date createdAt
         +comparePassword(candidatePassword)
     }
+
+    class PopCatalog {
+        +ObjectId _id
+        +String name
+        +String series
+        +String itemNumber
+        +String imageUrl
+        +Number marketPrice
+        +Date updatedAt
+    }
+
+    class VaultItem {
+        +ObjectId _id
+        +ObjectId user
+        +ObjectId pop
         +Number purchasePrice
         +String boxCondition
         +Number quantity
@@ -529,43 +544,7 @@ flowchart LR
      $$\text{Total Investment} = \sum_{i=1}^{n} \text{Item Investment}_i, \quad \text{Total Market Value} = \sum_{i=1}^{n} \text{Item Market Value}_i$$
    * *תשואה אחוזית משוקללת (Portfolio ROI %):*
      $$\text{Portfolio ROI (\%)} = \begin{cases} \left( \frac{\text{Total Market Value} - \text{Total Investment}}{\text{Total Investment}} \right) \times 100 & \text{if } \text{Total Investment} > 0 \\ 0\% & \text{if } \text{Total Investment} = 0 \end{cases}$$
-3. **אלגוריתם סיווג פריטי דגל (Grail Classifier) ומיון חכם:** סיווג אוטומטי של פריטי Grail (מחיר שוק $\ge \$100$ או תשואה יחסית $\ge 150\%$) ומיון דינמי בזמן אמת.
-
-### 12.2 מימוש אלגוריתמי ברמת בסיס הנתונים (MongoDB Aggregation Pipeline)
-
-```javascript
-// MongoDB Aggregation Pipeline for Real-Time Portfolio ROI & Analytics
-const portfolioStats = await VaultItem.aggregate([
-  { $match: { user: new mongoose.Types.ObjectId(userId) } },
-  {
-    $lookup: {
-      from: 'popcatalogs',
-      localField: 'pop',
-      foreignField: '_id',
-      as: 'popDetails'
-    }
-  },
-  { $unwind: '$popDetails' },
-  {
-    $project: {
-      itemInvestment: { $multiply: ['$purchasePrice', '$quantity'] },
-      itemMarketValue: { $multiply: ['$popDetails.marketPrice', '$quantity'] },
-      itemProfit: {
-## 12. תיאור המרכיב האלגוריתמי – חישובי
-
-### 12.1 ניתוח הבעיה והאלגוריתם הפיננסי (Real-Time Weighted Portfolio ROI Algorithm)
-
-1. **הבעיה ההנדסית:** כל פריט בכספת האישית נרכש במועד שונה, במחיר קנייה מקורי שונה (`purchasePrice`), בכמות שונה (`quantity`), ובדרגת איכות קופסה שונה (`boxCondition`), בעוד מחירי השוק (`marketPrice`) משתנים באופן רציף.
-2. **שלבי החישוב הפיננסי:**
-   * *חישוב נומינלי ברמת הפריט:*
-     $$\text{Item Investment}_i = \text{purchasePrice}_i \times \text{quantity}_i$$
-     $$\text{Item Market Value}_i = \text{marketPrice}_i \times \text{quantity}_i$$
-     $$\text{Item Profit/Loss}_i = \text{Item Market Value}_i - \text{Item Investment}_i$$
-   * *שקלול התיק הכולל:*
-     $$\text{Total Investment} = \sum_{i=1}^{n} \text{Item Investment}_i, \quad \text{Total Market Value} = \sum_{i=1}^{n} \text{Item Market Value}_i$$
-   * *תשואה אחוזית משוקללת (Portfolio ROI %):*
-     $$\text{Portfolio ROI (\%)} = \begin{cases} \left( \frac{\text{Total Market Value} - \text{Total Investment}}{\text{Total Investment}} \right) \times 100 & \text{if } \text{Total Investment} > 0 \\ 0\% & \text{if } \text{Total Investment} = 0 \end{cases}$$
-3. **אלגוריתם סיווג פריטי דגל (Grail Classifier) ומיון חכם:** סיווג אוטומטי של פריטי Grail (מחיר שוק $\ge \$100$ או תשואה יחסית $\ge 150\%$) ומיון דינמי בזמן אמת.
+3. **אלגוריתם סיווג פריטי דגל (Grail Classifier) ומיון חכם:** סיווג אוטומטי של פריטי Grail (מחיר שוק $\ge \$40$ או תשואה יחסית $\ge 150\%$) ומיון דינמי בזמן אמת.
 
 ### 12.2 מימוש אלגוריתמי ברמת בסיס הנתונים (MongoDB Aggregation Pipeline)
 
@@ -593,7 +572,7 @@ const portfolioStats = await VaultItem.aggregate([
         ]
       },
       series: '$popDetails.series',
-      isGrail: { $gte: ['$popDetails.marketPrice', 100] }
+      isGrail: { $gte: ['$popDetails.marketPrice', 40] }
     }
   },
   {
@@ -784,6 +763,381 @@ graph TD
 * **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** חשיפת המשתמש האורח לאווירה הקהילתית והדינמית של הפלטפורמה (יצירת FOMO) במטרה לעודד אותו להירשם. המסך פתוח לקריאה בלבד (Read-Only) וחוסם אינטראקציה של כתיבה.
 * **מה המשתמש עושה בפועל במסך:** צופה בזמן אמת בהודעות שרצות בצ'אט הקהילתי, רואה את מונה המשתמשים המחוברים, ובעת לחיצה על תיבת הטקסט או כפתור השליחה (שנמצאים במצב Disabled) הוא נחשף להודעה המניעה אותו לעבור למסך ההתחברות/הרשמה כדי לקחת חלק בשיחה.
 * **צילום מסך:**
+> 📷 **[צילום מסך: מסך 11 - צ'אט קהילתי אורח | UI Screenshot Placeholder]**
+
+---
+
+### 18.2 סוג משתמש 2: אספן רגיל / משתמש רשום (Standard Collector / Authenticated User)
+
+* **שם סוג המשתמש:** אספן רגיל / משתמש רשום (Standard Collector / Authenticated User).
+* **הסבר על הרשאות והגבלות גישה:** משתמש רשום שעבר אימות זהות. בעל הרשאות גישה מלאות לניהול הכספת האישית, לצפייה באנליטיקות דשבורד, להוספת פריטים מהקטלוג הגלובלי, להשתתפות פעילה בצ'אט הקהילתי, ולמעבר לשדרוג VIP.
+* **הגבלות גישה מפורשות:** חסום מחיפוש אספנים ברחבי הקהילה (`/CollectorSearch` מקפיץ התראת שדרוג ל-VIP), חסום משליחת הודעות פרטיות 1-on-1, חסום מגישה למרכז ההחלפות והצעות סחר (`/TradeManager`) שמיועד ל-VIP בלבד, וחסום מפאנל מנהל המערכת.
+
+* **תרשים עץ מסכים של המשתמש (Screen Navigation Tree):**
+
+```mermaid
+graph TD
+    Auth["Login / Auth Verification"] --> Dash["Collector Dashboard (מסך 5)"]
+    Dash --> Vault["Personal Vault Collection (מסך 6)"]
+    Dash --> Explorer["Pop Explorer Catalog (מסך 7)"]
+    Explorer --> Details["Pop Details Page (מסך 8)"]
+    Dash --> Chat["Community Chat - Interactive (מסך 11)"]
+    Dash --> Upgrade["VIP Upgrade Page (מסך 12)"]
+```
+
+#### פירוט מסכי המשתמש בעץ:
+
+##### מסך 5: דשבורד ניהול אוסף אישי ואנליטיקות (Collector Dashboard)
+* **שם מסך:** דשבורד אספנים מרכזי ואנליטיקות (`Dashboard.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** אספקת מרכז שליטה (Command Center) ואנליטיקה פיננסית בזמן אמת של האוסף האישי בכספת.
+* **מה המשתמש עושה בפועל במסך:** לוחץ על כפתור "Refresh Values" להפעלת סנכרון בלייב של מחירי שוק, לוחץ על כפתור "Add Pop" לפתיחת מודאל הוספת פריט מתוך הקטלוג (`CatalogPickerModal`), לוחץ על כרטיס פריט באזור "Crown Jewels" למעבר לדף הפרטים המורחב, ובמצב VIP צופה בווידג'ט הבלעדי "🔥 Live Grail Alerts" להצגת פריטי יוקרה שערכם מעל 100$, ולוחץ על "View All" למעבר לניהול הכספת המלאה.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 5 - דשבורד אספנים ואנליטיקות | UI Screenshot Placeholder]**
+
+##### מסך 6: מסך ניהול כספת אישית (Personal Vault Collection)
+* **שם מסך:** ניהול כספת אישית ומלאי (`Collection.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** ניהול מלאי מפורט (CRUD) על פריטי ה-Pop שנרכשו ונשמרו בכספת המשתמש.
+* **מה המשתמש עושה בפועל במסך:** מזין מילת חיפוש בסרגל החיפוש, בוחר סדרה מתוך תפריט נגלל (`seriesOptions`), בוחר דרגת נדירות (`rarityOptions`), בוחר מצב מיון מתוך 8 אפשרויות מיון (`sortOptions`), מחליף מצב תצוגה בלחיצה בין גריד לרשימה (Grid/List View), ולוחץ על כרטיס פריט לפתיחת מודאל עריכה (`PopDetailModal`) שבו הוא מעדכן מחיר קנייה, מצב קופסה (`Mint`, `Near Mint`, `Damaged`), כמות, או מוחק את הפריט מהכספת.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 6 - ניהול כספת אישית | UI Screenshot Placeholder]**
+
+##### מסך 7: מסך סייר הקטלוג (Pop Explorer)
+* **שם מסך:** סייר הקטלוג הגלובלי (`PopExplorer.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** חיפוש, גילוי והוספת פריטי Pop מתוך קטלוג המערכת המרכזי המעודכן במחירי שוק.
+* **מה המשתמש עושה בפועל במסך:** מזין טקסט בסרגל החיפוש החופשי, לוחץ על כפתורי סינון לפי קטגוריות (`CATEGORIES`: All, Marvel, Anime, Star Wars, DC, Disney), עובר בין דפי הקטלוג באמצעות מקשי דפדוף (Pagination), ולוחץ על כפתור "Add to Vault" להוספת פריט קטלוגי לכספת האישית (או נתקל בכפתור נעול "In Vault" עבור פריטים שכבר קיימים בכספת).
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 7 - סייר הקטלוג | UI Screenshot Placeholder]**
+
+##### מסך 8: מסך פרטי פריט קטלוגי (Pop Details Page)
+* **שם מסך:** דף פרטי פריט מורחב (`PopDetails.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** הצגת מפרט מלא, תמונה מוגדלת ומחיר שוק עדכני עבור פריט קטלוגי בודד.
+* **מה המשתמש עושה בפועל במסך:** לוחץ על כפתור חזרה ("Back") לחזרה לעמוד הקודם, ולוחץ על כפתור "Add to Vault" להוספת הפריט הקטלוגי ישירות לכספת האישית.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 8 - פרטי פריט קטלוגי | UI Screenshot Placeholder]**
+
+##### מסך 11: מסך צ'אט קהילתי בזמן אמת (Community Chat)
+* **שם מסך:** צ'אט קהילתי בזמן אמת (`CommunityChat.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** אספקת ערוץ תקשורת ישיר בזמן אמת בטכנולוגיית Socket.IO לתאום עסקאות סחר ודיוני אספנות בקהילה.
+* **מה המשתמש עושה בפועל במסך:** מקליד הודעת טקסט בתיבת הקלט, לוחץ על מקש Enter או על כפתור השליחה לשידור ההודעה בלייב דרך Socket.IO, נחשף להתראת חסימה במידה וניסה להקליד מספר טלפון או רשת חברתית (`[CENSORED]`), וצופה במונה המשתמשים המחוברים.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 11 - צ'אט קהילתי בזמן אמת | UI Screenshot Placeholder]**
+
+##### מסך 12: מסך שדרוג מנוי VIP (VIP Upgrade Page)
+* **שם מסך:** מסך שדרוג מנוי פרימיום (`VipUpgrade.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** הצגת הטבות מנוי ה-VIP Premium והנעת המשתמש לביצוע סליקת אשראי מאובטחת באמצעות אינטגרציית Stripe API.
+* **מה המשתמש עושה בפועל במסך:** קורא את פירוט הטבות המנוי בכרטיסים הייעודיים, ולוחץ על כפתור "Upgrade to VIP" להפעלת סשן סליקה ומעבר אוטומטי לטופס התשלום המאובטח של Stripe.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 12 - שדרוג מנוי VIP | UI Screenshot Placeholder]**
+
+---
+
+### 18.3 סוג משתמש 3: משתמש VIP פרימיום (VIP Premium Collector)
+
+* **שם סוג המשתמש:** משתמש VIP פרימיום (VIP Premium Collector).
+* **הסבר על הרשאות והגבלות גישה:** משתמש שביצע שדרוג תשלום מוצלח ב-Stripe. נהנה מכל הרשאות האספן הרגיל, ובנוסף בעל הרשאות בלעדיות: חיפוש אספנים ואיתור אוספים בקהילה (`/CollectorSearch`), צפייה בכספות ציבוריות של אספנים אחרים (`PublicVault.jsx`), פתיחת שיחות פרטיות 1-on-1 (`PrivateChatModal` / `PopMessenger.jsx`), יצירת הצעות סחר ישירות מתוך כספת ציבורית (`TradeModal`), תג VIP זהוב יוקרתי (`👑 VIP`) ליד השם בקהילה, ואחסון כספת אישית בלתי מוגבל.
+
+* **תרשים עץ מסכים של המשתמש (Screen Navigation Tree):**
+
+```mermaid
+graph TD
+    VIP_Auth["VIP Authentication"] --> VIP_Dash["Collector Dashboard (מסך 5) - VIP Mode"]
+    VIP_Dash --> VIP_Search["Collector Search & Directory (מסך 9)"]
+    VIP_Search --> VIP_PublicVault["Public Vault View"]
+    VIP_Search --> VIP_DM["Private 1-on-1 Messenger"]
+    VIP_Search --> VIP_TradeInit["Direct Trade Initiation"]
+    VIP_Dash --> VIP_Trade["Trade Manager (מסך 10) - Unlimited"]
+    VIP_Dash --> VIP_Success["VIP Checkout Success / Cancel (מסך 13)"]
+```
+
+#### פירוט מסכי המשתמש הבלעדיים בעץ:
+
+##### מסך 9: מסך חיפוש אספנים ואוספים ציבוריים (Collector Search & Public Vault)
+* **שם מסך:** מנוע חיפוש אספנים וכספות ציבוריות (`CollectorSearch.jsx` & `PublicVault.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** איתור אספנים רשומים בקהילה, חשיפת הכספות הציבוריות שלהם (Public Vaults), ויזמת עסקאות סחר או שיחות פרטיות (תכונה בלעדית למשתמשי VIP/Admin).
+* **מה המשתמש עושה בפועל במסך:** מזין שם אספן בסרגל החיפוש, לוחץ על כפתור "View Vault" בכרטיס האספן לצפייה בכספת הציבורית שלו (`PublicVault.jsx`), לוחץ על כפתור "Message" לפתיחת חלון צ'אט פרטי (`PrivateChatModal`), ולוחץ על כפתור "Initiate Trade Offer" בתוך הכספת הציבורית לפתיחת טופס הצעת סחר (`TradeModal`).
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 9 - חיפוש אספנים וכספות ציבוריות | UI Screenshot Placeholder]**
+
+##### מסך 10: מסך מרכז ההחלפות והצעות סחר (Trade Manager)
+* **שם מסך:** מרכז ניהול הצעות סחר והחלפות (`TradeManager.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** ניהול תהליך החלפת פריטים (Barter Trade Swap) דו-צדדי, ומעקב בזמן אמת אחר מכונת המצבים (`pending`, `accepted`, `rejected`, `canceled`).
+* **מה המשתמש עושה בפועל במסך:** צופה בתצוגת גריד רספונסיבית מקבילה (Side-by-Side Responsive Grid Layout) של הצעות נכנסות (Incoming) מול הצעות יוצאות (Sent) בעלות עיצוב Pop-Art Neon עם גבולות זוהרים (#00AEEF / #EC008C) ואייקון החלפה ממורכז. בהצעות נכנסות: לוחץ "Accept" לאישור עסקה והפעלת החלפת בעלות אטומית ב-DB, לוחץ "Decline" לדחיית עסקה, או לוחץ "Counter" להגשת הצעה נגדית. בהצעות יוצאות: לוחץ "Cancel" לביטול הצעה שנשלחה, ולוחץ על כפתור הסרת ההיסטוריה למחיקת עסקאות שהסתיימו.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 10 - מרכז הצעות סחר | UI Screenshot Placeholder]**
+
+##### מסך 13: מסכי אישור/ביטול תשלום (VIP Payment Success & Cancel Pages)
+* **שם מסך:** מסכי משוב תשלום Stripe (`VipSuccess.jsx` & `VipCancel.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** מתן משוב ויזואלי וסנכרון מיידי של תפקיד המשתמש ב-DB לאחר השלמת העסקה ב-Stripe או ביטולה.
+* **מה המשתמש עושה בפועל במסך:** בדף Success (`/vip-success`): מפעיל אוטומטית סנכרון הרשאות מול השרת (`POST /api/payment/confirm-vip`), ולוחץ על כפתור "Go to Dashboard" לחזרה למערכת. בדף Cancel (`/vip-cancel`): לוחץ על כפתור "Try Again" לחזרה למסך שדרוג המנוי.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 13 - אישור שדרוג VIP | UI Screenshot Placeholder]**
+
+---
+
+### 18.4 סוג משתמש 4: מנהל מערכת (System Admin)
+
+* **שם סוג המשתמש:** מנהל מערכת (System Admin).
+* **הסבר על הרשאות והגבלות גישה:** תפקיד הנהלה בעל הרשאות-על (Role `admin`). נהנה מגישה מלאה לכל מסכי האפליקציה, ובנוסף מחזיק בגישה בלעדית ללוח בקרת מנהל מערכת (`/AdminPanel`). בעל סמכות לשנות תפקידי משתמשים בלייב (הענקת/שלילת VIP), לנהל את הקטלוג המרכזי, ולצפות בגרפים ואנליטיקות עסקיות של האתר.
+
+* **תרשים עץ מסכים של המשתמש (Screen Navigation Tree):**
+
+```mermaid
+graph TD
+    Admin_Auth["Admin Login Verification"] --> Admin_Panel["Admin Control Panel (מסך 14)"]
+    Admin_Panel --> Admin_Users["User Management & Role Toggles"]
+    Admin_Panel --> Admin_Stats["System Growth & Aggregate Metrics"]
+    Admin_Panel --> Admin_Catalog["Global Catalog Management"]
+```
+
+#### פירוט מסכי המשתמש בעץ:
+
+##### מסך 14: מסך ממשק מנהל מערכת (Admin Control Panel)
+* **שם מסך:** לוח בקרת מנהל מערכת (`AdminPanel.jsx`).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** ניהול ובקרה מרוכזים על משתמשי האתר, הרשאות תפקידים, גרף צמיחת מערכת, ומדדים עסקיים גלובליים (מסך מאובטח בגישה ל-Role `admin` בלבד).
+* **מה המשתמש עושה בפועל במסך:** גולל בטבלת המשתמשים הרשומים, ולוחץ על כפתורי ה-Toggle ("Grant VIP" / "Revoke VIP") ליד משתמש ספציפי כדי לשנות את תפקידו (Role) ואת הרשאותיו במערכת בזמן אמת בשרת בנתיב `/api/admin/users/:id/role`.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 14 - לוח בקרת מנהל מערכת | UI Screenshot Placeholder]**
+
+---
+## 19. נספח קוד (Code Appendix)
+
+נספח זה מתמקד ב-3 תהליכי ליבה עסקיים ומורכבים מתוך קוד המערכת בפועל:
+
+---
+
+### תהליך ליבה 1: אינטגרציית Stripe Webhook ושדרוג מנוי VIP בזמן אמת
+
+#### 19.1 שם ומטרה
+* **שם התהליך:** תהליך סליקת אשראי, אימות Webhook קריפטוגרפית ושדרוג מנוי VIP.
+* **מטרת התהליך:** מאפשר למשתמשים לשדרג את חשבונם למנוי VIP בתשלום חד-פעמי דרך Stripe. התהליך מפריד לחלוטין בין יצירת סשן התשלום לבין עדכון סטטוס המשתמש במסד הנתונים. השימוש ב-Webhook מאובטח מבטיח שגם אם המשתמש סגר את הדפדפן לאחר התשלום, השרת יקבל הודעת Push מאומתת מ-Stripe וישדרג את החשבון בצורה אמינה ואטומית.
+
+#### 19.2 צד לקוח (Frontend)
+* **קבצים משתתפים:** `src/pages/VipUpgrade.jsx`
+* **קוד צד לקוח (עם הערות באנגלית):**
+
+```javascript
+// File: src/pages/VipUpgrade.jsx
+import React, { useState } from 'react';
+import { useAuth } from '@/lib/AuthContext';
+import toast from 'react-hot-toast';
+
+export default function VipUpgrade() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  /**
+   * Initiates the Stripe Checkout process by requesting a Checkout Session URL from the backend.
+   * Redirects the user's browser directly to Stripe's secure hosted payment page.
+   */
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Send authenticated POST request to generate a Stripe session
+      const res = await fetch('/api/payment/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to initialize payment session');
+      }
+
+      // If session URL was successfully returned, perform client-side redirect to Stripe
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned from server');
+      }
+    } catch (err) {
+      console.error('Stripe Checkout Error:', err);
+      toast.error(`⚠️ Payment Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="vip-container">
+      <button 
+        onClick={handleUpgrade} 
+        disabled={loading || user?.isVIP}
+        className="upgrade-btn"
+      >
+        {user?.isVIP ? 'Already a VIP Member!' : 'Upgrade to VIP ($9.99)'}
+      </button>
+    </div>
+  );
+}
+```
+
+#### 19.3 צד שרת (Backend)
+* **קבצים משתתפים:** `backend/routes/paymentRoutes.js`
+* **תיאור הזרימה (Data Flow):** 
+  1. הלקוח שולח בקשת `POST /api/payment/create-checkout-session` עם טוקן JWT.
+  2. השרת מייצר סשן ב-Stripe עם `metadata: { userId }` ומחזיר כתובת URL ללקוח.
+  3. לאחר השלמת התשלום ב-Stripe, שרתי Stripe שולחים בקשת `POST /api/payment/webhook` עם ה-Raw Body והחתימה `stripe-signature`.
+  4. השרת מאמת את החתימה באמצעות `stripe.webhooks.constructEvent()`.
+  5. במידה והאירוע הוא `checkout.session.completed`, השרת משתלף את ה-`userId` מה-metadata ומעדכן במסד הנתונים `isVip = true` ו-`role = 'vip'`.
+
+* **קוד צד שרת (עם הערות באנגלית):**
+
+```javascript
+// File: backend/routes/paymentRoutes.js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const authMiddleware = require('../middleware/authMiddleware');
+
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+}
+
+/**
+ * STRIPE WEBHOOK ENDPOINT
+ * Crucial Security Note: Must consume raw request body for cryptographic signature verification.
+ */
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripe) {
+    return res.status(500).send('Stripe is not configured on this server.');
+  }
+  
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    // Cryptographically verify that the event payload arrived unaltered from Stripe
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('⚠️ Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle successful checkout completion
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const userId = session.metadata?.userId;
+
+    if (userId) {
+      try {
+        // Atomically upgrade user VIP status in MongoDB database
+        const user = await User.findById(userId);
+        if (user) {
+          user.isVip = true;
+          if (user.role !== 'admin') {
+            user.role = 'vip'; // Promote role to VIP unless user is already an Admin
+          }
+          await user.save();
+          console.log(`👑 User ${user.username} successfully upgraded to VIP status via Stripe Webhook!`);
+        }
+      } catch (err) {
+        console.error('❌ Failed to update user VIP status in database:', err);
+        return res.status(500).json({ error: 'Failed to update user status' });
+      }
+    }
+  }
+
+  // Acknowledge receipt of the webhook event back to Stripe
+  res.json({ received: true });
+});
+
+/**
+ * CREATE CHECKOUT SESSION ENDPOINT
+ * Generates a standard Stripe hosted checkout session for authenticated users.
+ */
+router.post('/create-checkout-session', express.json(), authMiddleware, async (req, res) => {
+  try {
+    if (!stripe) {
+      return res.status(500).json({ error: 'Stripe is not configured on server.' });
+    }
+    
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    
+    // Create Stripe session with attached user metadata
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'MyPopVault VIP Premium Upgrade',
+            description: 'Unlock unlimited vault size, exclusive badges, and grail alerts!',
+          },
+          unit_amount: 999, // $9.99 USD
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${frontendUrl}/vip-success`,
+      cancel_url: `${frontendUrl}/vip-cancel`,
+      metadata: {
+        userId: req.user._id.toString(), // Attach User ObjectId to correlate webhook event
+      },
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('❌ Stripe checkout session error:', error);
+    res.status(500).json({ error: 'Failed to create Stripe session', message: error.message });
+  }
+});
+
+module.exports = router;
+```
+
+#### 19.4 בסיס נתונים (DB Impact)
+* **אוסף מושפע:** `User` Collection.
+* **שדות מפתח מעודכנים:** `isVip` (מחלף ל-`true`), `role` (מחלף מ-`'user'` ל-`'vip'`).
+* **השפעה ארכיטקטונית:** העדכון האטומי מנפץ את הגבלת הוספת הפריטים בכספת (מאפשר הוספת פריטים ללא הגבלה), ופותח הרשאות מוגנות ברמת השאילתות בנתיבי `/api/users/search`.
+
+---
+
+### תהליך ליבה 2: סנכרון מחירים אוטומטי מול מקור מידע חיצוני ועדכון הקטלוג (Price Sync & Cron Scheduler)
+
+#### 19.5 שם ומטרה
+* **שם התהליך:** תהליך גירוד מידע (Scraping), עיבוד נתוני שוק ותזמון אוטומטי ברקע (Automated Price Scraper & Cron Job Engine).
+* **מטרת התהליך:** שמירה על מחירי שוק עדכניים עבור מאות פריטי Pop בקטלוג ללא תלות בהזנה ידנית. התהליך מריץ משימת רקע אוטומטית (Cron Job) מדי חצות, שולף נתוני שוק מאתר אספנים חיצוני, מפעיל מנגנון ניתוח DOM (`Cheerio`), ומבצע עדכונים חכמים (Upserts) במסד הנתונים, תוך שמירה על ObjectIds קיימים כדי לא לפגוע ברפרנסים של כספות האספנים.
+
+#### 19.6 צד לקוח (Frontend)
+* **קבצים משתתפים:** `src/pages/PopExplorer.jsx`
+* **קוד צד לקוח (עם הערות באנגלית):**
+
+```javascript
+// File: src/pages/PopExplorer.jsx
+import React, { useState, useEffect } from 'react';
+
+export default function PopExplorer() {
+  const [catalog, setCatalog] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [page, setPage] = useState(1);
+
+  /**
+   * Fetches the dynamically updated catalog items from the backend API.
+   * Reflects real-time market prices updated by the server's automated cron scraper.
+   */
+  useEffect(() => {
+    fetch(`/api/catalog?search=${searchQuery}&category=${activeCategory}&page=${page}&limit=12`)
+      .then(res => res.json())
+      .then(data => {
+        // Map backend PopCatalog document schema into UI representation
+        const mapped = (data.items || []).map(pop => ({
+          id: pop._id,
+          name: pop.name,
+          series: pop.series,
+          number: pop.itemNumber,
+          rarity: pop.marketPrice > 40 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
+          price: pop.marketPrice || 15,
+          image: pop.imageUrl
+        }));
+        setCatalog(mapped);
+      })
       .catch(err => console.error('❌ Failed to fetch synced catalog:', err));
   }, [searchQuery, activeCategory, page]);
 

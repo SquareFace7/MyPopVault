@@ -9,6 +9,7 @@ import { getApiUrl } from '@/lib/api';
 
 function CollectorCard({ collector, index, onMessage }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const currentIsVipOrAdmin = user?.isVIP || user?.role === 'vip' || user?.role === 'admin';
   const targetIsVipOrAdmin = collector.role === 'vip' || collector.role === 'admin';
 
@@ -69,10 +70,10 @@ function CollectorCard({ collector, index, onMessage }) {
           
           {!currentIsVipOrAdmin ? (
             <motion.button
-              onClick={() => onMessage(collector)}
-              className="flex-1 flex items-center justify-center gap-1 h-9 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-black text-[9px] rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
-              whileHover={{ y: -1 }}
-              whileTap={{ y: 0 }}
+              onClick={() => navigate('/vip-upgrade')}
+              className="flex-1 flex items-center justify-center gap-1.5 h-9 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-black text-xs rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+              whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
+              whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
             >
               👑 Upgrade to VIP
             </motion.button>
