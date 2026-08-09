@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, Crown, LogIn, LogOut, UserPlus, Sun, Moon, Menu, X } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
@@ -8,6 +8,12 @@ import { useTheme } from '@/lib/ThemeContext';
 export default function Navbar({ showMenuButton = false, onMenuToggle = () => {}, menuOpen = false }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/Login');
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full h-16 z-[100] flex items-center justify-between px-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b-2 border-gray-100 dark:border-gray-800 transition-colors duration-200">
@@ -59,7 +65,7 @@ export default function Navbar({ showMenuButton = false, onMenuToggle = () => {}
               👋 Welcome, {user.username || user.email?.split('@')[0]}
             </span>
             <motion.button
-              onClick={logout}
+              onClick={handleLogout}
               className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-xs px-3.5 py-1.5 rounded-xl border-4 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] shrink-0"
               whileHover={{ y: -1, boxShadow: '2.5px 3.5px 0px rgba(0,0,0,0.85)' }}
               whileTap={{ y: 0, boxShadow: '1.5px 1.5px 0px rgba(0,0,0,0.85)' }}

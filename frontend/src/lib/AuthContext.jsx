@@ -138,6 +138,9 @@ export const AuthProvider = ({ children }) => {
       email: 'guest@mypopvault.com',
       isVerified: false
     });
+    if (typeof window !== 'undefined' && window.location.pathname !== '/Login') {
+      window.location.href = '/Login';
+    }
   };
 
   // Helper for quick sandbox simulation

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, LayoutDashboard, Grid, Home, Menu, X, Sparkles, MessageCircle, Crown, ArrowDownUp, Shield, Zap, Sun, Moon, LogIn, LogOut, MessageSquare, Volume2, VolumeX, Radar } from 'lucide-react';
@@ -44,6 +44,7 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMuted, setIsMuted] = useState(() => localStorage.getItem('messenger_muted') === 'true');
   const [pendingTradesCount, setPendingTradesCount] = useState(0);
@@ -374,6 +375,7 @@ export default function Layout({ children, currentPageName }) {
                         onClick={() => {
                           setMobileMenuOpen(false);
                           logout();
+                          navigate('/Login');
                         }}
                         className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-3 rounded-2xl border-4 border-gray-855 shadow-[3px_3px_0px_rgba(0,0,0,0.8)] text-sm"
                       >
