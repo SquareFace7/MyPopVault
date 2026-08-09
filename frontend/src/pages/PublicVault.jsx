@@ -73,7 +73,21 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
       >
         <div className="absolute inset-0 bg-black/30 rounded-2xl translate-x-1 translate-y-1.5" />
 
-        <div className="relative bg-white rounded-2xl overflow-hidden border-4 border-gray-800">
+        <div className={`relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border-4 transition-all ${
+          item.rarity === 'Grail'
+            ? 'border-yellow-400 shadow-[5px_5px_0px_rgba(250,204,21,0.6)]'
+            : item.rarity === 'Legendary'
+              ? 'border-orange-500 shadow-[5px_5px_0px_rgba(249,115,22,0.6)]'
+              : item.rarity === 'Epic'
+                ? 'border-purple-500 shadow-[5px_5px_0px_rgba(168,85,247,0.6)]'
+                : item.rarity === 'Rare'
+                  ? 'border-blue-500 shadow-[5px_5px_0px_rgba(59,130,246,0.6)]'
+                  : item.boxCondition?.includes('Mint')
+                    ? 'border-emerald-600 shadow-[5px_5px_0px_rgba(5,150,105,0.5)]'
+                    : item.boxCondition?.includes('Damaged')
+                      ? 'border-rose-600 shadow-[5px_5px_0px_rgba(225,29,72,0.5)]'
+                      : 'border-gray-800 shadow-[5px_5px_0px_rgba(0,0,0,0.85)]'
+        }`}>
           {/* Top bar */}
           <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
@@ -89,7 +103,17 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
 
           {/* Image */}
           <div className="relative bg-gradient-to-b from-gray-100 to-gray-200 p-4">
-            <div className="relative bg-white rounded-xl p-2 border-4 border-gray-300 shadow-inner">
+            <div className={`relative bg-white rounded-xl p-2 border-4 transition-all shadow-inner ${
+              item.boxCondition?.includes('Mint (9.5-10)')
+                ? 'border-emerald-500'
+                : item.boxCondition?.includes('Near Mint')
+                  ? 'border-cyan-500'
+                  : item.boxCondition?.includes('Very Good')
+                    ? 'border-amber-500'
+                    : item.boxCondition?.includes('Damaged')
+                      ? 'border-rose-500'
+                      : 'border-gray-300'
+            }`}>
               {item.isExclusive && (
                 <motion.div
                   className="absolute -top-2 -right-2 z-20"
