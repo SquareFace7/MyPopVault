@@ -63,6 +63,7 @@ const Message = require('./models/Message');
 const tradeRoutes = require('./routes/tradeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
+const grailAlertsRoutes = require('./routes/grailAlertsRoutes');
 
 app.use('/api/pops', popRoutes);
 app.use('/api/auth', authRoutes);
@@ -73,6 +74,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/trades', tradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/grail-alerts', grailAlertsRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {
