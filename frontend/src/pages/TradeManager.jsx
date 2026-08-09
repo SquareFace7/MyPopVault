@@ -24,20 +24,55 @@ const statusConfig = {
   canceled: { label: 'CANCELED', bg: 'bg-gray-400', text: 'text-white', border: 'border-gray-600', icon: X },
 };
 
+const parseItem = (item) => {
+  if (!item) {
+    return {
+      name: 'Unknown Pop',
+      series: 'General',
+      number: '0',
+      image: '',
+      marketValue: 15,
+      rarity: 'Common'
+    };
+  }
+
+  const catalog = item.pop || item;
+  const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : 15);
+  let computedRarity = catalog.rarity || item.boxCondition;
+  if (!computedRarity) {
+    computedRarity = marketVal > 40 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
+  }
+
+  return {
+    name: catalog.name || 'Unknown Pop',
+    series: catalog.series || 'General',
+    number: catalog.itemNumber || catalog.number || catalog.releaseYear || '0',
+    image: catalog.imageUrl || catalog.image || '',
+    marketValue: marketVal,
+    rarity: computedRarity
+  };
+};
+
 function PopPill({ pop }) {
+  const item = parseItem(pop);
+
   return (
     <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border-4 border-gray-805 dark:border-slate-700 rounded-2xl px-3 py-2 shadow-[3px_3px_0px_rgba(0,0,0,0.75)] dark:shadow-[3px_3px_0px_rgba(0,174,239,0.3)]">
-      <div className="w-10 h-10 bg-gradient-to-br from-cyan-100 to-pink-100 dark:from-cyan-900 dark:to-pink-900 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0">
-        <Sparkles className="w-5 h-5 text-pink-400" />
+      <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-pink-100 dark:from-cyan-900 dark:to-pink-900 rounded-xl border-2 border-gray-800 flex items-center justify-center shrink-0 overflow-hidden p-1">
+        {item.image ? (
+          <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+        ) : (
+          <Sparkles className="w-5 h-5 text-pink-400" />
+        )}
       </div>
-      <div className="min-w-0">
-        <p className="font-black text-gray-800 dark:text-white text-sm truncate leading-tight">{pop.name}</p>
-        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate">#{pop.number} · {pop.series}</p>
+      <div className="min-w-0 flex-1">
+        <p className="font-black text-gray-800 dark:text-white text-sm truncate leading-tight">{item.name}</p>
+        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate">#{item.number} · {item.series}</p>
         <div className="flex items-center gap-1.5 mt-0.5">
-          <span className={`text-xs font-black px-1.5 py-0.5 rounded-full border-2 ${rarityColors[pop.rarity] || rarityColors.Common}`}>
-            {pop.rarity}
+          <span className={`text-xs font-black px-1.5 py-0.5 rounded-full border-2 ${rarityColors[item.rarity] || rarityColors.Common}`}>
+            {item.rarity}
           </span>
-          <span className="text-xs font-black text-cyan-500">${pop.marketValue}</span>
+          <span className="text-xs font-black text-cyan-500">${typeof item.marketValue === 'number' ? item.marketValue.toFixed(2) : item.marketValue}</span>
         </div>
       </div>
     </div>
@@ -258,20 +293,8 @@ export default function TradeManager() {
           fromGradient: trade.sender?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-pink-500 to-rose-500',
-          theyOffer: {
-            name: trade.offeredItem?.name || 'Unknown Pop',
-            series: trade.offeredItem?.series || 'Marvel',
-            number: trade.offeredItem?.releaseYear || 0,
-            marketValue: trade.offeredItem?.isVaulted ? 150 : 25,
-            rarity: trade.offeredItem?.boxCondition || 'Common'
-          },
-          forYour: {
-            name: trade.requestedItem?.name || 'Unknown Pop',
-            series: trade.requestedItem?.series || 'Star Wars',
-            number: trade.requestedItem?.releaseYear || 0,
-            marketValue: trade.requestedItem?.isVaulted ? 150 : 25,
-            rarity: trade.requestedItem?.boxCondition || 'Common'
-          },
+          theyOffer: parseItem(trade.offeredItem),
+          forYour: parseItem(trade.requestedItem),
           senderId: trade.sender?._id || trade.sender,
           status: trade.status
         }));
@@ -284,20 +307,8 @@ export default function TradeManager() {
           toGradient: trade.receiver?.role === 'admin'
             ? 'from-cyan-500 to-blue-500'
             : 'from-yellow-500 to-orange-500',
-          youOffered: {
-            name: trade.offeredItem?.name || 'Unknown Pop',
-            series: trade.offeredItem?.series || 'Marvel',
-            number: trade.offeredItem?.releaseYear || 0,
-            marketValue: trade.offeredItem?.isVaulted ? 150 : 25,
-            rarity: trade.offeredItem?.boxCondition || 'Common'
-          },
-          forTheir: {
-            name: trade.requestedItem?.name || 'Unknown Pop',
-            series: trade.requestedItem?.series || 'Star Wars',
-            number: trade.requestedItem?.releaseYear || 0,
-            marketValue: trade.requestedItem?.isVaulted ? 150 : 25,
-            rarity: trade.requestedItem?.boxCondition || 'Common'
-          },
+          youOffered: parseItem(trade.offeredItem),
+          forTheir: parseItem(trade.requestedItem),
           status: trade.status
         }));
 
@@ -515,7 +526,7 @@ export default function TradeManager() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Page Header */}
         <motion.div
@@ -560,7 +571,7 @@ export default function TradeManager() {
             <p className="text-lg font-black text-gray-500 animate-pulse">Loading trade details...</p>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Incoming Offers */}
             <div>
               <div className="flex items-center gap-3 mb-5">
@@ -607,7 +618,9 @@ export default function TradeManager() {
                   )}
                 </AnimatePresence>
               </div>
-                 {/* Outgoing / History */}
+            </div>
+
+            {/* Outgoing / History */}
             <div>
               <div className="flex items-center justify-between gap-3 mb-5">
                 <div className="flex items-center gap-3">
@@ -649,7 +662,7 @@ export default function TradeManager() {
                     />
                   ))
                 )}
-              </div>            </div>
+              </div>
             </div>
           </div>
         )}
