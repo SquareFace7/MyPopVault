@@ -120,7 +120,7 @@ function IncomingCard({ trade, onAccept, onReject, onCounter, onHide }) {
             <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">They Offer</p>
             <PopPill pop={trade.theyOffer} />
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center w-full my-[-8px] relative z-10">
             <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-500 rounded-xl border-2 border-gray-805 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.6)]">
               <ArrowDownUp className="w-4 h-4 text-white" />
             </div>
@@ -232,7 +232,7 @@ function OutgoingCard({ trade, index, onCancel, onHide }) {
             <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">You Offered</p>
             <PopPill pop={trade.youOffered} />
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center w-full my-[-8px] relative z-10">
             <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl border-2 border-gray-805 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.6)]">
               <ArrowDownUp className="w-4 h-4 text-white" />
             </div>

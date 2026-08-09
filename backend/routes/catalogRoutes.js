@@ -36,6 +36,26 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/catalog/grail-alerts - Get high-value VIP grail alerts
+router.get('/grail-alerts', async (req, res) => {
+  try {
+    let items = await PopCatalog.find({ marketPrice: { $gte: 40 } })
+      .sort({ marketPrice: -1 })
+      .limit(5);
+
+    if (items.length < 3) {
+      items = await PopCatalog.find({ marketPrice: { $gte: 25 } })
+        .sort({ marketPrice: -1 })
+        .limit(5);
+    }
+
+    res.json(items);
+  } catch (error) {
+    console.error('❌ Fetch Grail Alerts Error:', error);
+    res.status(500).json({ error: 'Failed to fetch grail alerts' });
+  }
+});
+
 // GET /api/catalog/:id - Retrieve a single pop from the catalog by ID
 router.get('/:id', async (req, res) => {
   try {
