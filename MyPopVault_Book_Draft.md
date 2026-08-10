@@ -766,7 +766,7 @@ const portfolioStats = await VaultItem.aggregate([
 
 ---
 
-### 18.1 סוג משתמש 1: משתמש אורח (Guest / Unauthenticated User)
+### 19.1 סוג משתמש 1: משתמש אורח (Guest / Unauthenticated User)
 
 * **שם סוג המשתמש:** משתמש אורח (Guest / Unauthenticated User).
 * **הסבר על הרשאות והגבלות גישה:** משתמש שלא ביצע התחברות למערכת. נגיש בלבד לנתיבים ציבוריים (`Landing.jsx`, `Login.jsx`, `Signup.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx`), וצפייה בלבד בצ'אט הקהילתי (`CommunityChat.jsx` עם הנעה להתחברות). משתמש אורח חסום לחלוטין מצפייה בכספות ציבוריות של אספנים אחרים (`PublicVault.jsx`).
@@ -823,22 +823,24 @@ graph TD
 
 ---
 
-### 18.2 סוג משתמש 2: אספן רגיל / משתמש רשום (Standard Collector / Authenticated User)
+### 19.2 סוג משתמש 2: אספן רגיל / משתמש רשום (Standard Collector / Authenticated User)
 
 * **שם סוג המשתמש:** אספן רגיל / משתמש רשום (Standard Collector / Authenticated User).
 * **הסבר על הרשאות והגבלות גישה:** משתמש רשום שעבר אימות זהות. בעל הרשאות גישה מלאות לניהול הכספת האישית, לצפייה באנליטיקות דשבורד, להוספת פריטים מהקטלוג הגלובלי, להשתתפות פעילה בצ'אט הקהילתי, ולמעבר לשדרוג VIP.
-* **הגבלות גישה מפורשות:** חסום מחיפוש אספנים ברחבי הקהילה (`/CollectorSearch` מקפיץ התראת שדרוג ל-VIP), חסום משליחת הודעות פרטיות 1-on-1, חסום מגישה למרכז ההחלפות והצעות סחר (`/TradeManager`) שמיועד ל-VIP בלבד, וחסום מפאנל מנהל המערכת.
+* **הגבלות גישה מפורשות:** מורשה לגשת למסך חיפוש האספנים (`/CollectorSearch`) ולצפות ברשימת האספנים, אך חסום מביצוע אינטראקציות פרימיום. כפתורי יזימת סחר או שליחת הודעות פרטיות חסומים ומוחלפים בכפתור "Upgrade to VIP". בנוסף, חסום מגישה למרכז ההחלפות והצעות סחר (`/TradeManager`) שמיועד ל-VIP בלבד, וחסום מפאנל מנהל המערכת.
 
 * **תרשים עץ מסכים של המשתמש (Screen Navigation Tree):**
 
 ```mermaid
 graph TD
-    Auth["Login / Auth Verification"] --> Dash["Collector Dashboard (מסך 5)"]
-    Dash --> Vault["Personal Vault Collection (מסך 6)"]
-    Dash --> Explorer["Pop Explorer Catalog (מסך 7)"]
-    Explorer --> Details["Pop Details Page (מסך 8)"]
-    Dash --> Chat["Community Chat - Interactive (מסך 11)"]
-    Dash --> Upgrade["VIP Upgrade Page (מסך 12)"]
+    Auth["Login / Auth Verification"] --> Dash["Collector Dashboard (Screen 5)"]
+    Dash --> Vault["Personal Vault Collection (Screen 6)"]
+    Dash --> Explorer["Pop Explorer Catalog (Screen 7)"]
+    Explorer --> Details["Pop Details Page (Screen 8)"]
+    Dash --> Chat["Community Chat - Interactive (Screen 11)"]
+    Dash --> Upgrade["VIP Upgrade Page (Screen 12)"]
+    Dash --> Search["Collector Search (Screen 9) - Paywalled"]
+    Search -.-> Upgrade
 ```
 
 #### פירוט מסכי המשתמש בעץ:
@@ -871,6 +873,13 @@ graph TD
 * **צילום מסך:**
 > 📷 **[צילום מסך: מסך 8 - פרטי פריט קטלוגי | UI Screenshot Placeholder]**
 
+##### מסך 9: מסך חיפוש אספנים (תצוגת Paywall)
+* **שם מסך:** מנוע חיפוש אספנים בקהילה (`CollectorSearch.jsx` - Paywalled).
+* **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** חשיפת האספן לגודל הקהילה וליוזרים אחרים כדי לייצר מעורבות (Engagement) ותחושת החמצה (FOMO), תוך שימוש בחומת תשלום שחוסמת אינטראקציות פרימיום במטרה לעודד שדרוג למנוי VIP.
+* **מה המשתמש עושה בפועל במסך:** מזין טקסט בשורת החיפוש, גולל וצופה בכרטיסי האספנים השונים (כולל נתונים בסיסיים כמו כמות בובות וסדרה מובילה), נתקל בכפתורי "Upgrade to VIP" במקום בכפתורי פעולה רגילים, ולוחץ עליהם כדי לעבור אוטומטית למסך שדרוג המנוי.
+* **צילום מסך:**
+> 📷 **[צילום מסך: מסך 9 - חיפוש אספנים תצוגת משתמש רגיל | UI Screenshot Placeholder]**
+
 ##### מסך 11: מסך צ'אט קהילתי בזמן אמת (Community Chat)
 * **שם מסך:** צ'אט קהילתי בזמן אמת (`CommunityChat.jsx`).
 * **מטרת המסך (איזו בעיה הוא פותר / מה הפעולה המרכזית):** אספקת ערוץ תקשורת ישיר בזמן אמת בטכנולוגיית Socket.IO לתאום עסקאות סחר ודיוני אספנות בקהילה.
@@ -887,7 +896,7 @@ graph TD
 
 ---
 
-### 18.3 סוג משתמש 3: משתמש VIP פרימיום (VIP Premium Collector)
+### 19.3 סוג משתמש 3: משתמש VIP פרימיום (VIP Premium Collector)
 
 * **שם סוג המשתמש:** משתמש VIP פרימיום (VIP Premium Collector).
 * **הסבר על הרשאות והגבלות גישה:** משתמש שביצע שדרוג תשלום מוצלח ב-Stripe. נהנה מכל הרשאות האספן הרגיל, ובנוסף בעל הרשאות בלעדיות: חיפוש אספנים ואיתור אוספים בקהילה (`/CollectorSearch`), צפייה בכספות ציבוריות של אספנים אחרים (`PublicVault.jsx`), פתיחת שיחות פרטיות 1-on-1 (`PrivateChatModal` / `PopMessenger.jsx`), יצירת הצעות סחר ישירות מתוך כספת ציבורית (`TradeModal`), תג VIP זהוב יוקרתי (`👑 VIP`) ליד השם בקהילה, ואחסון כספת אישית בלתי מוגבל.
@@ -930,7 +939,7 @@ graph TD
 
 ---
 
-### 18.4 סוג משתמש 4: מנהל מערכת (System Admin)
+### 19.4 סוג משתמש 4: מנהל מערכת (System Admin)
 
 * **שם סוג המשתמש:** מנהל מערכת (System Admin).
 * **הסבר על הרשאות והגבלות גישה:** תפקיד הנהלה בעל הרשאות-על (Role `admin`). נהנה מגישה מלאה לכל מסכי האפליקציה, ובנוסף מחזיק בגישה בלעדית ללוח בקרת מנהל מערכת (`/AdminPanel`). בעל סמכות לשנות תפקידי משתמשים בלייב (הענקת/שלילת VIP) ולצפות בגרפים ואנליטיקות עסקיות של האתר.
