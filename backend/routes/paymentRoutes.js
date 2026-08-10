@@ -58,7 +58,10 @@ router.post('/create-checkout-session', express.json(), authMiddleware, async (r
     if (!stripe) {
       return res.status(500).json({ error: 'Stripe is not configured on this server.' });
     }
-    const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
+    const rawFrontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || process.env.BASE_URL || 'https://mypopvault.online';
+    const frontendUrl = (rawFrontendUrl.includes('localhost') || rawFrontendUrl.includes('127.0.0.1') || rawFrontendUrl.includes('54.145.')) && process.env.NODE_ENV === 'production'
+      ? 'https://mypopvault.online'
+      : (rawFrontendUrl.replace(/\/+$/, '') || 'https://mypopvault.online');
     
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

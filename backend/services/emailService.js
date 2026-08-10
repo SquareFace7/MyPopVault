@@ -1,11 +1,15 @@
 const nodemailer = require('nodemailer');
 
 const sendVerificationEmail = async (email, username, token) => {
-  // Support dynamic environment variables for base URL (CLIENT_URL, BASE_URL, FRONTEND_URL, or BACKEND_URL)
-  const baseUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.BACKEND_URL || process.env.FRONTEND_URL || 'http://localhost:5000';
-  const verificationEndpoint = baseUrl.endsWith('/api') 
-    ? `${baseUrl}/auth/verify/${token}` 
-    : `${baseUrl}/api/auth/verify/${token}`;
+  // Support dynamic environment variables for Backend API URL (API_URL, BACKEND_URL, BASE_URL) with secure production domain fallback
+  const rawApiUrl = process.env.API_URL || process.env.BACKEND_URL || process.env.BASE_URL || 'https://api.mypopvault.online';
+  const apiUrl = (rawApiUrl.includes('localhost') || rawApiUrl.includes('127.0.0.1') || rawApiUrl.includes('54.145.')) && process.env.NODE_ENV === 'production'
+    ? 'https://api.mypopvault.online'
+    : (rawApiUrl.replace(/\/+$/, '') || 'https://api.mypopvault.online');
+
+  const verificationEndpoint = apiUrl.endsWith('/api') 
+    ? `${apiUrl}/auth/verify/${token}` 
+    : `${apiUrl}/api/auth/verify/${token}`;
   const verificationUrl = verificationEndpoint;
   console.log(`✉️ [Verification Email Log]`);
   console.log(`To: ${email}`);
@@ -93,7 +97,10 @@ const sendVerificationEmail = async (email, username, token) => {
 };
 
 const sendPasswordResetEmail = async (email, username, token) => {
-  const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
+  const rawFrontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || process.env.BASE_URL || 'https://mypopvault.online';
+  const frontendUrl = (rawFrontendUrl.includes('localhost') || rawFrontendUrl.includes('127.0.0.1') || rawFrontendUrl.includes('54.145.')) && process.env.NODE_ENV === 'production'
+    ? 'https://mypopvault.online'
+    : (rawFrontendUrl.replace(/\/+$/, '') || 'https://mypopvault.online');
   const resetUrl = `${frontendUrl}/reset-password/${token}`;
   console.log(`✉️ [Password Reset Email Log]`);
   console.log(`To: ${email}`);

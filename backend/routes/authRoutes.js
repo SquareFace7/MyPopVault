@@ -203,7 +203,10 @@ router.post('/login', async (req, res) => {
 
 // GET /api/auth/verify/:token - Verify user email
 router.get('/verify/:token', async (req, res) => {
-  const frontendUrl = process.env.CLIENT_URL || process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:8080';
+  const rawFrontendUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || process.env.BASE_URL || 'https://mypopvault.online';
+  const frontendUrl = (rawFrontendUrl.includes('localhost') || rawFrontendUrl.includes('127.0.0.1') || rawFrontendUrl.includes('54.145.')) && process.env.NODE_ENV === 'production'
+    ? 'https://mypopvault.online'
+    : (rawFrontendUrl.replace(/\/+$/, '') || 'https://mypopvault.online');
   try {
     const { token } = req.params;
     const user = await User.findOne({ verificationToken: token });
