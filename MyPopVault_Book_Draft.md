@@ -75,9 +75,10 @@
     - 15.4 ידע חדש שנדרש ללמוד
     - 15.5 ספרות ומקורות מידע
 16. **תכנית עבודה ושלבים למימוש הפרויקט**
-17. **בקרת גרסאות (Version Control)**
-18. **נספח ממשק משתמש (UI Appendix)**
-19. **נספח קוד (Code Appendix)**
+17. **תכנון הבדיקות שיבוצעו (Testing Plan)**
+18. **בקרת גרסאות (Version Control)**
+19. **נספח ממשק משתמש (UI Appendix)**
+20. **נספח קוד (Code Appendix)**
 
 ---
 
@@ -726,19 +727,11 @@ const portfolioStats = await VaultItem.aggregate([
 
 ---
 
-## 17. בקרת גרסאות ותוכנית בדיקות (Version Control & Testing Plan)
-
-### 17.1 בקרת גרסאות (Version Control)
-ניהול הגרסאות בפרויקט מבוצע באמצעות כלי ניהול הגרסאות **Git** והקוד מאוחסן בפלטפורמת **GitHub**.
-שיטת העבודה שנבחרה היא **Feature Branch Workflow**:
-* ענף `main` שמור אך ורק לגרסאות יציבות (Production Ready).
-* לכל תכונה חדשה (כגון Stripe Integration, Scraper Cron, Trade Engine) נפתח ענף ייעודי (Feature Branch) הממוזג ל-`main` רק לאחר ביצוע בדיקות מקיפות.
-
-### 17.2 תוכנית בדיקות מפורטת (Formal Testing Plan)
+## 17. תכנון הבדיקות שיבוצעו (Testing Plan)
 
 להבטחת אמינות, אבטחה ועקביות מלאה במערכת, בוצעו בדיקות מקיפות בשני מפלסים מרכזיים: בדיקות זרימה מלאה מקצה לקצה (Full Flow E2E Tests) ובדיקות יחידה מבודדות (Unit Tests):
 
-#### טבלה 1: בדיקות זרימה מלאה מקצה לקצה (Full Flow / E2E Integration Tests)
+### 17.1 בדיקות זרימה מלאה מקצה לקצה (Full Flow / E2E Integration Tests)
 
 | מס' | תרחיש בדיקה | שלבי בדיקה וקלטים | תוצאה מצופה (Expected Result) | סטטוס |
 | :--- | :--- | :--- | :--- | :--- |
@@ -747,7 +740,7 @@ const portfolioStats = await VaultItem.aggregate([
 | **3** | **שדרוג מנוי VIP ב-Stripe וסנכרון Webhook (Stripe VIP Flow)** | לחיצה על "Upgrade to VIP" ב-`VipUpgrade.jsx`, מעבר ל-Stripe Checkout, השלמת תשלום ($9.99), ושליחת אירוע Webhook מאומת. | שרת Stripe משגר Webhook מאומת קריפטוגרפית (`checkout.session.completed`), השרת משדרג אטומית ב-DB ל-`isVip: true` ו-`role: 'vip'`, והאספן מועבר ל-`VipSuccess.jsx` עם תג VIP וגישה לסחר. | **עבר (PASSED)** |
 | **4** | **ביצוע עסקת סחר והחלפת בעלות (Atomic Trade Swap Execution)** | אספן VIP א' יוצר הצעה מכספת ציבורית של VIP ב' (`TradeModal.jsx`), אספן VIP ב' נכנס ל-`TradeManager.jsx` ולוחץ "Accept". | ה-Trade Engine בשרת מאמת מלאי, מפחית כמויות בשתי הכספות (או מוחק רשומה שהגיעה ל-0), מעביר/ממזג פריטים לכספת היעד לפי `boxCondition`, מעדכן סטטוס ל-`accepted`, ומבטל הצעות מתחרות. | **עבר (PASSED)** |
 
-#### טבלה 2: בדיקות יחידה מבודדות (Unit Tests)
+### 17.2 בדיקות יחידה מבודדות (Unit Tests)
 
 | מס' | רכיב נבדק | תרחיש ומקרה קצה (Edge Case) | תוצאה מצופה (Expected Result) | סטטוס |
 | :--- | :--- | :--- | :--- | :--- |
@@ -758,7 +751,16 @@ const portfolioStats = await VaultItem.aggregate([
 
 ---
 
-## 18. נספח ממשק משתמש (UI Appendix)
+## 18. בקרת גרסאות (Version Control)
+
+ניהול הגרסאות בפרויקט מבוצע באמצעות כלי ניהול הגרסאות **Git** והקוד מאוחסן בפלטפורמת **GitHub**.
+שיטת העבודה שנבחרה היא **Feature Branch Workflow**:
+* ענף `main` שמור אך ורק לגרסאות יציבות (Production Ready).
+* לכל תכונה חדשה (כגון Stripe Integration, Scraper Cron, Trade Engine) נפתח ענף ייעודי (Feature Branch) הממוזג ל-`main` רק לאחר ביצוע בדיקות מקיפות.
+
+---
+
+## 19. נספח ממשק משתמש (UI Appendix)
 
 נספח זה משמש כאינטגרציה של מדריך למשתמש (User Guide) ומספק תיעוד מלא ומבוקר קוד של ממשק המשתמש (UI/UX) בפלטפורמת MyPopVault. הנספח מחולק בצורה היררכית ל-4 תפקידי משתמשים נפרדים ומובחנים במערכת (Role-Based Access Control - RBAC). עבור כל סוג משתמש מוצגים שם תפקיד המשתמש, תרשים עץ מסכים (Screen Navigation Tree) המבוסס על ניתוח נתיבי ההגנה בקוד (`PrivateRoute.jsx`), פירוט הרשאות והגבלות גישה, ופירוט מלא של כל מסך בעץ (שם מסך, מטרת המסך והבעיה שהוא פותר, מה המשתמש עושה בפועל על גבי המסך תוך שימוש בפעלים אקטיביים בלבד, ומקום מיועד לצילום מסך).
 
@@ -952,7 +954,7 @@ graph TD
 > 📷 **[צילום מסך: מסך 14 - לוח בקרת מנהל מערכת | UI Screenshot Placeholder]**
 
 ---
-## 19. נספח קוד (Code Appendix)
+## 20. נספח קוד (Code Appendix)
 
 נספח זה מתמקד ב-3 תהליכי ליבה עסקיים ומורכבים מתוך קוד המערכת בפועל:
 
