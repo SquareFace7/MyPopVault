@@ -726,12 +726,35 @@ const portfolioStats = await VaultItem.aggregate([
 
 ---
 
-## 17. בקרת גרסאות (version control)
+## 17. בקרת גרסאות ותוכנית בדיקות (Version Control & Testing Plan)
 
+### 17.1 בקרת גרסאות (Version Control)
 ניהול הגרסאות בפרויקט מבוצע באמצעות כלי ניהול הגרסאות **Git** והקוד מאוחסן בפלטפורמת **GitHub**.
 שיטת העבודה שנבחרה היא **Feature Branch Workflow**:
 * ענף `main` שמור אך ורק לגרסאות יציבות (Production Ready).
 * לכל תכונה חדשה (כגון Stripe Integration, Scraper Cron, Trade Engine) נפתח ענף ייעודי (Feature Branch) הממוזג ל-`main` רק לאחר ביצוע בדיקות מקיפות.
+
+### 17.2 תוכנית בדיקות מפורטת (Formal Testing Plan)
+
+להבטחת אמינות, אבטחה ועקביות מלאה במערכת, בוצעו בדיקות מקיפות בשני מפלסים מרכזיים: בדיקות זרימה מלאה מקצה לקצה (Full Flow E2E Tests) ובדיקות יחידה מבודדות (Unit Tests):
+
+#### טבלה 1: בדיקות זרימה מלאה מקצה לקצה (Full Flow / E2E Integration Tests)
+
+| מס' | תרחיש בדיקה | שלבי בדיקה וקלטים | תוצאה מצופה (Expected Result) | סטטוס |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | **הרשמה, אימות וסינון קלטים (Auth & Input Sanitize Flow)** | הזנת שם משתמש, דוא"ל, סיסמה בטופס ההרשמה (`Login.jsx`), בדיקת 5 תנאי חוזק הסיסמה, שליחת מייל אימות מ-Brevo, ניסיון הקלדת תווים בעברית (`handleEnglishOnlyInput`), ולחיצה על קישור האימות ב-Email. | החשבון נוצר ב-MongoDB בסטטוס `isVerified: false`, הטוקן נשמר ב-LocalStorage, תווים בעברית נחסמים מידית ב-Regex עם התראת Toast, ולחיצה על קישור האימות משנה את הסטטוס ל-`isVerified: true` ומשחררת את המנעול. | **עבר (PASSED)** |
+| **2** | **ניהול כספת וסנכרון אנליטיקות ROI (Vault CRUD & ROI Sync)** | חיפוש Pop בסייר הקטלוג (`PopExplorer.jsx`), הוספה לכספת עם מחיר קנייה ($50), מצב קופסה (`Mint`), וכמות (2). עדכון ומחיקה ב-`Collection.jsx`. | נוצרת רשומת `VaultItem` ב-DB, ה-Dashboard מעדכן בלייב את שווי התיק, סך ההשקעה וה-ROI המשוקלל באמצעות צינור ה-Aggregation, ואירוע `E11000` מטופל בצורה שקופה. | **עבר (PASSED)** |
+| **3** | **שדרוג מנוי VIP ב-Stripe וסנכרון Webhook (Stripe VIP Flow)** | לחיצה על "Upgrade to VIP" ב-`VipUpgrade.jsx`, מעבר ל-Stripe Checkout, השלמת תשלום ($9.99), ושליחת אירוע Webhook מאומת. | שרת Stripe משגר Webhook מאומת קריפטוגרפית (`checkout.session.completed`), השרת משדרג אטומית ב-DB ל-`isVip: true` ו-`role: 'vip'`, והאספן מועבר ל-`VipSuccess.jsx` עם תג VIP וגישה לסחר. | **עבר (PASSED)** |
+| **4** | **ביצוע עסקת סחר והחלפת בעלות (Atomic Trade Swap Execution)** | אספן VIP א' יוצר הצעה מכספת ציבורית של VIP ב' (`TradeModal.jsx`), אספן VIP ב' נכנס ל-`TradeManager.jsx` ולוחץ "Accept". | ה-Trade Engine בשרת מאמת מלאי, מפחית כמויות בשתי הכספות (או מוחק רשומה שהגיעה ל-0), מעביר/ממזג פריטים לכספת היעד לפי `boxCondition`, מעדכן סטטוס ל-`accepted`, ומבטל הצעות מתחרות. | **עבר (PASSED)** |
+
+#### טבלה 2: בדיקות יחידה מבודדות (Unit Tests)
+
+| מס' | רכיב נבדק | תרחיש ומקרה קצה (Edge Case) | תוצאה מצופה (Expected Result) | סטטוס |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | **`authMiddleware.js`** | שליחת בקשת HTTP API ללא Header של `Authorization` או עם טוקן מזויף/פג תוקף. | השרת דוחה את הבקשה ומחזיר סטטוס 401 Unauthorized עם ההודעה `No token provided` או `Invalid token`. | **עבר (PASSED)** |
+| **2** | **`seedCatalog.js` / `cronService.js`** | הרצת מנוע ה-Scraper מול HTML חיצוני מכוסה תגיות מיותרות, תווים מיוחדים ורווחים. | מנוע ה-Cheerio מנקה תווים זרים, מחלץ ערך נומרי טהור מתוך מחרוזת מחיר (למשל `$149.99` -> `149.99`), ומבצע Bulk Upsert תקין. | **עבר (PASSED)** |
+| **3** | **`vaultRoutes.js` (Aggregation Pipeline)** | חישוב Portfolio ROI עבור אספן חדש בעל 0 פריטים בכספת או סך השקעה `totalInvestment = 0`. | תנאי ה-`$cond` בצינור ה-Aggregation מזהה חלוקה באפס ומחזיר בבטחה `roiPercentage: 0` ללא שגיאת Arithmetic Exception. | **עבר (PASSED)** |
+| **4** | **`tradeRoutes.js` (Trade Engine)** | ניסיון אישור הצעת סחר (`PUT /api/trades/:id/status` -> `accepted`) כאשר כמות הפריטים בכספת קטנה מהמבוקש. | השרת חוסם את העסקה, מחזיר 400 Bad Request עם ההודעה `Sender no longer has sufficient stock...`, ולא מבוצע שום שינוי ב-DB. | **עבר (PASSED)** |
 
 ---
 
