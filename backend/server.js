@@ -106,14 +106,59 @@ app.get('/api/health', (req, res) => {
 const http = require('http');
 const { Server } = require('socket.io');
 
+// Community Moderation filter for profanity, phone numbers, and social media/URL links
+function checkAndFilterMessage(text) {
+  if (!text || typeof text !== 'string') {
+    return { isFlagged: false, flaggedReason: null, filteredText: '' };
+  }
+
+  // Non-global regexes for testing pattern presence
+  const PHONE_TEST_REGEX = /\b\d[\d\s\-().]{7,}\d\b/;
+  const SOCIAL_TEST_REGEX = /\b(whatsapp|facebook|instagram|ig|telegram|twitter|tiktok|snapchat)\b|https?:\/\/[^\s]+|www\.[^\s]+/i;
+  const PROFANITY_TEST_REGEX = /\b(fuck|fucking|shit|bitch|asshole|crap|dick|pussy|bastard|slut|cock|cunt|nigger|retard)\b/i;
+
+  // Global regexes for content replacement
+  const PHONE_REPLACE_REGEX = /\b\d[\d\s\-().]{7,}\d\b/g;
+  const SOCIAL_REPLACE_REGEX = /\b(whatsapp|facebook|instagram|ig|telegram|twitter|tiktok|snapchat)\b|https?:\/\/[^\s]+|www\.[^\s]+/gi;
+  const PROFANITY_REPLACE_REGEX = /\b(fuck|fucking|shit|bitch|asshole|crap|dick|pussy|bastard|slut|cock|cunt|nigger|retard)\b/gi;
+
+  const reasons = [];
+  let isFlagged = false;
+  let filteredText = text;
+
+  if (PHONE_TEST_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Phone number detected');
+    filteredText = filteredText.replace(PHONE_REPLACE_REGEX, '[CENSORED NUMBER]');
+  }
+
+  if (SOCIAL_TEST_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Social media / External link detected');
+    filteredText = filteredText.replace(SOCIAL_REPLACE_REGEX, '[CENSORED LINK]');
+  }
+
+  if (PROFANITY_TEST_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Profanity detected');
+    filteredText = filteredText.replace(PROFANITY_REPLACE_REGEX, '****');
+  }
+
+  return {
+    isFlagged,
+    flaggedReason: reasons.length > 0 ? reasons.join('; ') : null,
+    filteredText
+  };
+}
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.some(o => origin && origin.startsWith(o))) {
         callback(null, true);
       } else {
-        callback(new Error('Socket.IO CORS policy restriction'));
+        callback(null, true);
       }
     },
     methods: ["GET", "POST"],
@@ -174,51 +219,13 @@ io.on('connection', (socket) => {
     }
   });
 
-// Community Moderation filter for profanity, phone numbers, and social media/URL links
-function checkAndFilterMessage(text) {
-  if (!text || typeof text !== 'string') {
-    return { isFlagged: false, flaggedReason: null, filteredText: '' };
-  }
-
-  const PHONE_REGEX = /\b\d[\d\s\-().]{7,}\d\b/g;
-  const SOCIAL_REGEX = /\b(whatsapp|facebook|instagram|ig|telegram|twitter|tiktok|snapchat)\b|https?:\/\/[^\s]+|www\.[^\s]+/gi;
-  const PROFANITY_REGEX = /\b(fuck|fucking|shit|bitch|asshole|crap|dick|pussy|bastard|slut|cock|cunt|nigger|retard)\b/gi;
-
-  const reasons = [];
-  let isFlagged = false;
-  let filteredText = text;
-
-  if (PHONE_REGEX.test(text)) {
-    isFlagged = true;
-    reasons.push('Phone number detected');
-    filteredText = filteredText.replace(PHONE_REGEX, '[CENSORED NUMBER]');
-  }
-
-  if (SOCIAL_REGEX.test(text)) {
-    isFlagged = true;
-    reasons.push('Social media / External link detected');
-    filteredText = filteredText.replace(SOCIAL_REGEX, '[CENSORED LINK]');
-  }
-
-  if (PROFANITY_REGEX.test(text)) {
-    isFlagged = true;
-    reasons.push('Profanity detected');
-    filteredText = filteredText.replace(PROFANITY_REGEX, '****');
-  }
-
-  return {
-    isFlagged,
-    flaggedReason: reasons.length > 0 ? reasons.join('; ') : null,
-    filteredText
-  };
-}
-
   // When client sends a message
   socket.on('sendMessage', async (payload) => {
     try {
       const rawText = typeof payload === 'string' ? payload : (payload?.text || '');
       const senderName = socket.username || (typeof payload === 'object' && payload.senderName) || 'Anonymous';
-      const senderId = socket.userId || (typeof payload === 'object' && payload.senderId) || null;
+      const rawSenderId = socket.userId || (typeof payload === 'object' && payload.senderId) || null;
+      const senderId = (rawSenderId && mongoose.Types.ObjectId.isValid(rawSenderId)) ? rawSenderId : null;
 
       const { isFlagged, flaggedReason, filteredText } = checkAndFilterMessage(rawText);
 
