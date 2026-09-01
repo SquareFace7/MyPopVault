@@ -53,7 +53,10 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
 
     // 2. Establish Socket connection
     const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
-    const socket = io(socketUrl);
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true
+    });
     socketRef.current = socket;
 
     const username = currentUser?.username || currentUser?.email?.split('@')[0] || 'Collector';

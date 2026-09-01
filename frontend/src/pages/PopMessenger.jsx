@@ -61,7 +61,10 @@ export default function PopMessenger() {
 
     // Establish socket connection for real-time inbox updates
     const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
-    const socket = io(socketUrl);
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true
+    });
     socketRef.current = socket;
 
     const username = currentUser.username || currentUser.email.split('@')[0];

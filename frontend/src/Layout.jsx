@@ -143,7 +143,10 @@ export default function Layout({ children, currentPageName }) {
       if (!userId) return;
 
       const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
-      const socket = io(socketUrl);
+      const socket = io(socketUrl, {
+        transports: ['websocket', 'polling'],
+        withCredentials: true
+      });
       
       console.log(`🔌 [Global Socket] Connecting and registering user: ${userId}`);
       socket.emit('register_user', userId);

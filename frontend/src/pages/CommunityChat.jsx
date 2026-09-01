@@ -46,7 +46,10 @@ export default function CommunityChat() {
 
     // Initialize Socket connection to server
     const socketUrl = API_BASE_URL || 'https://api.mypopvault.online';
-    const socket = io(socketUrl);
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true
+    });
     socketRef.current = socket;
 
     // Send join registration payload ONLY for logged-in users
