@@ -158,4 +158,60 @@ router.put('/users/:id/role', async (req, res) => {
   }
 });
 
+// GET /api/admin/moderation - Get all flagged community chat messages
+router.get('/moderation', async (req, res) => {
+  try {
+    const Message = require('../models/Message');
+    const flaggedMessages = await Message.find({ isFlagged: true })
+      .populate('sender', 'username email role')
+      .sort({ timestamp: -1 });
+
+    res.json(flaggedMessages);
+  } catch (error) {
+    console.error('❌ Admin Fetch Moderation Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch moderation queue',
+      message: error.message
+    });
+  }
+});
+
+// DELETE /api/admin/moderation/:id - Delete a flagged message
+router.delete('/moderation/:id', async (req, res) => {
+  try {
+    const Message = require('../models/Message');
+    const deletedMessage = await Message.findByIdAndDelete(req.params.id);
+
+    if (!deletedMessage) {
+      return res.status(404).json({ error: 'Flagged message not found' });
+    }
+
+    res.json({ message: 'Flagged message deleted successfully!', id: req.params.id });
+  } catch (error) {
+    console.error('❌ Admin Delete Moderation Error:', error);
+    res.status(500).json({ error: 'Failed to delete message', message: error.message });
+  }
+});
+
+// PUT /api/admin/moderation/:id/dismiss - Dismiss flag (approve message)
+router.put('/moderation/:id/dismiss', async (req, res) => {
+  try {
+    const Message = require('../models/Message');
+    const updatedMessage = await Message.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isFlagged: false, flaggedReason: null } },
+      { new: true }
+    );
+
+    if (!updatedMessage) {
+      return res.status(404).json({ error: 'Flagged message not found' });
+    }
+
+    res.json({ message: 'Flag dismissed successfully!', messageObj: updatedMessage });
+  } catch (error) {
+    console.error('❌ Admin Dismiss Flag Error:', error);
+    res.status(500).json({ error: 'Failed to dismiss flag', message: error.message });
+  }
+});
+
 module.exports = router;

@@ -91,6 +91,7 @@ function UserRow({ user, onToggleVIP }) {
 export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [growthData, setGrowthData] = useState([]);
+  const [flaggedMessages, setFlaggedMessages] = useState([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalVips: 0,
@@ -129,6 +130,15 @@ export default function AdminPanel() {
         const usersData = await usersRes.json();
         setUsers(usersData);
       }
+
+      // Fetch Flagged Moderation Queue
+      const modRes = await fetch(getApiUrl('/api/admin/moderation'), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (modRes.ok) {
+        const modData = await modRes.json();
+        setFlaggedMessages(Array.isArray(modData) ? modData : []);
+      }
     } catch (error) {
       console.error('❌ Failed to fetch admin stats:', error);
       toast.error('Failed to load system aggregates.');
@@ -140,6 +150,52 @@ export default function AdminPanel() {
   useEffect(() => {
     fetchAdminData();
   }, []);
+
+  const handleDeleteFlagged = async (messageId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch(getApiUrl(`/api/admin/moderation/${messageId}`), {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete flagged message');
+      }
+
+      toast.success('🗑️ Flagged message permanently deleted.');
+      setFlaggedMessages(prev => prev.filter(m => m._id !== messageId));
+    } catch (error) {
+      console.error('❌ Delete Moderation Error:', error);
+      toast.error(`Delete failed: ${error.message}`);
+    }
+  };
+
+  const handleDismissFlag = async (messageId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch(getApiUrl(`/api/admin/moderation/${messageId}/dismiss`), {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to dismiss flag');
+      }
+
+      toast.success('✅ Message flag dismissed.');
+      setFlaggedMessages(prev => prev.filter(m => m._id !== messageId));
+    } catch (error) {
+      console.error('❌ Dismiss Flag Error:', error);
+      toast.error(`Dismiss failed: ${error.message}`);
+    }
+  };
 
   const handleToggleVIP = async (targetUser) => {
     try {
@@ -254,18 +310,80 @@ export default function AdminPanel() {
           <div className="w-8 h-8 bg-red-500 rounded-xl border-2 border-gray-800 flex items-center justify-center">
             <Shield className="w-4 h-4 text-white" />
           </div>
-          <h2 className="text-xl font-black text-gray-800 dark:text-white">Community Moderation</h2>
+          <h2 className="text-xl font-black text-gray-800 dark:text-white">Community Moderation Queue</h2>
           <span className="ml-auto bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 font-black text-xs px-3 py-1 rounded-full border-2 border-gray-800">
-            0 flagged
+            {flaggedMessages.length} flagged
           </span>
         </div>
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full border-4 border-gray-800 flex items-center justify-center mb-4 shadow-[4px_4px_0px_rgba(0,0,0,0.85)]">
-            <CheckCircle className="w-8 h-8 text-green-500" />
+
+        {flaggedMessages.length > 0 ? (
+          <div className="p-6 space-y-4">
+            {flaggedMessages.map((msg) => (
+              <div 
+                key={msg._id} 
+                className="bg-red-50/50 dark:bg-red-950/30 border-3 border-red-300 dark:border-red-800/60 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+              >
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-black text-sm text-gray-900 dark:text-white">
+                      {msg.senderName || 'Anonymous'}
+                    </span>
+                    {msg.sender?.email && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-bold">
+                        ({msg.sender.email})
+                      </span>
+                    )}
+                    <span className="bg-red-200 dark:bg-red-900/60 text-red-800 dark:text-red-200 font-black text-[10px] uppercase px-2 py-0.5 rounded-md border border-red-400">
+                      ⚠️ {msg.flaggedReason || 'Flagged Content'}
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-bold ml-auto md:ml-0">
+                      {new Date(msg.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <p className="font-bold text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800/80 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <span className="text-gray-400 text-xs font-black mr-2 uppercase">Censored Output:</span>
+                    {msg.text}
+                  </p>
+
+                  {msg.originalText && msg.originalText !== msg.text && (
+                    <p className="text-xs text-red-600 dark:text-red-400 font-bold bg-red-100/60 dark:bg-red-950/60 p-2 rounded-lg border border-red-200 dark:border-red-900">
+                      <span className="font-black mr-1 uppercase">Original Raw Text:</span>
+                      "{msg.originalText}"
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-2 shrink-0 self-end md:self-center">
+                  <motion.button
+                    onClick={() => handleDismissFlag(msg._id)}
+                    className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white font-black text-xs px-3 py-2 rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ y: 0 }}
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" /> Dismiss Flag
+                  </motion.button>
+                  <motion.button
+                    onClick={() => handleDeleteFlagged(msg._id)}
+                    className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white font-black text-xs px-3 py-2 rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                  </motion.button>
+                </div>
+              </div>
+            ))}
           </div>
-          <h3 className="text-lg font-black text-gray-800 dark:text-white mb-1">Moderation Queue Empty</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-bold max-w-sm font-sans">No flagged messages at this time. The community chat is clean and tidy! ✨</p>
-        </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full border-4 border-gray-800 flex items-center justify-center mb-4 shadow-[4px_4px_0px_rgba(0,0,0,0.85)]">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+            <h3 className="text-lg font-black text-gray-800 dark:text-white mb-1">Moderation Queue Empty</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-bold max-w-sm font-sans">No flagged messages at this time. The community chat is clean and tidy! ✨</p>
+          </div>
+        )}
       </motion.div>
 
       {/* User Management */}

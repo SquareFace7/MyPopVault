@@ -174,18 +174,71 @@ io.on('connection', (socket) => {
     }
   });
 
+// Community Moderation filter for profanity, phone numbers, and social media/URL links
+function checkAndFilterMessage(text) {
+  if (!text || typeof text !== 'string') {
+    return { isFlagged: false, flaggedReason: null, filteredText: '' };
+  }
+
+  const PHONE_REGEX = /\b\d[\d\s\-().]{7,}\d\b/g;
+  const SOCIAL_REGEX = /\b(whatsapp|facebook|instagram|ig|telegram|twitter|tiktok|snapchat)\b|https?:\/\/[^\s]+|www\.[^\s]+/gi;
+  const PROFANITY_REGEX = /\b(fuck|fucking|shit|bitch|asshole|crap|dick|pussy|bastard|slut|cock|cunt|nigger|retard)\b/gi;
+
+  const reasons = [];
+  let isFlagged = false;
+  let filteredText = text;
+
+  if (PHONE_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Phone number detected');
+    filteredText = filteredText.replace(PHONE_REGEX, '[CENSORED NUMBER]');
+  }
+
+  if (SOCIAL_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Social media / External link detected');
+    filteredText = filteredText.replace(SOCIAL_REGEX, '[CENSORED LINK]');
+  }
+
+  if (PROFANITY_REGEX.test(text)) {
+    isFlagged = true;
+    reasons.push('Profanity detected');
+    filteredText = filteredText.replace(PROFANITY_REGEX, '****');
+  }
+
+  return {
+    isFlagged,
+    flaggedReason: reasons.length > 0 ? reasons.join('; ') : null,
+    filteredText
+  };
+}
+
   // When client sends a message
-  socket.on('sendMessage', async (messageText) => {
+  socket.on('sendMessage', async (payload) => {
     try {
-      const senderName = socket.username || 'Anonymous';
+      const rawText = typeof payload === 'string' ? payload : (payload?.text || '');
+      const senderName = socket.username || (typeof payload === 'object' && payload.senderName) || 'Anonymous';
+      const senderId = socket.userId || (typeof payload === 'object' && payload.senderId) || null;
+
+      const { isFlagged, flaggedReason, filteredText } = checkAndFilterMessage(rawText);
+
       const newMessage = new Message({
         senderName,
-        text: messageText
+        sender: senderId,
+        text: filteredText,
+        originalText: rawText,
+        isFlagged,
+        flaggedReason
       });
       await newMessage.save();
 
       // Broadcast message to everyone
       io.emit('message', newMessage);
+
+      if (isFlagged) {
+        console.log(`🚨 [Moderation Alert] Message flagged from ${senderName}: "${rawText}". Reason: ${flaggedReason}`);
+        io.emit('flaggedMessageAlert', newMessage);
+      }
     } catch (err) {
       console.error('❌ Error saving message:', err);
     }

@@ -87,14 +87,15 @@ export default function CommunityChat() {
     if (!text) return;
     setInputText('');
 
-    const { filtered, wasCensored } = filterMessage(text);
-
+    const { wasCensored } = filterMessage(text);
     if (wasCensored) {
-      hotToast.error('🛡️ Contact info sharing is blocked in community chat.');
+      hotToast.error('🛡️ Content flag detected: Message flagged for community moderation.');
     }
 
     if (socketRef.current) {
-      socketRef.current.emit('sendMessage', filtered);
+      const username = currentUser?.username || currentUser?.email?.split('@')[0] || 'Anonymous';
+      const userId = currentUser?._id || currentUser?.id || null;
+      socketRef.current.emit('sendMessage', { text, senderName: username, senderId: userId });
     }
   };
 
