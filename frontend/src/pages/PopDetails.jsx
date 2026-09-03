@@ -343,8 +343,8 @@ export default function PopDetails() {
               onClick={() => setIsAiModalOpen(false)}
             />
             <motion.div
-              className="relative w-full max-w-lg bg-gray-900 rounded-3xl p-6 border-4 border-gray-800 shadow-[8px_8px_0px_rgba(0,0,0,1)] z-10 text-right"
-              dir="rtl"
+              className="relative w-full max-w-lg bg-gray-900 rounded-3xl p-6 border-4 border-gray-800 shadow-[8px_8px_0px_rgba(0,0,0,1)] z-10 text-left"
+              dir="ltr"
               initial={{ scale: 0.85, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0 }}
@@ -372,8 +372,8 @@ export default function PopDetails() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="bg-gray-950 border-2 border-gray-800 rounded-2xl p-4 text-gray-100 text-sm font-bold leading-relaxed whitespace-pre-line shadow-inner">
+                <div className="space-y-4" dir="ltr">
+                  <div className="bg-gray-950 border-2 border-gray-800 rounded-2xl p-4 text-gray-100 text-sm font-bold leading-relaxed whitespace-pre-line shadow-inner text-left" dir="ltr">
                     {aiAnswer}
                   </div>
                   <div className="flex justify-end" dir="ltr">
