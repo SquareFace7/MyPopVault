@@ -17,17 +17,17 @@ exports.askAiExpert = async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: 'אתה מומחה לאספנות Funko Pop. המשתמש שואל על הפופ הספציפי הזה. ספק עובדה מעניינת ונדירה על הדמות, והערכה קצרה מדוע הפריט הזה מעניין לאספנים. היה תמציתי וענה בעברית.'
+          content: 'You are a Funko Pop expert collector. The user is asking about this specific Pop. Provide a rare and interesting fact about the character or item, and a concise evaluation of why it is exciting for collectors. You must respond ONLY in natural, fluent, and engaging English. Avoid robotic phrasing.'
         },
         {
           role: 'user',
-          content: `ספר לי על הפופ: ${popName}`
+          content: `Tell me about the Funko Pop: ${popName}`
         }
       ],
       model: 'qwen/qwen3.8-27b',
     });
 
-    const answer = chatCompletion.choices[0]?.message?.content || 'לא ניתן לקבל תשובה כעת.';
+    const answer = chatCompletion.choices[0]?.message?.content || 'Unable to retrieve AI response at this moment.';
     res.json({ answer });
   } catch (error) {
     console.error('AI Error:', error);
