@@ -81,6 +81,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const grailAlertsRoutes = require('./routes/grailAlertsRoutes');
 const recommendationsRoutes = require('./routes/recommendationsRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 app.use('/api/pops', popRoutes);
 app.use('/api/auth', authRoutes);
@@ -93,6 +94,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/catalog', catalogRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/grail-alerts', grailAlertsRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

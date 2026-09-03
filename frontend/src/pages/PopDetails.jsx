@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Star, TrendingUp, Package, Tag, ShieldCheck, DollarSign } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
@@ -20,6 +20,49 @@ export default function PopDetails() {
   const [userVaultItem, setUserVaultItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [aiAnswer, setAiAnswer] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
+  const handleAskAi = async () => {
+    if (!user || !user.isLoggedIn) {
+      toast.error('⚠️ Please log in to consult the AI Expert.');
+      navigate('/Login');
+      return;
+    }
+
+    const isVip = user.role === 'vip' || user.role === 'admin' || Boolean(user.isVip);
+    if (!isVip) {
+      toast.error('👑 VIP Exclusive Feature! Upgrade to VIP to consult the AI Pop Expert.');
+      navigate('/vip-upgrade');
+      return;
+    }
+
+    setAiLoading(true);
+    setIsAiModalOpen(true);
+    try {
+      const response = await fetch(getApiUrl('/api/ai/ask'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token || localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ popName: pop?.name || '' })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Failed to fetch AI response');
+      }
+
+      setAiAnswer(data.answer);
+    } catch (err) {
+      console.error(err);
+      toast.error(`⚠️ ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -247,7 +290,7 @@ export default function PopDetails() {
             </div>
 
             {/* Action buttons */}
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               {added ? (
                 <div className="w-full py-4 bg-green-500/20 border-3 border-green-500 text-green-400 text-center font-black text-xs uppercase tracking-wider rounded-2xl shadow-inner">
                   ✓ Owned in Personal Vault
@@ -262,6 +305,17 @@ export default function PopDetails() {
                   Add to Vault
                 </motion.button>
               )}
+
+              {/* VIP Exclusive AI Pop Advisor Button */}
+              <motion.button
+                onClick={handleAskAi}
+                className="w-full py-3.5 bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500 text-gray-950 border-4 border-gray-800 rounded-2xl font-black text-xs uppercase tracking-wider shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                whileHover={{ y: -2, boxShadow: '4px 6px 0px rgba(0,0,0,1)' }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Sparkles className="w-4 h-4 text-gray-950" />
+                Ask AI Expert 👑
+              </motion.button>
             </div>
           </div>
         </div>
@@ -274,6 +328,68 @@ export default function PopDetails() {
         onConfirm={handleConfirmAddToVault}
         isLoading={isSubmitting}
       />
+
+      {/* AI Response Modal */}
+      <AnimatePresence>
+        {isAiModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div 
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+              onClick={() => setIsAiModalOpen(false)}
+            />
+            <motion.div
+              className="relative w-full max-w-lg bg-gray-900 rounded-3xl p-6 border-4 border-gray-800 shadow-[8px_8px_0px_rgba(0,0,0,1)] z-10 text-right"
+              dir="rtl"
+              initial={{ scale: 0.85, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+            >
+              <div className="flex items-center justify-between border-b-4 border-gray-800 pb-4 mb-4" dir="ltr">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-yellow-400 text-gray-900 rounded-xl font-black text-xs uppercase border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                    👑 VIP AI Expert
+                  </span>
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">{pop.name}</h3>
+                </div>
+                <button
+                  onClick={() => setIsAiModalOpen(false)}
+                  className="w-8 h-8 bg-gray-800 text-gray-300 hover:text-white rounded-xl flex items-center justify-center border-2 border-gray-700 font-black text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {aiLoading ? (
+                <div className="py-12 flex flex-col items-center justify-center text-center gap-3" dir="ltr">
+                  <Sparkles className="w-10 h-10 text-yellow-400 animate-spin" />
+                  <p className="text-sm font-black text-yellow-400 uppercase tracking-widest animate-pulse">
+                    Consulting AI Pop Collector...
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-gray-950 border-2 border-gray-800 rounded-2xl p-4 text-gray-100 text-sm font-bold leading-relaxed whitespace-pre-line shadow-inner">
+                    {aiAnswer}
+                  </div>
+                  <div className="flex justify-end" dir="ltr">
+                    <button
+                      onClick={() => setIsAiModalOpen(false)}
+                      className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-black text-xs uppercase tracking-wider border-2 border-gray-800 shadow-[3px_3px_0px_rgba(0,0,0,1)]"
+                    >
+                      Got It! 👑
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

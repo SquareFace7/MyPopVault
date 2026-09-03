@@ -77,7 +77,27 @@ const requireVerification = (req, res, next) => {
   next();
 };
 
+const requireVip = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Authentication required.'
+    });
+  }
+
+  const isVip = req.user.role === 'vip' || req.user.role === 'admin' || Boolean(req.user.isVip);
+  if (!isVip) {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'VIP status required. Upgrade to VIP to access the AI Pop Advisor!'
+    });
+  }
+
+  next();
+};
+
 authMiddleware.authorizeRoles = authorizeRoles;
 authMiddleware.requireVerification = requireVerification;
+authMiddleware.requireVip = requireVip;
 
 module.exports = authMiddleware;
