@@ -176,11 +176,11 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
         </div>
 
         {/* Message Logs */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 dark:bg-gray-950">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-950">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
               <Sparkles className="w-8 h-8 text-cyan-450 mb-2 animate-bounce" />
-              <p className="text-xs text-gray-400 font-bold italic">No messages yet. Say hello! 👋</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-bold italic">No messages yet. Say hello! 👋</p>
             </div>
           ) : (
             messages.map((msg, idx) => {
@@ -211,7 +211,7 @@ export default function PrivateChatModal({ recipientId, recipientName, onClose }
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 h-10 px-3 border-2 border-gray-800 rounded-xl font-bold text-xs dark:bg-gray-950 dark:text-white"
+            className="flex-1 h-10 px-3 border-2 border-gray-800 rounded-xl font-bold text-xs bg-white text-gray-900 dark:bg-gray-950 dark:text-white"
           />
           <button type="submit" className="px-4 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-2 border-gray-805 rounded-xl font-black text-xs shadow-[2px_2px_0px_rgba(0,0,0,0.6)]">
             Send

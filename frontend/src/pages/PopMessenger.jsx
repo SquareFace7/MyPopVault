@@ -110,7 +110,7 @@ export default function PopMessenger() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto">
         
         {/* Header */}
@@ -122,7 +122,7 @@ export default function PopMessenger() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/')}
-              className="w-12 h-12 bg-gray-900 border-4 border-gray-800 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,0.85)] transition-colors hover:bg-gray-800"
+              className="w-12 h-12 bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,0.85)] transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <ArrowLeft className="w-6 h-6 text-pink-500" />
             </button>
@@ -131,7 +131,7 @@ export default function PopMessenger() {
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black uppercase tracking-wider text-white leading-tight">PopMessenger</h1>
+                <h1 className="text-3xl font-black uppercase tracking-wider text-gray-900 dark:text-white leading-tight">PopMessenger</h1>
                 {currentUser?.isLoggedIn && (
                   <button
                     onClick={() => {
@@ -149,7 +149,7 @@ export default function PopMessenger() {
                         }
                       });
                     }}
-                    className="p-1.5 rounded-lg bg-gray-900 border-2 border-gray-800 text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                     title={localMuted ? "Unmute Notifications" : "Mute Notifications"}
                   >
                     {localMuted ? (
@@ -160,7 +160,7 @@ export default function PopMessenger() {
                   </button>
                 )}
               </div>
-              <p className="text-gray-400 font-bold text-xs">Direct 1-on-1 private messaging inbox for VIPs</p>
+              <p className="text-gray-600 dark:text-gray-400 font-bold text-xs">Direct 1-on-1 private messaging inbox for VIPs</p>
             </div>
           </div>
 
@@ -177,14 +177,14 @@ export default function PopMessenger() {
         {/* Search Bar */}
         <div className="relative mb-6">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-500" />
+            <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="text"
             placeholder="Search active chats..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="block w-full pl-11 pr-4 py-3 bg-gray-900 border-4 border-gray-800 rounded-2xl font-bold text-xs text-white placeholder-gray-500 shadow-inner focus:outline-none focus:border-cyan-500 transition-colors"
+            className="block w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-2xl font-bold text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-inner focus:outline-none focus:border-cyan-500 transition-colors"
           />
         </div>
 
@@ -197,13 +197,13 @@ export default function PopMessenger() {
           </div>
         ) : filteredConversations.length === 0 ? (
           <motion.div
-            className="bg-gray-900 border-4 border-gray-805 rounded-3xl p-12 text-center shadow-[6px_6px_0px_rgba(0,0,0,0.85)] max-w-md mx-auto"
+            className="bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl p-12 text-center shadow-[6px_6px_0px_rgba(0,0,0,0.85)] max-w-md mx-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
             <Sparkles className="w-12 h-12 text-pink-500 mx-auto mb-4 animate-bounce" />
-            <h3 className="text-lg font-black uppercase text-white mb-2">No Active Conversations</h3>
-            <p className="text-gray-400 font-bold text-xs mb-6">
+            <h3 className="text-lg font-black uppercase text-gray-900 dark:text-white mb-2">No Active Conversations</h3>
+            <p className="text-gray-600 dark:text-gray-400 font-bold text-xs mb-6">
               You haven't messaged anyone yet. Visit the Collector Vault to start a dialogue!
             </p>
             <BouncyButton
@@ -235,16 +235,16 @@ export default function PopMessenger() {
                     whileHover={{ y: -2 }}
                   >
                     <div className="absolute inset-0 bg-black/35 rounded-2xl translate-x-1.5 translate-y-1.5" />
-                    <div className="relative bg-gray-900 border-4 border-gray-800 rounded-2xl p-4 flex items-center gap-4 transition-colors group-hover:bg-gray-800/80">
+                    <div className="relative bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-2xl p-4 flex items-center gap-4 transition-colors group-hover:bg-gray-50 dark:group-hover:bg-gray-800/80">
                       {/* Avatar */}
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 border-2 border-gray-850 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-purple-500 border-2 border-gray-800 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
                         {convo.otherUser.avatar}
                       </div>
 
                       {/* Info & Snippet */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-black text-white text-sm truncate uppercase tracking-wide group-hover:text-cyan-400 transition-colors flex items-center gap-2">
+                          <h3 className="font-black text-gray-900 dark:text-white text-sm truncate uppercase tracking-wide group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors flex items-center gap-2">
                             {convo.otherUser.username}
                             {convo.unreadCount > 0 && (
                               <span className="w-2.5 h-2.5 bg-pink-500 rounded-full animate-ping shrink-0" />
@@ -256,12 +256,12 @@ export default function PopMessenger() {
                                 {convo.unreadCount}
                               </span>
                             )}
-                            <span className="text-[10px] font-bold text-gray-550 shrink-0">
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 shrink-0">
                               {timeString}
                             </span>
                           </div>
                         </div>
-                        <p className={`text-xs truncate mt-1 ${convo.unreadCount > 0 ? 'text-white font-black' : 'text-gray-400 font-bold'}`}>
+                        <p className={`text-xs truncate mt-1 ${convo.unreadCount > 0 ? 'text-gray-900 dark:text-white font-black' : 'text-gray-600 dark:text-gray-400 font-bold'}`}>
                           {convo.latestMessage}
                         </p>
                       </div>
