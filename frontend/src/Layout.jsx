@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, LayoutDashboard, Grid, Home, Menu, X, Sparkles, MessageCircle, Crown, ArrowDownUp, Shield, Zap, Sun, Moon, LogIn, LogOut, MessageSquare, Volume2, VolumeX, Radar } from 'lucide-react';
+import { Package, LayoutDashboard, Grid, Home, Menu, X, Sparkles, MessageCircle, Crown, ArrowDownUp, Shield, Zap, Sun, Moon, LogIn, LogOut, MessageSquare, Radar } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/ThemeContext';
 import { io } from 'socket.io-client';
@@ -46,33 +46,7 @@ export default function Layout({ children, currentPageName }) {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isMuted, setIsMuted] = useState(() => localStorage.getItem('messenger_muted') === 'true');
   const [pendingTradesCount, setPendingTradesCount] = useState(0);
-
-  const toggleMute = () => {
-    const nextMuted = !isMuted;
-    setIsMuted(nextMuted);
-    localStorage.setItem('messenger_muted', String(nextMuted));
-    window.dispatchEvent(new Event('storage'));
-    toast.success(nextMuted ? '🔇 Messages muted' : '🔊 Messages unmuted', {
-      style: {
-        border: '4px solid #1f2937',
-        padding: '10px 14px',
-        color: '#1f2937',
-        fontWeight: 'bold',
-        borderRadius: '16px',
-      }
-    });
-  };
-
-  // Sync mute state across components
-  React.useEffect(() => {
-    const handleStorage = () => {
-      setIsMuted(localStorage.getItem('messenger_muted') === 'true');
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   // Fetch unread count
   React.useEffect(() => {
@@ -161,13 +135,6 @@ export default function Layout({ children, currentPageName }) {
       socket.on('privateMessage', (newMsg) => {
         const msgSender = newMsg.sender?._id || newMsg.sender;
         if (msgSender !== userId && window.activeChatRecipientId !== msgSender) {
-          // Play notification sound if not muted
-          const currentMuted = localStorage.getItem('messenger_muted') === 'true';
-          if (!currentMuted) {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav');
-            audio.play().catch(err => console.log('Autoplay blocked:', err));
-          }
-
           toast.success(`💬 New direct message from collector!`, {
             style: {
               border: '4px solid #1f2937',

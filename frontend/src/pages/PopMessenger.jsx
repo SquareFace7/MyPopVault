@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Search, Sparkles, User, ArrowLeft, ArrowUpRight, Volume2, VolumeX } from 'lucide-react';
+import { MessageSquare, Search, Sparkles, User, ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { io } from 'socket.io-client';
@@ -14,19 +14,10 @@ export default function PopMessenger() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipient, setSelectedRecipient] = useState(null);
-  const [localMuted, setLocalMuted] = useState(() => localStorage.getItem('messenger_muted') === 'true');
   
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
   const socketRef = useRef(null);
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setLocalMuted(localStorage.getItem('messenger_muted') === 'true');
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   // Fetch active conversations list
   const fetchConversations = () => {
@@ -132,33 +123,6 @@ export default function PopMessenger() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black uppercase tracking-wider text-gray-900 dark:text-white leading-tight">PopMessenger</h1>
-                {currentUser?.isLoggedIn && (
-                  <button
-                    onClick={() => {
-                      const nextMuted = !localMuted;
-                      setLocalMuted(nextMuted);
-                      localStorage.setItem('messenger_muted', String(nextMuted));
-                      window.dispatchEvent(new Event('storage'));
-                      toast.success(nextMuted ? '🔇 Messages muted' : '🔊 Messages unmuted', {
-                        style: {
-                          border: '4px solid #1f2937',
-                          padding: '10px 14px',
-                          color: '#1f2937',
-                          fontWeight: 'bold',
-                          borderRadius: '16px',
-                        }
-                      });
-                    }}
-                    className="p-1.5 rounded-lg bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    title={localMuted ? "Unmute Notifications" : "Mute Notifications"}
-                  >
-                    {localMuted ? (
-                      <VolumeX className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />
-                    ) : (
-                      <Volume2 className="w-4 h-4 text-green-500 fill-green-500" />
-                    )}
-                  </button>
-                )}
               </div>
               <p className="text-gray-600 dark:text-gray-400 font-bold text-xs">Direct 1-on-1 private messaging inbox for VIPs</p>
             </div>
