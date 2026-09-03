@@ -93,7 +93,7 @@ const AuthenticatedApp = () => {
         </LayoutWrapper>
       } />
       {Object.entries(Pages).map(([path, Page]) => {
-        const isPrivate = ['Dashboard', 'Collection'].includes(path);
+        const isPrivate = ['Dashboard', 'Collection', 'PopExplorer', 'CollectorSearch', 'TradeManager', 'PopMessenger', 'PublicVault'].includes(path);
         const pageElement = (
           <LayoutWrapper currentPageName={path}>
             <Page />
@@ -157,9 +157,11 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/VIPSearch" element={<Navigate to="/CollectorSearch" replace />} />
       <Route path="/PublicVault" element={
-        <LayoutWrapper currentPageName="PublicVault">
-          <PublicVault />
-        </LayoutWrapper>
+        <PrivateRoute>
+          <LayoutWrapper currentPageName="PublicVault">
+            <PublicVault />
+          </LayoutWrapper>
+        </PrivateRoute>
       } />
       <Route path="/TradeManager" element={
         <PrivateRoute>
