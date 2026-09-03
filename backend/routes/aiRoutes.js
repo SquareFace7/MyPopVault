@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { askAiExpert } = require('../controllers/aiController');
+const { generateRecommendationInsight } = require('../controllers/aiController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// POST /api/ai/ask - VIP Exclusive AI Pop Advisor endpoint
-router.post('/ask', authMiddleware, authMiddleware.requireVip, askAiExpert);
+// POST /api/ai/insight - VIP Exclusive AI Smart Recommendation Insight endpoint
+router.post('/insight', authMiddleware, authMiddleware.requireVip, generateRecommendationInsight);
+
+// Legacy/alias route
+router.post('/ask', authMiddleware, authMiddleware.requireVip, generateRecommendationInsight);
 
 module.exports = router;

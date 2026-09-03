@@ -1,36 +1,49 @@
 const Groq = require('groq-sdk');
 
-exports.askAiExpert = async (req, res) => {
+exports.generateRecommendationInsight = async (req, res) => {
   try {
-    const { popName } = req.body;
-    if (!popName) {
-      return res.status(400).json({ error: 'Pop name is required' });
-    }
+    const { topSeries, recommendedPops } = req.body;
+
+    const seriesStr = Array.isArray(topSeries) && topSeries.length > 0
+      ? topSeries.join(', ')
+      : 'popular categories';
+
+    const popsStr = Array.isArray(recommendedPops) && recommendedPops.length > 0
+      ? recommendedPops.map(p => (typeof p === 'string' ? p : p.name || p.title || 'featured item')).join(', ')
+      : 'featured catalog items';
 
     if (!process.env.GROQ_API_KEY) {
-      console.warn('⚠️ GROQ_API_KEY is missing in environment variables.');
+      return res.json({
+        insight: `Adding these highly-demanded items from ${seriesStr} is the perfect move to complete your collection!`
+      });
     }
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy_key' });
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: 'You are a Funko Pop expert collector. The user is asking about this specific Pop. Provide a rare and interesting fact about the character or item, and a concise evaluation of why it is exciting for collectors. You must respond ONLY in natural, fluent, and engaging English. Avoid robotic phrasing.'
+          content: `The user's top collected series are ${seriesStr}. We are recommending ${popsStr}. Write a single, engaging sentence in English explaining why adding these highly-demanded items is the perfect move to complete their collection. DO NOT make financial predictions or promise future ROI.`
         },
         {
           role: 'user',
-          content: `Tell me about the Funko Pop: ${popName}`
+          content: 'Generate a single dynamic collection insight sentence.'
         }
       ],
       model: 'qwen/qwen3.8-27b',
     });
 
-    const answer = chatCompletion.choices[0]?.message?.content || 'Unable to retrieve AI response at this moment.';
-    res.json({ answer });
+    const insight = chatCompletion.choices[0]?.message?.content?.trim() ||
+      `Adding these highly-demanded items is the perfect move to complete your collection!`;
+
+    res.json({ insight });
   } catch (error) {
-    console.error('AI Error:', error);
-    res.status(500).json({ error: 'Failed to fetch AI response', message: error.message });
+    console.error('AI Recommendation Insight Error:', error);
+    res.json({
+      insight: 'Adding these highly-demanded items is the perfect move to complete your collection!'
+    });
   }
 };
+
+exports.askAiExpert = exports.generateRecommendationInsight;

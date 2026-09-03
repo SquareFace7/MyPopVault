@@ -60,6 +60,7 @@ export default function Dashboard() {
   const [grailAlerts, setGrailAlerts] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [recommendationSeries, setRecommendationSeries] = useState([]);
+  const [aiInsight, setAiInsight] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const { user, logout } = useAuth();
@@ -129,6 +130,9 @@ export default function Dashboard() {
           if (data && Array.isArray(data.recommendations)) {
             setRecommendations(data.recommendations);
             setRecommendationSeries(data.favoriteSeries || []);
+            if (data.aiInsight) {
+              setAiInsight(data.aiInsight);
+            }
           }
         })
         .catch(err => console.error('Failed to fetch recommendations:', err));
@@ -587,6 +591,23 @@ export default function Dashboard() {
                 Explore All <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            {/* AI Market Insight Alert Box (VIP Only) */}
+            {aiInsight && (
+              <div className="mb-5 p-4 bg-gradient-to-r from-cyan-950/80 via-blue-950/60 to-gray-900 border-2 border-cyan-500/60 rounded-2xl flex items-start gap-3 shadow-[3px_3px_0px_rgba(0,174,239,0.3)]">
+                <div className="p-2 bg-cyan-500/20 border border-cyan-400/40 rounded-xl shrink-0 mt-0.5">
+                  <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest block mb-0.5">
+                    ⚡ AI MARKET INSIGHT
+                  </span>
+                  <p className="text-sm font-bold text-gray-100 leading-snug">
+                    "{aiInsight}"
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {recommendations.map((item) => (
