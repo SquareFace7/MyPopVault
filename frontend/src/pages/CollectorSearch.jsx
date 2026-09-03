@@ -10,7 +10,7 @@ import { getApiUrl } from '@/lib/api';
 function CollectorCard({ collector, index, onMessage }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const currentIsVipOrAdmin = user?.isVIP || user?.role === 'vip' || user?.role === 'admin';
+  const currentIsVipOrAdmin = user?.isVIP || user?.isVip || user?.role === 'vip' || user?.role === 'admin';
   const targetIsVipOrAdmin = collector.role === 'vip' || collector.role === 'admin';
 
   const neonShadow = index % 2 === 0
@@ -57,16 +57,27 @@ function CollectorCard({ collector, index, onMessage }) {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Link to={`/PublicVault?id=${collector.id}`} className="flex-1">
-            <motion.div
-              className="flex items-center justify-center gap-1.5 h-9 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-xs rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+          {currentIsVipOrAdmin ? (
+            <Link to={`/PublicVault?id=${collector.id}`} className="flex-1">
+              <motion.div
+                className="flex items-center justify-center gap-1.5 h-9 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-xs rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
+                whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                View Vault
+              </motion.div>
+            </Link>
+          ) : (
+            <motion.button
+              onClick={() => navigate('/vip-upgrade')}
+              className="flex-1 flex items-center justify-center gap-1.5 h-9 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 font-black text-xs rounded-xl border-2 border-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
               whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
               whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
             >
-              <Eye className="w-3.5 h-3.5" />
-              View Vault
-            </motion.div>
-          </Link>
+              👑 Upgrade to VIP to View
+            </motion.button>
+          )}
           
           {!currentIsVipOrAdmin ? (
             <motion.button

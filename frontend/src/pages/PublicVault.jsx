@@ -214,6 +214,13 @@ export default function PublicVault() {
 
   // Load collector details and vault dynamically
   useEffect(() => {
+    const isVipOrAdmin = currentUser?.isVIP || currentUser?.isVip || currentUser?.role === 'vip' || currentUser?.role === 'admin';
+    if (currentUser?.isLoggedIn && !isVipOrAdmin) {
+      hotToast.error('👑 VIP status is required to view collector vaults.');
+      navigate('/vip-upgrade');
+      return;
+    }
+
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(collectorId);
 
     if (isObjectId) {
