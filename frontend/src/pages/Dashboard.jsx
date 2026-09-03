@@ -570,11 +570,8 @@ export default function Dashboard() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-wider">
-                      🤖 Smart Recommendations
+                      Smart Recommendations
                     </h2>
-                    <span className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300 font-black text-[10px] uppercase px-2 py-0.5 rounded-full border border-cyan-400">
-                      AI Heuristic
-                    </span>
                   </div>
                   <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
                     {recommendationSeries.length > 0
