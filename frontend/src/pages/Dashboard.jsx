@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 import { 
   DollarSign, Package, TrendingUp, Crown, Plus, ArrowRight, 
-  Sparkles, RefreshCw, Star
+  Sparkles, RefreshCw, Star, Brain
 } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import PopCard from '@/components/PopCard';
@@ -554,8 +554,8 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* AI Smart Recommendations Widget */}
-        {recommendations.length > 0 && (
+        {/* Smart Recommendations Widget (VIP Exclusive) */}
+        {isVipOrAdmin && recommendations.length > 0 && (
           <motion.div
             className="mb-8 bg-white dark:bg-gray-900 border-4 border-gray-800 dark:border-slate-600 rounded-3xl p-6 shadow-[5px_5px_0px_#00AEEF] relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
@@ -565,7 +565,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl border-2 border-gray-800 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
-                  <Sparkles className="w-6 h-6 text-white" />
+                  <Brain className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
