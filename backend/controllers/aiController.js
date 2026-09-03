@@ -24,7 +24,7 @@ exports.askAiExpert = async (req, res) => {
           content: `ספר לי על הפופ: ${popName}`
         }
       ],
-      model: 'llama3-8b-8192',
+      model: 'mixtral-8x7b-32768',
     });
 
     const answer = chatCompletion.choices[0]?.message?.content || 'לא ניתן לקבל תשובה כעת.';
