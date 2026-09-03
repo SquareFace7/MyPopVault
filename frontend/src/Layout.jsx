@@ -14,7 +14,7 @@ const navItems = [
   { name: 'Home', page: 'Landing', icon: Home },
   { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
   { name: 'Collection', page: 'Collection', icon: Grid },
-  { name: 'Chat', page: 'CommunityChat', icon: MessageCircle, path: '/CommunityChat' },
+  { name: 'Community Chat', page: 'CommunityChat', icon: MessageCircle, path: '/CommunityChat' },
   { name: 'Messenger', page: 'PopMessenger', icon: MessageSquare, path: '/PopMessenger' },
   { name: 'Collector Search', page: 'CollectorSearch', icon: Radar, path: '/CollectorSearch' },
   { name: 'Explorer', page: 'PopExplorer', icon: Zap, path: '/PopExplorer' },

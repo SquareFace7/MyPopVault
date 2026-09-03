@@ -75,7 +75,7 @@ function CollectorCard({ collector, index, onMessage }) {
               whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
               whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
             >
-              👑 Upgrade to VIP to View
+              👑 Unlock Vault
             </motion.button>
           )}
           
@@ -86,7 +86,7 @@ function CollectorCard({ collector, index, onMessage }) {
               whileHover={{ y: -1, boxShadow: '2px 4px 0px rgba(0,0,0,0.7)' }}
               whileTap={{ y: 0, boxShadow: '1px 1px 0px rgba(0,0,0,0.7)' }}
             >
-              👑 Upgrade to VIP to Message
+              👑 VIP Message
             </motion.button>
           ) : !targetIsVipOrAdmin ? (
             <button
