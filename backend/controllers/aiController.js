@@ -13,43 +13,19 @@ exports.askAiExpert = async (req, res) => {
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy_key' });
 
-    let modelName = 'llama3-8b-8192';
-    let chatCompletion;
-    try {
-      chatCompletion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: 'system',
-            content: 'אתה מומחה לאספנות Funko Pop. המשתמש שואל על הפופ הספציפי הזה. ספק עובדה מעניינת ונדירה על הדמות, והערכה קצרה מדוע הפריט הזה מעניין לאספנים. היה תמציתי וענה בעברית.'
-          },
-          {
-            role: 'user',
-            content: `ספר לי על הפופ: ${popName}`
-          }
-        ],
-        model: modelName,
-      });
-    } catch (modelErr) {
-      // Fallback model if llama3-8b-8192 is decommissioned/alias updated
-      if (modelErr && (modelErr.status === 404 || (modelErr.message && modelErr.message.includes('model')))) {
-        console.warn('⚠️ Model fallback to llama-3.1-8b-instant');
-        chatCompletion = await groq.chat.completions.create({
-          messages: [
-            {
-              role: 'system',
-              content: 'אתה מומחה לאספנות Funko Pop. המשתמש שואל על הפופ הספציפי הזה. ספק עובדה מעניינת ונדירה על הדמות, והערכה קצרה מדוע הפריט הזה מעניין לאספנים. היה תמציתי וענה בעברית.'
-            },
-            {
-              role: 'user',
-              content: `ספר לי על הפופ: ${popName}`
-            }
-          ],
-          model: 'llama-3.1-8b-instant',
-        });
-      } else {
-        throw modelErr;
-      }
-    }
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'אתה מומחה לאספנות Funko Pop. המשתמש שואל על הפופ הספציפי הזה. ספק עובדה מעניינת ונדירה על הדמות, והערכה קצרה מדוע הפריט הזה מעניין לאספנים. היה תמציתי וענה בעברית.'
+        },
+        {
+          role: 'user',
+          content: `ספר לי על הפופ: ${popName}`
+        }
+      ],
+      model: 'llama3-8b-8192',
+    });
 
     const answer = chatCompletion.choices[0]?.message?.content || 'לא ניתן לקבל תשובה כעת.';
     res.json({ answer });
