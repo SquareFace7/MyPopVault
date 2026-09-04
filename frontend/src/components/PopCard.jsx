@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, TrendingUp, TrendingDown, Sparkles, Star, Trash2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Sparkles, Star, Trash2 } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 
 import { getConditionBadgeStyle } from '@/lib/conditionHelper';

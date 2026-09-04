@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, X, Sparkles, ArrowLeft } from 'lucide-react';
+import { Search, X, Sparkles } from 'lucide-react';
 import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
 import { getRarityFromPrice, RARITY_BADGE_STYLES } from '@/lib/rarityHelper';
@@ -34,7 +34,6 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
   const [catalog, setCatalog] = useState([]);
   const [query, setQuery] = useState('');
   const [activeSeries, setActiveSeries] = useState('All');
-  const [favorites, setFavorites] = useState(new Set());
   const [addedIds, setAddedIds] = useState(new Set());
   const [selectedPopForVault, setSelectedPopForVault] = useState(null);
 
@@ -76,14 +75,6 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
       return matchesSeries && matchesQuery;
     });
   }, [catalog, query, activeSeries]);
-
-  const toggleFavorite = (id) => {
-    setFavorites(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
 
   const handleInitiateAdd = (pop) => {
     setSelectedPopForVault(pop);
@@ -147,16 +138,6 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
 
               <div className="max-w-7xl mx-auto px-4 md:px-8 py-5 pr-16 md:pr-24">
                 <div className="flex items-center gap-3 mb-4">
-                  <motion.button
-                    type="button"
-                    onClick={handleClose}
-                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-black text-xs rounded-xl border-2 border-gray-900 shadow-[3px_3px_0px_rgba(236,0,140,0.9)] flex items-center gap-2 cursor-pointer z-30 relative shrink-0"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <ArrowLeft className="w-4 h-4 text-cyan-400 stroke-[3]" />
-                    <span>Back to Vault</span>
-                  </motion.button>
                   <h2 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
                     <Sparkles className="w-6 h-6 text-pink-500" />
                     Catalog Picker
@@ -225,18 +206,6 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
                             {pop.rarity}
                           </span>
                         </div>
-
-                        {/* Heart icon */}
-                        <motion.button
-                          onClick={() => toggleFavorite(pop.id)}
-                          className="absolute top-2 right-2 z-10 w-7 h-7 bg-white/90 border-2 border-gray-800 rounded-full flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
-                          whileTap={{ scale: 0.85 }}
-                        >
-                          <Heart
-                            className={`w-3.5 h-3.5 ${favorites.has(pop.id) ? 'text-pink-500' : 'text-gray-400'}`}
-                            fill={favorites.has(pop.id) ? '#ec4899' : 'none'}
-                          />
-                        </motion.button>
 
                         {/* Image area */}
                         <div className={`aspect-square bg-gradient-to-br ${pop.color} flex items-center justify-center border-b-4 border-gray-800 p-3 overflow-hidden`}>

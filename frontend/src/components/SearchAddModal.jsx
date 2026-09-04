@@ -1,3 +1,6 @@
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X } from 'lucide-react';
 import { getApiUrl } from '@/lib/api';
 import { getRarityFromPrice, RARITY_BADGE_STYLES } from '@/lib/rarityHelper';
 
@@ -107,21 +110,9 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
 
             {/* Header */}
             <div className="relative flex items-center justify-between px-5 pt-5 pb-4 pr-16 border-b-4 border-gray-800 shrink-0 z-20">
-              <div className="flex items-center gap-3">
-                <motion.button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white font-black text-xs rounded-xl border-2 border-gray-900 shadow-[2px_2px_0px_rgba(236,0,140,0.9)] flex items-center gap-1.5 cursor-pointer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-400 stroke-[3]" />
-                  <span>Back</span>
-                </motion.button>
-                <div>
-                  <h2 className="text-xl font-black text-gray-800">Search Global Catalog</h2>
-                  <p className="text-xs text-gray-500 font-bold">25,000+ Pops — find yours & add to vault</p>
-                </div>
+              <div>
+                <h2 className="text-xl font-black text-gray-800">Search Global Catalog</h2>
+                <p className="text-xs text-gray-500 font-bold">25,000+ Pops — find yours & add to vault</p>
               </div>
             </div>
 
