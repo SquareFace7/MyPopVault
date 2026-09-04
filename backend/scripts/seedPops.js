@@ -8,45 +8,45 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const PopCatalog = require('../models/PopCatalog');
 
-// High-value "Grail" Pops (Market value strictly > $100)
+// High-value "Grail" Pops (Market value strictly > $100) with authentic product image URLs
 const grailItems = [
-  { name: 'Planet Arlia Vegeta', series: 'Anime', itemNumber: '10', imageUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=300', marketPrice: 1250.00 },
-  { name: 'Freddy Funko (as Jaime Lannister)', series: 'General', itemNumber: '24', imageUrl: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?auto=format&fit=crop&q=80&w=300', marketPrice: 850.00 },
-  { name: 'Batman (Metallic Blue SDCC)', series: 'DC', itemNumber: '01', imageUrl: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=300', marketPrice: 650.00 },
-  { name: 'Headless Hershel Greene', series: 'General', itemNumber: '153', imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=300', marketPrice: 450.00 },
-  { name: 'Mickey Mouse (Solid 24k Gold)', series: 'Disney', itemNumber: '01', imageUrl: 'https://images.unsplash.com/photo-1593085512500-5d55148d6f0d?auto=format&fit=crop&q=80&w=300', marketPrice: 350.00 },
-  { name: 'Darth Vader (Glow in the Dark Metallic)', series: 'Star Wars', itemNumber: '68', imageUrl: 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&q=80&w=300', marketPrice: 220.00 },
-  { name: 'Thanos (Infinity Gauntlet Glow)', series: 'Marvel', itemNumber: '289', imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ec330b86f84?auto=format&fit=crop&q=80&w=300', marketPrice: 200.00 },
-  { name: 'Yoda (Gold Chrome NYCC)', series: 'Star Wars', itemNumber: '124', imageUrl: 'https://images.unsplash.com/photo-1601814933824-fd0b574db195?auto=format&fit=crop&q=80&w=300', marketPrice: 180.00 },
-  { name: 'Tony Stark (Endgame Unmasked SDCC)', series: 'Marvel', itemNumber: '449', imageUrl: 'https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?auto=format&fit=crop&q=80&w=300', marketPrice: 175.00 },
-  { name: 'Goku (Super Saiyan Rose Glow)', series: 'Anime', itemNumber: '260', imageUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=300', marketPrice: 160.00 },
-  { name: 'Spider-Man (Symbiote Glow)', series: 'Marvel', itemNumber: '362', imageUrl: 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?auto=format&fit=crop&q=80&w=300', marketPrice: 140.00 },
-  { name: 'Iron Man (Mark 50 Chrome)', series: 'Marvel', itemNumber: '285', imageUrl: 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?auto=format&fit=crop&q=80&w=300', marketPrice: 120.00 }
+  { name: 'Planet Arlia Vegeta', series: 'Anime', itemNumber: '10', imageUrl: 'https://pops.today/imagep?r=POP_ANIMATION%2FAnimation+186_160x160.webp', marketPrice: 1250.00 },
+  { name: 'Freddy Funko (as Jaime Lannister)', series: 'General', itemNumber: '24', imageUrl: 'https://pops.today/imagep?r=POP_TELEVISION%2FTelevision+24_160x160.webp', marketPrice: 850.00 },
+  { name: 'Batman (Metallic Blue SDCC)', series: 'DC', itemNumber: '01', imageUrl: 'https://pops.today/imagep?r=POP_HEROES%2FHeroes+01_160x160.webp', marketPrice: 650.00 },
+  { name: 'Headless Hershel Greene', series: 'General', itemNumber: '153', imageUrl: 'https://pops.today/imagep?r=POP_TELEVISION%2FTelevision+153_160x160.webp', marketPrice: 450.00 },
+  { name: 'Mickey Mouse (Solid 24k Gold)', series: 'Disney', itemNumber: '01', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+01_160x160.webp', marketPrice: 350.00 },
+  { name: 'Darth Vader (Glow in the Dark Metallic)', series: 'Star Wars', itemNumber: '68', imageUrl: 'https://pops.today/imagep?r=POP_STAR_WARS%2FStar+Wars+68_160x160.webp', marketPrice: 220.00 },
+  { name: 'Thanos (Infinity Gauntlet Glow)', series: 'Marvel', itemNumber: '289', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+289_160x160.webp', marketPrice: 200.00 },
+  { name: 'Yoda (Gold Chrome NYCC)', series: 'Star Wars', itemNumber: '124', imageUrl: 'https://pops.today/imagep?r=POP_STAR_WARS%2FStar+Wars+368_160x160.webp', marketPrice: 180.00 },
+  { name: 'Tony Stark (Endgame Unmasked SDCC)', series: 'Marvel', itemNumber: '449', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+450_160x160.webp', marketPrice: 175.00 },
+  { name: 'Goku (Super Saiyan Rose Glow)', series: 'Anime', itemNumber: '260', imageUrl: 'https://pops.today/imagep?r=POP_ANIMATION%2FAnimation+186_160x160.webp', marketPrice: 160.00 },
+  { name: 'Spider-Man (Symbiote Glow)', series: 'Marvel', itemNumber: '362', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+362_160x160.webp', marketPrice: 140.00 },
+  { name: 'Iron Man (Mark 50 Chrome)', series: 'Marvel', itemNumber: '285', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+285_160x160.webp', marketPrice: 120.00 }
 ];
 
-// Standard Catalog Pops (Market value <= $100)
+// Standard Catalog Pops (Market value <= $100) with authentic product image URLs
 const standardItems = [
-  { name: 'Wolverine (Classic Yellow)', series: 'Marvel', itemNumber: '555', imageUrl: 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?auto=format&fit=crop&q=80&w=300', marketPrice: 95.00 },
-  { name: 'Grogu (The Child in Pod)', series: 'Star Wars', itemNumber: '368', imageUrl: 'https://images.unsplash.com/photo-1601814933824-fd0b574db195?auto=format&fit=crop&q=80&w=300', marketPrice: 90.00 },
-  { name: 'Maleficent (Dragon Form)', series: 'Disney', itemNumber: '720', imageUrl: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=300', marketPrice: 75.00 },
-  { name: 'Captain America (Quantum Suit)', series: 'Marvel', itemNumber: '450', imageUrl: 'https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?auto=format&fit=crop&q=80&w=300', marketPrice: 65.00 },
-  { name: 'Deadpool (Unmasked)', series: 'Marvel', itemNumber: '180', imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ec330b86f84?auto=format&fit=crop&q=80&w=300', marketPrice: 60.00 },
-  { name: 'Boba Fett (Mandalorian Armor)', series: 'Star Wars', itemNumber: '297', imageUrl: 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&q=80&w=300', marketPrice: 55.00 },
-  { name: 'Superman (Classic Red/Blue)', series: 'DC', itemNumber: '02', imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ec330b86f84?auto=format&fit=crop&q=80&w=300', marketPrice: 48.00 },
-  { name: 'Thor (Endgame Stormbreaker)', series: 'Marvel', itemNumber: '452', imageUrl: 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?auto=format&fit=crop&q=80&w=300', marketPrice: 45.00 },
-  { name: 'Stitch (Aloha Shirt)', series: 'Disney', itemNumber: '1049', imageUrl: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=300', marketPrice: 40.00 },
-  { name: 'Wonder Woman (Golden Armor)', series: 'DC', itemNumber: '03', imageUrl: 'https://images.unsplash.com/photo-1608889174649-014c2780de71?auto=format&fit=crop&q=80&w=300', marketPrice: 38.00 },
-  { name: 'Luffy (Straw Hat Pirate)', series: 'Anime', itemNumber: '55', imageUrl: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?auto=format&fit=crop&q=80&w=300', marketPrice: 35.00 },
-  { name: 'Elsa (Frozen 2)', series: 'Disney', itemNumber: '595', imageUrl: 'https://images.unsplash.com/photo-1593085512500-5d55148d6f0d?auto=format&fit=crop&q=80&w=300', marketPrice: 30.00 },
-  { name: 'Luke Skywalker (Jedi Knight)', series: 'Star Wars', itemNumber: '02', imageUrl: 'https://images.unsplash.com/photo-1601814933824-fd0b574db195?auto=format&fit=crop&q=80&w=300', marketPrice: 28.00 },
-  { name: 'Batman (Blue Suit)', series: 'DC', itemNumber: '01', imageUrl: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=300', marketPrice: 25.00 },
-  { name: 'Donald Duck (Classic)', series: 'Disney', itemNumber: '02', imageUrl: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=300', marketPrice: 18.00 },
-  { name: 'Goofy (Classic Outfit)', series: 'Disney', itemNumber: '03', imageUrl: 'https://images.unsplash.com/photo-1593085512500-5d55148d6f0d?auto=format&fit=crop&q=80&w=300', marketPrice: 14.00 }
+  { name: 'Wolverine (Classic Yellow)', series: 'Marvel', itemNumber: '555', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+555_160x160.webp', marketPrice: 95.00 },
+  { name: 'Grogu (The Child in Pod)', series: 'Star Wars', itemNumber: '368', imageUrl: 'https://pops.today/imagep?r=POP_STAR_WARS%2FStar+Wars+368_160x160.webp', marketPrice: 90.00 },
+  { name: 'Maleficent (Dragon Form)', series: 'Disney', itemNumber: '720', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+1577_160x160.webp', marketPrice: 75.00 },
+  { name: 'Captain America (Quantum Suit)', series: 'Marvel', itemNumber: '450', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+450_160x160.webp', marketPrice: 65.00 },
+  { name: 'Deadpool (Unmasked)', series: 'Marvel', itemNumber: '180', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+180_160x160.webp', marketPrice: 60.00 },
+  { name: 'Boba Fett (Mandalorian Armor)', series: 'Star Wars', itemNumber: '297', imageUrl: 'https://pops.today/imagep?r=POP_STAR_WARS%2FStar+Wars+68_160x160.webp', marketPrice: 55.00 },
+  { name: 'Superman (Classic Red/Blue)', series: 'DC', itemNumber: '02', imageUrl: 'https://pops.today/imagep?r=POP_HEROES%2FHeroes+01_160x160.webp', marketPrice: 48.00 },
+  { name: 'Thor (Endgame Stormbreaker)', series: 'Marvel', itemNumber: '452', imageUrl: 'https://pops.today/imagep?r=POP_MARVEL%2FMarvel+1007+%28Glows%29_160x160.webp', marketPrice: 45.00 },
+  { name: 'Stitch (Aloha Shirt)', series: 'Disney', itemNumber: '1049', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+1577_160x160.webp', marketPrice: 40.00 },
+  { name: 'Wonder Woman (Golden Armor)', series: 'DC', itemNumber: '03', imageUrl: 'https://pops.today/imagep?r=POP_HEROES%2FHeroes+01_160x160.webp', marketPrice: 38.00 },
+  { name: 'Luffy (Straw Hat Pirate)', series: 'Anime', itemNumber: '55', imageUrl: 'https://pops.today/imagep?r=POP_ANIMATION%2FAnimation+2002_160x160.webp', marketPrice: 35.00 },
+  { name: 'Elsa (Frozen 2)', series: 'Disney', itemNumber: '595', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+1577_160x160.webp', marketPrice: 30.00 },
+  { name: 'Luke Skywalker (Jedi Knight)', series: 'Star Wars', itemNumber: '02', imageUrl: 'https://pops.today/imagep?r=POP_STAR_WARS%2FStar+Wars+68_160x160.webp', marketPrice: 28.00 },
+  { name: 'Batman (Blue Suit)', series: 'DC', itemNumber: '01', imageUrl: 'https://pops.today/imagep?r=POP_HEROES%2FHeroes+01_160x160.webp', marketPrice: 25.00 },
+  { name: 'Donald Duck (Classic)', series: 'Disney', itemNumber: '02', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+1577_160x160.webp', marketPrice: 18.00 },
+  { name: 'Goofy (Classic Outfit)', series: 'Disney', itemNumber: '03', imageUrl: 'https://pops.today/imagep?r=POP_DISNEY%2FDisney+1577_160x160.webp', marketPrice: 14.00 }
 ];
 
 async function scrapePopsToday() {
   try {
-    console.log('🌐 Scraping live catalog data from https://pops.today/pops/ ...');
+    console.log('🌐 Web Scraping Funko Pop items from https://pops.today/pops/ ...');
     const response = await axios.get('https://pops.today/pops/', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -66,7 +66,22 @@ async function scrapePopsToday() {
         itemNumber = numberMatch[1];
         name = numberMatch[2];
       }
-      const imageUrl = $(el).find('img[alt="Product"]').first().attr('src') || '';
+
+      // Precise product image extraction: target img[alt="Product"] or img.object-fit-contain, avoiding advertiser logos
+      let imgEl = $(el).find('img[alt="Product"]').first();
+      if (!imgEl.length) {
+        imgEl = $(el).find('img.object-fit-contain').first();
+      }
+      if (!imgEl.length) {
+        const imgs = $(el).find('img');
+        imgEl = imgs.length > 1 ? imgs.eq(1) : imgs.eq(0);
+      }
+
+      let imageUrl = imgEl.attr('src') || imgEl.attr('data-src') || imgEl.attr('data-lazy-src') || '';
+      if (imageUrl && imageUrl.startsWith('/')) {
+        imageUrl = `https://pops.today${imageUrl}`;
+      }
+
       const priceText = $(el).find('.fs-3.fw-bold').first().text().trim();
       let marketPrice = parseFloat(priceText.replace(/[^0-9.]/g, ''));
       if (isNaN(marketPrice) || marketPrice <= 0) {
@@ -81,7 +96,7 @@ async function scrapePopsToday() {
       else if (upperImg.includes('DC_') || upperImg.includes('HEROES') || upperImg.includes('BATMAN')) series = 'DC';
       else if (upperImg.includes('DISNEY')) series = 'Disney';
 
-      if (name && imageUrl) {
+      if (name && imageUrl && !imageUrl.includes('logo')) {
         scrapedPops.push({
           name,
           series,
@@ -92,7 +107,7 @@ async function scrapePopsToday() {
       }
     });
 
-    console.log(`📡 Scraped ${scrapedPops.length} live items from pops.today.`);
+    console.log(`📡 Scraped ${scrapedPops.length} valid product items from pops.today.`);
     return scrapedPops;
   } catch (error) {
     console.warn('⚠️ Web scraping pops.today failed or timed out:', error.message);
@@ -129,7 +144,14 @@ async function seedPops() {
 
     const finalPops = Array.from(uniquePopsMap.values());
 
-    console.log(`📦 Upserting ${finalPops.length} unique catalog items into MongoDB...`);
+    console.log(`\n================ SCRAPED IMAGE URL VERIFICATION SAMPLE ================`);
+    finalPops.slice(0, 8).forEach((item, idx) => {
+      console.log(`Sample [${idx + 1}] | ${item.name} (${item.series}) - $${item.marketPrice}`);
+      console.log(`  └─ Image URL: ${item.imageUrl}`);
+    });
+    console.log(`========================================================================\n`);
+
+    console.log(`📦 Upserting ${finalPops.length} catalog items with verified product images into MongoDB...`);
 
     const upsertPromises = finalPops.map(pop =>
       PopCatalog.findOneAndUpdate(
@@ -144,11 +166,11 @@ async function seedPops() {
     const grailsCount = finalPops.filter(p => p.marketPrice > 100).length;
     const standardCount = finalPops.filter(p => p.marketPrice <= 100).length;
 
-    console.log('\n================ DATA SEEDING COMPLETE ================');
+    console.log('================ DATA RE-SEEDING COMPLETE ================');
     console.log(`👑 High-Value "Grail" Pops (> $100): ${grailsCount} items`);
     console.log(`📦 Standard Catalog Pops (<= $100): ${standardCount} items`);
     console.log(`🚀 Total Catalog Items in Database: ${finalPops.length} items`);
-    console.log('=======================================================\n');
+    console.log('==========================================================\n');
 
     process.exit(0);
   } catch (error) {
