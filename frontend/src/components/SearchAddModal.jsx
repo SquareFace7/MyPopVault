@@ -87,8 +87,20 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
               backgroundSize: '20px 20px'
             }} />
 
+            {/* Top-Right Absolute Close Button */}
+            <motion.button
+              type="button"
+              onClick={handleClose}
+              aria-label="Close modal"
+              className="absolute top-4 right-4 z-50 p-2 bg-gray-900 text-white hover:bg-pink-600 border-2 border-gray-900 rounded-xl shadow-[3px_3px_0px_rgba(236,0,140,0.9)] cursor-pointer flex items-center justify-center transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <X className="w-5 h-5 stroke-[3]" />
+            </motion.button>
+
             {/* Header */}
-            <div className="relative flex items-center justify-between px-5 pt-5 pb-4 border-b-4 border-gray-800 shrink-0 z-20">
+            <div className="relative flex items-center justify-between px-5 pt-5 pb-4 pr-16 border-b-4 border-gray-800 shrink-0 z-20">
               <div className="flex items-center gap-3">
                 <motion.button
                   type="button"
@@ -105,14 +117,6 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
                   <p className="text-xs text-gray-500 font-bold">25,000+ Pops — find yours & add to vault</p>
                 </div>
               </div>
-              <motion.button
-                onClick={handleClose}
-                className="w-9 h-9 bg-gray-100 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)] cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <X className="w-5 h-5 text-gray-700" />
-              </motion.button>
             </div>
 
             {/* Search Bar */}

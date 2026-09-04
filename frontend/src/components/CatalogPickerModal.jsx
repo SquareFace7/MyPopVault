@@ -129,33 +129,34 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
           >
             {/* Header */}
             <div className="bg-white border-b-4 border-gray-800 shrink-0 z-20 relative">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <motion.button
-                      type="button"
-                      onClick={handleClose}
-                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-black text-xs rounded-xl border-2 border-gray-900 shadow-[3px_3px_0px_rgba(236,0,140,0.9)] flex items-center gap-2 cursor-pointer z-30 relative shrink-0"
-                      whileHover={{ scale: 1.05, y: -1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <ArrowLeft className="w-4 h-4 text-cyan-400 stroke-[3]" />
-                      <span>Back to Vault</span>
-                    </motion.button>
-                    <h2 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
-                      <Sparkles className="w-6 h-6 text-pink-500" />
-                      Catalog Picker
-                    </h2>
-                  </div>
+              {/* Top-Right Absolute Close Button */}
+              <motion.button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close modal"
+                className="absolute top-4 right-4 md:top-5 md:right-8 z-50 p-2.5 bg-gray-900 text-white hover:bg-pink-600 border-2 border-gray-900 rounded-xl shadow-[3px_3px_0px_rgba(236,0,140,0.9)] cursor-pointer flex items-center justify-center transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X className="w-6 h-6 stroke-[3]" />
+              </motion.button>
+
+              <div className="max-w-7xl mx-auto px-4 md:px-8 py-5 pr-16 md:pr-24">
+                <div className="flex items-center gap-3 mb-4">
                   <motion.button
                     type="button"
                     onClick={handleClose}
-                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)] cursor-pointer"
-                    whileHover={{ scale: 1.05 }}
+                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-black text-xs rounded-xl border-2 border-gray-900 shadow-[3px_3px_0px_rgba(236,0,140,0.9)] flex items-center gap-2 cursor-pointer z-30 relative shrink-0"
+                    whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <X className="w-5 h-5 text-gray-700" />
+                    <ArrowLeft className="w-4 h-4 text-cyan-400 stroke-[3]" />
+                    <span>Back to Vault</span>
                   </motion.button>
+                  <h2 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-pink-500" />
+                    Catalog Picker
+                  </h2>
                 </div>
 
                 {/* Search bar */}
