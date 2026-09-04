@@ -115,7 +115,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 bg-gray-100"
+          className="fixed inset-0 z-50 bg-gray-100 pt-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
