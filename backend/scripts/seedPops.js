@@ -8,6 +8,78 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const PopCatalog = require('../models/PopCatalog');
 
+async function scrapeDeepGrails() {
+  const grailUrls = [
+    'https://pops.today/funko-original/se-freddy-funko-as-pennywise',
+    'https://pops.today/funko-original/58-oompa-loompa-golden-ticket-gold-funko',
+    'https://pops.today/funko-original/14-freddy-funko-as-wolfman-flocked-funko',
+    'https://pops.today/animation/10-vegeta-planet-arlia-dragon-ball-z'
+  ];
+
+  const grailItems = [];
+  console.log(`\n👑 Deep-scraping ${grailUrls.length} authentic Grail product detail pages...`);
+
+  for (const url of grailUrls) {
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+      const fullTitle = $('h1').text().trim();
+      if (!fullTitle) continue;
+
+      const numberMatch = fullTitle.match(/^#?(\d+)\s+(.*)$/);
+      let itemNumber = 'N/A';
+      let name = fullTitle;
+      if (numberMatch) {
+        itemNumber = numberMatch[1];
+        name = numberMatch[2];
+      }
+
+      let imgEl = $('img[alt*="Funko"]').first();
+      if (!imgEl.length) imgEl = $('img.img-fluid').first();
+      if (!imgEl.length) imgEl = $('img').first();
+
+      let imageUrl = imgEl.attr('src') || imgEl.attr('data-src') || '';
+      if (imageUrl && imageUrl.startsWith('/')) {
+        imageUrl = `https://pops.today${imageUrl}`;
+      }
+
+      let marketPrice = 0;
+      $('tr').each((i, row) => {
+        const text = $(row).text();
+        if (text.includes('Estimated Value (USD)')) {
+          const match = text.match(/\$\s*([\d,]+\.?\d*)/);
+          if (match) {
+            marketPrice = parseFloat(match[1].replace(/,/g, ''));
+          }
+        }
+      });
+
+      if (!marketPrice || marketPrice <= 0) continue;
+
+      let series = 'General';
+      const upperUrl = url.toUpperCase();
+      const upperTitle = name.toUpperCase();
+      if (upperUrl.includes('ANIMATION') || upperTitle.includes('DRAGON BALL') || upperTitle.includes('VEGETA')) series = 'Anime';
+      else if (upperUrl.includes('MARVEL') || upperTitle.includes('MARVEL')) series = 'Marvel';
+      else if (upperUrl.includes('STARWARS') || upperTitle.includes('STAR WARS')) series = 'Star Wars';
+
+      const grailObj = { name, series, itemNumber, imageUrl, marketPrice };
+      console.log(`  └─ Scraped Grail: "${name}" (#${itemNumber}) | Price: $${marketPrice} | URL: ${imageUrl}`);
+      grailItems.push(grailObj);
+    } catch (err) {
+      console.warn(`⚠️ Deep-scraping Grail ${url} failed: ${err.message}`);
+    }
+  }
+
+  return grailItems;
+}
+
 async function scrapePopsToday() {
   const scrapedItems = [];
   const urlsToScrape = [
@@ -19,6 +91,11 @@ async function scrapePopsToday() {
     'https://pops.today/category/heroes'
   ];
 
+  // 1. Perform targeted deep-scraping for authentic Grails (> $100)
+  const grailItems = await scrapeDeepGrails();
+  scrapedItems.push(...grailItems);
+
+  // 2. Perform grid-level scraping for standard catalog items
   for (const url of urlsToScrape) {
     try {
       console.log(`🌐 Live Scraping product cards from ${url} ...`);
@@ -108,7 +185,7 @@ async function scrapePopsToday() {
   });
 
   const finalScraped = Array.from(uniqueMap.values());
-  console.log(`📡 Scraped ${finalScraped.length} 100% authentic, unmanipulated product items.`);
+  console.log(`\n📡 Scraped ${finalScraped.length} 100% authentic, unmanipulated product items.`);
   return finalScraped;
 }
 
