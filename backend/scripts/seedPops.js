@@ -8,7 +8,72 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const PopCatalog = require('../models/PopCatalog');
 
-async function scrapeDeepGrails() {
+// Helper: Asynchronous delay function to avoid rate-limiting/IP bans
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function collectProductUrlsFromGrids() {
+  const categoryGridUrls = [
+    'https://pops.today/pops/',
+    'https://pops.today/',
+    'https://pops.today/category/animation',
+    'https://pops.today/category/marvel',
+    'https://pops.today/category/star-wars',
+    'https://pops.today/category/heroes',
+    'https://pops.today/category/movies',
+    'https://pops.today/category/television',
+    'https://pops.today/category/disney'
+  ];
+
+  const excludeKeywords = [
+    '/category/', '/user/', '/users/', '/usersc/', '/articles/',
+    '/about', '/contact', '/terms', '/privacy', '/subscribe',
+    '/login', '/join', 'top-rated', 'name/', 'top-value',
+    '/cdn-cgi/', '/pops/top-', '/pops/popular'
+  ];
+
+  const gridDetailUrls = new Set();
+  console.log(`🌐 Collecting individual product detail URLs from ${categoryGridUrls.length} category grid pages...`);
+
+  for (const catUrl of categoryGridUrls) {
+    try {
+      const response = await axios.get(catUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        },
+        timeout: 10000
+      });
+
+      const $ = cheerio.load(response.data);
+
+      $('a[href]').each((i, a) => {
+        let href = $(a).attr('href');
+        if (!href) return;
+        href = href.trim();
+        if (href.startsWith('/')) href = `https://pops.today${href}`;
+        if (!href.startsWith('https://pops.today/')) return;
+
+        const isExcluded = excludeKeywords.some(kw => href.includes(kw));
+        if (isExcluded) return;
+
+        const pathSegment = href.replace('https://pops.today/', '');
+        const segments = pathSegment.split('/').filter(Boolean);
+
+        // Product detail URLs have 2 path segments (e.g., category/product-slug)
+        if (segments.length === 2) {
+          gridDetailUrls.add(href);
+        }
+      });
+    } catch (err) {
+      console.warn(`⚠️ Failed to collect URLs from ${catUrl}: ${err.message}`);
+    }
+  }
+
+  console.log(`✅ Extracted ${gridDetailUrls.size} unique product detail URLs from category grids.`);
+  return Array.from(gridDetailUrls);
+}
+
+async function scrapePopsToday() {
+  // 1. Specific Grails Array (Authentic high-value items > $100)
   const grailUrls = [
     'https://pops.today/funko-original/se-freddy-funko-as-pennywise',
     'https://pops.today/funko-original/58-oompa-loompa-golden-ticket-gold-funko',
@@ -16,10 +81,20 @@ async function scrapeDeepGrails() {
     'https://pops.today/animation/10-vegeta-planet-arlia-dragon-ball-z'
   ];
 
-  const grailItems = [];
-  console.log(`\n👑 Deep-scraping ${grailUrls.length} authentic Grail product detail pages...`);
+  // 2. Scrape Category Grids ONLY to collect individual product URLs
+  const gridUrls = await collectProductUrlsFromGrids();
 
-  for (const url of grailUrls) {
+  // 3. Combine Grails URLs & Grid URLs into a single deduplicated list
+  const combinedUrls = Array.from(new Set([...grailUrls, ...gridUrls]));
+  console.log(`\n👑 Deep-scraping ${combinedUrls.length} total product detail pages with a 1500ms delay...`);
+
+  const scrapedItems = [];
+
+  // 4. Loop through combined list SEQUENTIALLY (for...of loop, strictly NO Promise.all)
+  for (const url of combinedUrls) {
+    // Before making the Axios request, wait 1.5 seconds to prevent rate-limiting/IP bans
+    await delay(1500);
+
     try {
       const response = await axios.get(url, {
         headers: {
@@ -49,6 +124,12 @@ async function scrapeDeepGrails() {
         imageUrl = `https://pops.today${imageUrl}`;
       }
 
+      // Filter out empty titles or brand/logo images
+      if (!name || !imageUrl || imageUrl.toLowerCase().includes('logo') || imageUrl.toLowerCase().includes('funko.png') || imageUrl.toLowerCase().includes('fun-com.png')) {
+        continue;
+      }
+
+      // Extract true collector value ("Estimated Value (USD)")
       let marketPrice = 0;
       $('tr').each((i, row) => {
         const text = $(row).text();
@@ -60,118 +141,26 @@ async function scrapeDeepGrails() {
         }
       });
 
-      if (!marketPrice || marketPrice <= 0) continue;
+      if (isNaN(marketPrice) || marketPrice <= 0) continue;
 
       let series = 'General';
       const upperUrl = url.toUpperCase();
       const upperTitle = name.toUpperCase();
-      if (upperUrl.includes('ANIMATION') || upperTitle.includes('DRAGON BALL') || upperTitle.includes('VEGETA')) series = 'Anime';
-      else if (upperUrl.includes('MARVEL') || upperTitle.includes('MARVEL')) series = 'Marvel';
-      else if (upperUrl.includes('STARWARS') || upperTitle.includes('STAR WARS')) series = 'Star Wars';
+      const upperImg = imageUrl.toUpperCase();
 
-      const grailObj = { name, series, itemNumber, imageUrl, marketPrice };
-      console.log(`  └─ Scraped Grail: "${name}" (#${itemNumber}) | Price: $${marketPrice} | URL: ${imageUrl}`);
-      grailItems.push(grailObj);
+      if (upperUrl.includes('ANIMATION') || upperTitle.includes('DRAGON BALL') || upperTitle.includes('VEGETA') || upperImg.includes('ANIMATION')) series = 'Anime';
+      else if (upperUrl.includes('MARVEL') || upperTitle.includes('MARVEL') || upperImg.includes('MARVEL')) series = 'Marvel';
+      else if (upperUrl.includes('STARWARS') || upperTitle.includes('STAR WARS') || upperImg.includes('STARWARS')) series = 'Star Wars';
+      else if (upperUrl.includes('HEROES') || upperUrl.includes('DC_') || upperTitle.includes('BATMAN')) series = 'DC';
+      else if (upperUrl.includes('DISNEY') || upperTitle.includes('DISNEY') || upperImg.includes('DISNEY')) series = 'Disney';
+      else if (upperUrl.includes('MOVIES') || upperTitle.includes('MOVIES') || upperImg.includes('MOVIES')) series = 'Movies';
+      else if (upperUrl.includes('TELEVISION') || upperTitle.includes('TELEVISION') || upperImg.includes('TELEVISION')) series = 'Television';
+
+      const item = { name, series, itemNumber, imageUrl, marketPrice };
+      scrapedItems.push(item);
+      console.log(`  └─ [${scrapedItems.length}/${combinedUrls.length}] Deep-scraped: "${name}" (#${itemNumber}) | Series: ${series} | True Value: $${marketPrice}`);
     } catch (err) {
-      console.warn(`⚠️ Deep-scraping Grail ${url} failed: ${err.message}`);
-    }
-  }
-
-  return grailItems;
-}
-
-async function scrapePopsToday() {
-  const scrapedItems = [];
-  const urlsToScrape = [
-    'https://pops.today/pops/',
-    'https://pops.today/',
-    'https://pops.today/category/animation',
-    'https://pops.today/category/marvel',
-    'https://pops.today/category/star-wars',
-    'https://pops.today/category/heroes'
-  ];
-
-  // 1. Perform targeted deep-scraping for authentic Grails (> $100)
-  const grailItems = await scrapeDeepGrails();
-  scrapedItems.push(...grailItems);
-
-  // 2. Perform grid-level scraping for standard catalog items
-  for (const url of urlsToScrape) {
-    try {
-      console.log(`🌐 Live Scraping product cards from ${url} ...`);
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 10000
-      });
-
-      const $ = cheerio.load(response.data);
-
-      // Iterate over INDIVIDUAL card elements (.sales-item) to extract Title, Price, and Image locally
-      $('.sales-item').each((i, card) => {
-        // Extract Title strictly inside THIS specific card element
-        const titleEl = $(card).find('.fs-5.text-white-90').first();
-        const fullTitle = titleEl.text().trim();
-        if (!fullTitle) return;
-
-        const numberMatch = fullTitle.match(/^#(\d+)\s+(.*)$/);
-        let itemNumber = 'N/A';
-        let name = fullTitle;
-        if (numberMatch) {
-          itemNumber = numberMatch[1];
-          name = numberMatch[2];
-        }
-
-        // Extract Image strictly inside THIS specific card element
-        let imgEl = $(card).find('img[alt="Product"]').first();
-        if (!imgEl.length) {
-          imgEl = $(card).find('img.object-fit-contain').first();
-        }
-        if (!imgEl.length) {
-          const imgs = $(card).find('img');
-          imgEl = imgs.length > 1 ? imgs.eq(1) : imgs.eq(0);
-        }
-
-        let imageUrl = imgEl.attr('src') || imgEl.attr('data-src') || imgEl.attr('data-lazy-src') || '';
-        if (imageUrl && imageUrl.startsWith('/')) {
-          imageUrl = `https://pops.today${imageUrl}`;
-        }
-
-        // Filter out empty titles or brand/advertiser logo images (e.g., funko.png, fun-com.png)
-        if (!name || !imageUrl || imageUrl.toLowerCase().includes('logo') || imageUrl.toLowerCase().includes('funko.png') || imageUrl.toLowerCase().includes('fun-com.png')) {
-          return;
-        }
-
-        // Extract Price strictly inside THIS specific card element without ANY artificial multiplier or inflation
-        const priceText = $(card).find('.fs-3.fw-bold').first().text().trim();
-        let marketPrice = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-        if (isNaN(marketPrice) || marketPrice <= 0) {
-          marketPrice = 15.00;
-        }
-
-        // Categorize series strictly from image URL or title
-        let series = 'General';
-        const upperImg = imageUrl.toUpperCase();
-        const upperTitle = name.toUpperCase();
-        if (upperImg.includes('ANIMATION') || upperTitle.includes('ANIMATION')) series = 'Anime';
-        else if (upperImg.includes('MARVEL') || upperTitle.includes('MARVEL')) series = 'Marvel';
-        else if (upperImg.includes('STARWARS') || upperImg.includes('STAR_WARS') || upperTitle.includes('STAR WARS')) series = 'Star Wars';
-        else if (upperImg.includes('DC_') || upperImg.includes('HEROES') || upperTitle.includes('BATMAN')) series = 'DC';
-        else if (upperImg.includes('DISNEY') || upperTitle.includes('DISNEY')) series = 'Disney';
-        else if (upperImg.includes('MOVIES') || upperTitle.includes('MOVIES')) series = 'Movies';
-        else if (upperImg.includes('TELEVISION') || upperTitle.includes('TELEVISION')) series = 'Television';
-
-        scrapedItems.push({
-          name,
-          series,
-          itemNumber,
-          imageUrl,
-          marketPrice
-        });
-      });
-    } catch (err) {
-      console.warn(`⚠️ Scraping ${url} failed: ${err.message}`);
+      console.warn(`⚠️ Deep-scraping ${url} failed: ${err.message}`);
     }
   }
 
@@ -185,7 +174,7 @@ async function scrapePopsToday() {
   });
 
   const finalScraped = Array.from(uniqueMap.values());
-  console.log(`\n📡 Scraped ${finalScraped.length} 100% authentic, unmanipulated product items.`);
+  console.log(`\n📡 Scraped ${finalScraped.length} 100% authentic, deep-scraped product items with true market value.`);
   return finalScraped;
 }
 
@@ -201,7 +190,7 @@ async function seedPops() {
     await mongoose.connect(mongoURI);
     console.log('✅ Connected to MongoDB successfully.');
 
-    // 1. Scrape live Funko Pops with 100% card-level strict matching and authentic prices
+    // 1. Perform full deep-scraping on all product detail pages with rate-limit delay
     const catalogItems = await scrapePopsToday();
 
     // 2. Upsert newly scraped, 100% authentic catalog items without destroying existing foreign keys
@@ -218,19 +207,19 @@ async function seedPops() {
     const grailsCount = inserted.filter(p => p.marketPrice > 100).length;
     const standardCount = inserted.filter(p => p.marketPrice <= 100).length;
 
-    // 4. Print sample of 5 scraped items in the console logs (Title + Scraped Price + Image URL)
-    console.log('\n================ SCRAPED ITEM MATCH & AUTHENTIC PRICE SAMPLE ================');
+    // 3. Print sample of scraped items in console logs
+    console.log('\n================ DEEP-SCRAPED ITEM MATCH & TRUE MARKET VALUE SAMPLE ================');
     inserted.slice(0, 5).forEach((item, idx) => {
-      console.log(`Sample [${idx + 1}] | Title: "${item.name}" (#${item.itemNumber}) | Series: ${item.series} | Authentic Price: $${item.marketPrice}`);
+      console.log(`Sample [${idx + 1}] | Title: "${item.name}" (#${item.itemNumber}) | Series: ${item.series} | Collector Value: $${item.marketPrice}`);
       console.log(`  └─ Image URL: ${item.imageUrl}`);
     });
-    console.log('=============================================================================\n');
+    console.log('====================================================================================\n');
 
-    console.log('================ LIVE SCRAPING & SEEDING COMPLETE ================');
-    console.log(`👑 High-Value Items (Price > $100): ${grailsCount} items`);
+    console.log('================ LIVE DEEP-SCRAPING & SEEDING COMPLETE ================');
+    console.log(`👑 High-Value Grails (Price > $100): ${grailsCount} items`);
     console.log(`📦 Standard Items (Price <= $100): ${standardCount} items`);
     console.log(`🚀 Total Catalog Items in Database: ${inserted.length} items`);
-    console.log('==================================================================\n');
+    console.log('=======================================================================\n');
 
     process.exit(0);
   } catch (error) {
