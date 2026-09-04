@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
 // GET /api/catalog/grail-alerts - Get high-value VIP grail alerts
 router.get('/grail-alerts', async (req, res) => {
   try {
-    const items = await PopCatalog.find({ marketPrice: { $gte: 10.49 } })
+    const items = await PopCatalog.find({ marketPrice: { $gte: 100 } })
       .sort({ marketPrice: -1 })
       .limit(5);
 

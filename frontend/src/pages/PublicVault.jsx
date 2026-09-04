@@ -254,7 +254,7 @@ export default function PublicVault() {
                 image: catalog.imageUrl || catalog.image || '',
                 marketValue: marketVal,
                 purchasePrice: item.purchasePrice || 10,
-                rarity: marketVal >= 10.49 ? 'Grail' : (marketVal > 25 ? 'Rare' : 'Common'),
+                rarity: marketVal >= 100 ? 'Grail' : (marketVal > 25 ? 'Rare' : 'Common'),
                 boxCondition: item.boxCondition || 'Mint (9.5-10)',
                 quantity: item.quantity || 1
               };

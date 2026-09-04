@@ -138,8 +138,8 @@ async function seedPops() {
     );
     const inserted = await Promise.all(upsertPromises);
 
-    const grailsCount = inserted.filter(p => p.marketPrice >= 10.49).length;
-    const standardCount = inserted.filter(p => p.marketPrice < 10.49).length;
+    const grailsCount = inserted.filter(p => p.marketPrice > 100).length;
+    const standardCount = inserted.filter(p => p.marketPrice <= 100).length;
 
     // 4. Print sample of 5 scraped items in the console logs (Title + Scraped Price + Image URL)
     console.log('\n================ SCRAPED ITEM MATCH & AUTHENTIC PRICE SAMPLE ================');

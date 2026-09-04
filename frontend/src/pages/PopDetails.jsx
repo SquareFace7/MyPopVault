@@ -133,8 +133,8 @@ export default function PopDetails() {
     );
   }
 
-  const isGrail = (pop.marketPrice || pop.price || 0) >= 10.49;
-  const itemRarity = pop.rarity || ((pop.marketPrice || pop.price || 0) >= 10.49 ? 'Grail' : (pop.marketPrice || pop.price || 0) > 25 ? 'Rare' : 'Common');
+  const isGrail = (pop.marketPrice || pop.price || 0) >= 100;
+  const itemRarity = pop.rarity || ((pop.marketPrice || pop.price || 0) >= 100 ? 'Grail' : (pop.marketPrice || pop.price || 0) > 25 ? 'Rare' : 'Common');
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 font-sans">
