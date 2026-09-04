@@ -11,15 +11,21 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
       fetch(getApiUrl('/api/catalog?limit=500'))
         .then(res => res.json())
         .then(data => {
-          const mapped = (data.items || []).map(pop => ({
-            id: pop._id,
-            name: pop.name,
-            series: pop.series,
-            number: pop.itemNumber,
-            rarity: getRarityFromPrice(pop.marketPrice, pop.rarity),
-            price: pop.marketPrice || 15,
-            emoji: '✨'
-          }));
+          const mapped = (data.items || []).map(pop => {
+            const computedRarity = getRarityFromPrice(pop.marketPrice, pop.rarity);
+            const rawBadge = pop.badge || (pop.isExclusive ? 'EXCLUSIVE' : (pop.marketPrice > 50 ? 'EXCLUSIVE' : null));
+            const badgeVal = rawBadge === 'GRAIL' ? null : rawBadge;
+            return {
+              id: pop._id,
+              name: pop.name,
+              series: pop.series,
+              number: pop.itemNumber,
+              rarity: computedRarity,
+              badge: badgeVal,
+              price: pop.marketPrice || 15,
+              emoji: '✨'
+            };
+          });
           setCatalog(mapped);
         })
         .catch(err => console.error('Failed to fetch catalog:', err));
@@ -169,10 +175,17 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
                     </div>
                   </div>
 
-                  {/* Rarity badge */}
-                  <span className={`hidden sm:block text-xs font-black px-2 py-0.5 rounded-lg border-2 shrink-0 ${RARITY_BADGE_STYLES[pop.rarity] || RARITY_BADGE_STYLES.Common}`}>
-                    {pop.rarity}
-                  </span>
+                  {/* Rarity & Ribbon Badges */}
+                  <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                    {pop.badge && pop.badge !== 'GRAIL' && (
+                      <span className="text-[9px] font-black px-2 py-0.5 rounded-lg border-2 border-gray-800 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-950 shadow-sm">
+                        {pop.badge}
+                      </span>
+                    )}
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-lg border-2 shrink-0 ${RARITY_BADGE_STYLES[pop.rarity] || RARITY_BADGE_STYLES.Common}`}>
+                      {pop.rarity}
+                    </span>
+                  </div>
 
                   {/* Add button */}
                   <motion.button

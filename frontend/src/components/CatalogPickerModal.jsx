@@ -10,6 +10,7 @@ const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney', 'Mov
 const BADGE_STYLES = {
   'NEW': 'bg-blue-500 text-white',
   'WEB EXCLUSIVE': 'bg-yellow-400 text-gray-900',
+  'EXCLUSIVE': 'bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-950 font-black',
   'CHASE': 'bg-pink-500 text-white',
   'GRAIL': 'bg-yellow-400 text-gray-900 font-black border-yellow-600'
 };
@@ -44,6 +45,8 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
         .then(data => {
           const mapped = (data.items || []).map((pop, index) => {
             const computedRarity = getRarityFromPrice(pop.marketPrice, pop.rarity);
+            const rawBadge = pop.badge || (pop.isExclusive ? 'EXCLUSIVE' : (pop.marketPrice > 50 ? 'EXCLUSIVE' : null));
+            const badgeVal = rawBadge === 'GRAIL' ? null : rawBadge;
             return {
               id: pop._id,
               name: pop.name,
@@ -52,7 +55,8 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
               rarity: computedRarity,
               image: pop.imageUrl || null,
               price: pop.marketPrice || 15,
-              badge: null,
+              badge: badgeVal,
+              isExclusive: Boolean(pop.isExclusive || pop.marketPrice > 50),
               color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
             };
           });

@@ -16,6 +16,7 @@ import PopDetailModal from '@/components/PopDetailModal';
 import BouncyButton from '@/components/BouncyButton';
 import { SeriesPieChart, RarityBarChart, ValueTrendChart } from '@/components/CollectionChart';
 import { getConditionMultiplier } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 function GrailAlertCard({ item, onClick }) {
   const [imgError, setImgError] = useState(false);
@@ -95,7 +96,7 @@ export default function Dashboard() {
               name: popDetails.name || 'Unknown Pop',
               series: popDetails.series || 'Other',
               number: popDetails.itemNumber || 2024,
-              rarity: marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common',
+              rarity: getRarityFromPrice(marketVal, popDetails.rarity),
               purchasePrice: item.purchasePrice || 0,
               boxCondition: item.boxCondition || 'Mint (9.5-10)',
               quantity: item.quantity || 1,
@@ -280,7 +281,7 @@ export default function Dashboard() {
             name: popDetails.name || p.name,
             series: popDetails.series || p.series,
             number: popDetails.itemNumber || p.number,
-            rarity: mVal >= 100 ? 'Grail' : (mVal > 25 ? 'Rare' : 'Common'),
+            rarity: getRarityFromPrice(mVal, popDetails.rarity),
             purchasePrice: data.vaultItem.purchasePrice || 0,
             boxCondition: data.vaultItem.boxCondition || 'Mint (9.5-10)',
             quantity: data.vaultItem.quantity || 1,

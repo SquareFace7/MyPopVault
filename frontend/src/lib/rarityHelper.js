@@ -3,14 +3,14 @@
  */
 
 export const getRarityFromPrice = (marketPrice, explicitRarity) => {
-  if (explicitRarity && ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Grail'].includes(explicitRarity) && explicitRarity !== 'Common') {
-    return explicitRarity;
-  }
   const price = typeof marketPrice === 'number' ? marketPrice : parseFloat(marketPrice) || 0;
   if (price >= 100) return 'Grail';
   if (price >= 50) return 'Legendary';
   if (price >= 25) return 'Rare';
   if (price >= 15) return 'Uncommon';
+  if (explicitRarity && ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Grail'].includes(explicitRarity)) {
+    return explicitRarity;
+  }
   return 'Common';
 };
 

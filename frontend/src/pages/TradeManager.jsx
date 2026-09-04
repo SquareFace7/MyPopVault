@@ -8,6 +8,7 @@ import { toast as hotToast } from 'react-hot-toast';
 import PrivateChatModal from '@/components/PrivateChatModal';
 import { getApiUrl } from '@/lib/api';
 import { getConditionBadgeStyle } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -41,10 +42,7 @@ const parseItem = (item, fallbackCondition, fallbackQuantity) => {
 
   const catalog = item.pop || item;
   const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : (typeof item.marketValue === 'number' ? item.marketValue : 15));
-  let computedRarity = catalog.rarity || item.rarity;
-  if (!computedRarity) {
-    computedRarity = marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
-  }
+  const computedRarity = getRarityFromPrice(marketVal, catalog.rarity || item.rarity);
 
   return {
     name: catalog.name || item.name || 'Unknown Pop',

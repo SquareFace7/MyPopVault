@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 import { getConditionMultiplier, getConditionBadgeStyle } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 const rarityColors = {
   Common: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -44,7 +45,7 @@ export default function TradeModal({ targetPop, collectorName, receiverId, onClo
             number: catalog.itemNumber || catalog.number || '0',
             marketValue: mVal,
             image: catalog.imageUrl || catalog.image || '',
-            rarity: mVal >= 100 ? 'Grail' : mVal > 25 ? 'Rare' : 'Common',
+            rarity: getRarityFromPrice(mVal, catalog.rarity),
             boxCondition: item.boxCondition || 'Mint (9.5-10)',
             quantity: item.quantity || 1
           };

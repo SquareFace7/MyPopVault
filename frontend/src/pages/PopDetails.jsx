@@ -8,6 +8,7 @@ import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
 import CategoryBadge from '@/components/CategoryBadge';
 import { getConditionBadgeStyle } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 export default function PopDetails() {
   const { id } = useParams();
@@ -134,7 +135,7 @@ export default function PopDetails() {
   }
 
   const isGrail = (pop.marketPrice || pop.price || 0) >= 100;
-  const itemRarity = pop.rarity || ((pop.marketPrice || pop.price || 0) >= 100 ? 'Grail' : (pop.marketPrice || pop.price || 0) > 25 ? 'Rare' : 'Common');
+  const itemRarity = getRarityFromPrice(pop.marketPrice || pop.price || 0, pop.rarity);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 font-sans">

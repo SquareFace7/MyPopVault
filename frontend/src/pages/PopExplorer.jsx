@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 import AddToVaultModal from '@/components/AddToVaultModal';
 
 const CATEGORIES = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney', 'Movies', 'Television', 'General'];
@@ -57,7 +58,7 @@ export default function PopExplorer() {
           name: pop.name,
           series: pop.series,
           number: pop.itemNumber,
-          rarity: pop.marketPrice >= 100 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
+          rarity: getRarityFromPrice(pop.marketPrice, pop.rarity),
           isExclusive: pop.marketPrice > 50,
           price: pop.marketPrice || 15,
           image: pop.imageUrl || null
