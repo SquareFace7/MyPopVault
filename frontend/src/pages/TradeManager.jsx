@@ -43,7 +43,7 @@ const parseItem = (item, fallbackCondition, fallbackQuantity) => {
   const marketVal = typeof catalog.marketPrice === 'number' ? catalog.marketPrice : (typeof catalog.marketValue === 'number' ? catalog.marketValue : (typeof item.marketValue === 'number' ? item.marketValue : 15));
   let computedRarity = catalog.rarity || item.rarity;
   if (!computedRarity) {
-    computedRarity = marketVal >= 100 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
+    computedRarity = marketVal >= 10.49 ? 'Grail' : marketVal > 25 ? 'Rare' : 'Common';
   }
 
   return {

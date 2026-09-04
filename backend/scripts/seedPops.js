@@ -127,17 +127,19 @@ async function seedPops() {
     // 1. Scrape live Funko Pops with 100% card-level strict matching and authentic prices
     const catalogItems = await scrapePopsToday();
 
-    // 2. Clear old catalog items to eliminate previous price-manipulated data
-    console.log('🧹 Clearing old catalog items from MongoDB...');
-    await PopCatalog.deleteMany({});
-    console.log('✅ Old catalog cleared cleanly.');
+    // 2. Upsert newly scraped, 100% authentic catalog items without destroying existing foreign keys
+    console.log(`📦 Upserting ${catalogItems.length} authentic catalog items into MongoDB...`);
+    const upsertPromises = catalogItems.map(pop =>
+      PopCatalog.findOneAndUpdate(
+        { name: pop.name, series: pop.series },
+        { $set: pop },
+        { upsert: true, new: true }
+      )
+    );
+    const inserted = await Promise.all(upsertPromises);
 
-    // 3. Insert newly scraped, 100% authentic catalog items
-    console.log(`📦 Inserting ${catalogItems.length} authentic catalog items into MongoDB...`);
-    const inserted = await PopCatalog.insertMany(catalogItems);
-
-    const grailsCount = inserted.filter(p => p.marketPrice > 100).length;
-    const standardCount = inserted.filter(p => p.marketPrice <= 100).length;
+    const grailsCount = inserted.filter(p => p.marketPrice >= 10.49).length;
+    const standardCount = inserted.filter(p => p.marketPrice < 10.49).length;
 
     // 4. Print sample of 5 scraped items in the console logs (Title + Scraped Price + Image URL)
     console.log('\n================ SCRAPED ITEM MATCH & AUTHENTIC PRICE SAMPLE ================');

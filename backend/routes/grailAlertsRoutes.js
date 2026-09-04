@@ -5,7 +5,7 @@ const PopCatalog = require('../models/PopCatalog');
 // GET /api/grail-alerts - Get high-value VIP grail alerts safely
 router.get('/', async (req, res) => {
   try {
-    const items = await PopCatalog.find({ marketPrice: { $gte: 100 } })
+    const items = await PopCatalog.find({ marketPrice: { $gte: 10.49 } })
       .sort({ marketPrice: -1 })
       .limit(5);
 

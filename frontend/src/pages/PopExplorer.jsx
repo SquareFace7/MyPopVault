@@ -57,7 +57,7 @@ export default function PopExplorer() {
           name: pop.name,
           series: pop.series,
           number: pop.itemNumber,
-          rarity: pop.marketPrice >= 100 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
+          rarity: pop.marketPrice >= 10.49 ? 'Grail' : pop.marketPrice > 25 ? 'Rare' : 'Common',
           isExclusive: pop.marketPrice > 50,
           price: pop.marketPrice || 15,
           image: pop.imageUrl || null
