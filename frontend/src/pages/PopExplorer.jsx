@@ -53,16 +53,22 @@ export default function PopExplorer() {
     fetch(getApiUrl(`/api/catalog?search=${searchQuery}&category=${activeCategory}&page=${page}&limit=12`))
       .then(res => res.json())
       .then(data => {
-        const mapped = (data.items || []).map(pop => ({
-          id: pop._id,
-          name: pop.name,
-          series: pop.series,
-          number: pop.itemNumber,
-          rarity: getRarityFromPrice(pop.marketPrice, pop.rarity),
-          isExclusive: pop.marketPrice > 50,
-          price: pop.marketPrice || 15,
-          image: pop.imageUrl || null
-        }));
+        const mapped = (data.items || []).map(pop => {
+          const computedRarity = getRarityFromPrice(pop.marketPrice, pop.rarity);
+          const rawBadge = pop.badge || (pop.isExclusive ? 'EXCLUSIVE' : (pop.marketPrice > 50 ? 'EXCLUSIVE' : null));
+          const badgeVal = rawBadge === 'GRAIL' ? null : rawBadge;
+          return {
+            id: pop._id,
+            name: pop.name,
+            series: pop.series,
+            number: pop.itemNumber,
+            rarity: computedRarity,
+            badge: badgeVal,
+            isExclusive: Boolean(pop.isExclusive || pop.marketPrice > 50),
+            price: pop.marketPrice || 15,
+            image: pop.imageUrl || null
+          };
+        });
         setCatalog(mapped);
         setTotalPages(data.pages || 1);
         setLoading(false);
@@ -264,10 +270,18 @@ export default function PopExplorer() {
 
                       {/* Window Image Box */}
                       <div className="bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-800 dark:to-gray-900 w-full h-48 flex items-center justify-center relative p-3 border-b-4 border-gray-800 dark:border-slate-600">
-                        {/* Rarity Ribbon */}
+                        {/* Rarity Ribbon (Top-Left) */}
                         <span className={`absolute top-2 left-2 px-2 py-0.5 rounded border-2 text-[9px] font-black uppercase tracking-wider ${RARITY_STYLES[pop.rarity]} z-10 shadow-[2px_2px_0px_rgba(0,0,0,0.15)]`}>
                           {pop.rarity}
                         </span>
+
+                        {/* Top-Right Ribbon Badge */}
+                        {pop.badge && pop.badge !== 'GRAIL' && (
+                          <div className="absolute top-2 right-2 px-2 py-0.5 rounded-lg border-2 border-gray-800 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-950 text-[9px] font-black tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.7)] z-10 flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5" fill="currentColor" />
+                            <span>{pop.badge}</span>
+                          </div>
+                        )}
 
                         {pop.image ? (
                           <img src={pop.image} alt={pop.name} className="w-full h-full object-contain hover:scale-105 transition-transform duration-300" />
