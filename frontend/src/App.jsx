@@ -19,6 +19,7 @@ import PopDetails from './pages/PopDetails';
 import PopMessenger from './pages/PopMessenger';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PrivateRoute from '@/components/PrivateRoute';
+import GuestRoute from '@/components/GuestRoute';
 import PendingVerificationScreen from '@/components/PendingVerificationScreen';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -113,19 +114,25 @@ const AuthenticatedApp = () => {
         </LayoutWrapper>
       } />
       <Route path="/Login" element={
-        <LayoutWrapper currentPageName="Login">
-          <Login />
-        </LayoutWrapper>
+        <GuestRoute>
+          <LayoutWrapper currentPageName="Login">
+            <Login />
+          </LayoutWrapper>
+        </GuestRoute>
       } />
       <Route path="/forgot-password" element={
-        <LayoutWrapper currentPageName="Login">
-          <ForgotPassword />
-        </LayoutWrapper>
+        <GuestRoute>
+          <LayoutWrapper currentPageName="Login">
+            <ForgotPassword />
+          </LayoutWrapper>
+        </GuestRoute>
       } />
       <Route path="/reset-password/:token" element={
-        <LayoutWrapper currentPageName="Login">
-          <ResetPassword />
-        </LayoutWrapper>
+        <GuestRoute>
+          <LayoutWrapper currentPageName="Login">
+            <ResetPassword />
+          </LayoutWrapper>
+        </GuestRoute>
       } />
       <Route path="/vip-upgrade" element={
         <PrivateRoute>

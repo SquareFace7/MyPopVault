@@ -2,11 +2,18 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Package, ArrowLeft, Zap } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 
 export default function ForgotPassword() {
+  const { user } = useAuth();
+
+  if (user && user.isLoggedIn) {
+    return <Navigate to="/Dashboard" replace />;
+  }
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

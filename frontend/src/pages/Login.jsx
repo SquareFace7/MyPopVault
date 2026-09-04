@@ -2,11 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Sparkles, LogIn, UserPlus, Zap, Check, X } from 'lucide-react';
 import PopArtBackground from '@/components/PopArtBackground';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Login() {
+  const { user, login, register } = useAuth();
+
+  // Strict Auth Guard: Authenticated users must NEVER see the login form
+  if (user && user.isLoggedIn) {
+    return <Navigate to="/Dashboard" replace />;
+  }
+
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -15,7 +22,6 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
