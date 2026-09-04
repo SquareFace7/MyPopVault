@@ -12,7 +12,11 @@ async function scrapePopsToday() {
   const scrapedItems = [];
   const urlsToScrape = [
     'https://pops.today/pops/',
-    'https://pops.today/'
+    'https://pops.today/',
+    'https://pops.today/category/animation',
+    'https://pops.today/category/marvel',
+    'https://pops.today/category/star-wars',
+    'https://pops.today/category/heroes'
   ];
 
   for (const url of urlsToScrape) {
@@ -62,14 +66,14 @@ async function scrapePopsToday() {
           return;
         }
 
-        // Extract Price strictly inside THIS specific card element
+        // Extract Price strictly inside THIS specific card element without ANY artificial multiplier or inflation
         const priceText = $(card).find('.fs-3.fw-bold').first().text().trim();
         let marketPrice = parseFloat(priceText.replace(/[^0-9.]/g, ''));
         if (isNaN(marketPrice) || marketPrice <= 0) {
           marketPrice = 15.00;
         }
 
-        // Categorize series from image URL or title
+        // Categorize series strictly from image URL or title
         let series = 'General';
         const upperImg = imageUrl.toUpperCase();
         const upperTitle = name.toUpperCase();
@@ -104,14 +108,7 @@ async function scrapePopsToday() {
   });
 
   const finalScraped = Array.from(uniqueMap.values());
-  console.log(`📡 Scraped ${finalScraped.length} 100% authentic, perfectly matched product card items.`);
-
-  // VIP Grail Requirement: Take first 8 of the ACTUALLY SCRAPED and PERFECTLY MATCHED items
-  // and mathematically scale their marketPrice by 18x so price > $100 without modifying names or images
-  for (let i = 0; i < Math.min(8, finalScraped.length); i++) {
-    finalScraped[i].marketPrice = parseFloat((finalScraped[i].marketPrice * 18).toFixed(2));
-  }
-
+  console.log(`📡 Scraped ${finalScraped.length} 100% authentic, unmanipulated product items.`);
   return finalScraped;
 }
 
@@ -127,32 +124,32 @@ async function seedPops() {
     await mongoose.connect(mongoURI);
     console.log('✅ Connected to MongoDB successfully.');
 
-    // 1. Scrape live Funko Pops with 100% card-level strict matching
+    // 1. Scrape live Funko Pops with 100% card-level strict matching and authentic prices
     const catalogItems = await scrapePopsToday();
 
-    // 2. Clear old catalog items to eliminate previous mismatched data
+    // 2. Clear old catalog items to eliminate previous price-manipulated data
     console.log('🧹 Clearing old catalog items from MongoDB...');
     await PopCatalog.deleteMany({});
     console.log('✅ Old catalog cleared cleanly.');
 
-    // 3. Insert newly scraped, strictly matched catalog items
-    console.log(`📦 Inserting ${catalogItems.length} strictly matched catalog items into MongoDB...`);
+    // 3. Insert newly scraped, 100% authentic catalog items
+    console.log(`📦 Inserting ${catalogItems.length} authentic catalog items into MongoDB...`);
     const inserted = await PopCatalog.insertMany(catalogItems);
 
     const grailsCount = inserted.filter(p => p.marketPrice > 100).length;
     const standardCount = inserted.filter(p => p.marketPrice <= 100).length;
 
-    // 4. Print sample of 3 scraped items in the console logs (Title + Price + Image URL)
-    console.log('\n================ SCRAPED ITEM MATCH VERIFICATION SAMPLE ================');
-    inserted.slice(0, 3).forEach((item, idx) => {
-      console.log(`Sample [${idx + 1}] | Title: "${item.name}" (#${item.itemNumber}) | Series: ${item.series} | Price: $${item.marketPrice}`);
+    // 4. Print sample of 5 scraped items in the console logs (Title + Scraped Price + Image URL)
+    console.log('\n================ SCRAPED ITEM MATCH & AUTHENTIC PRICE SAMPLE ================');
+    inserted.slice(0, 5).forEach((item, idx) => {
+      console.log(`Sample [${idx + 1}] | Title: "${item.name}" (#${item.itemNumber}) | Series: ${item.series} | Authentic Price: $${item.marketPrice}`);
       console.log(`  └─ Image URL: ${item.imageUrl}`);
     });
-    console.log('========================================================================\n');
+    console.log('=============================================================================\n');
 
     console.log('================ LIVE SCRAPING & SEEDING COMPLETE ================');
-    console.log(`👑 Grail Pops (Value > $100): ${grailsCount} items`);
-    console.log(`📦 Standard Catalog Pops (Value <= $100): ${standardCount} items`);
+    console.log(`👑 High-Value Items (Price > $100): ${grailsCount} items`);
+    console.log(`📦 Standard Items (Price <= $100): ${standardCount} items`);
     console.log(`🚀 Total Catalog Items in Database: ${inserted.length} items`);
     console.log('==================================================================\n');
 
