@@ -52,7 +52,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
               rarity: computedRarity,
               image: pop.imageUrl || null,
               price: pop.marketPrice || 15,
-              badge: pop.marketPrice >= 100 ? 'GRAIL' : null,
+              badge: null,
               color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
             };
           });
@@ -128,18 +128,19 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
           >
             {/* Header */}
-            <div className="bg-white border-b-4 border-gray-800 shrink-0">
+            <div className="bg-white border-b-4 border-gray-800 shrink-0 z-20 relative">
               <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <motion.button
+                      type="button"
                       onClick={handleClose}
-                      className="px-3.5 py-2 bg-white border-2 border-gray-800 rounded-xl flex items-center gap-1.5 font-black text-xs text-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] hover:bg-gray-50"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-black text-xs rounded-xl border-2 border-gray-900 shadow-[3px_3px_0px_rgba(236,0,140,0.9)] flex items-center gap-2 cursor-pointer z-30 relative shrink-0"
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      <ArrowLeft className="w-4 h-4 text-gray-800" />
-                      Back to Vault
+                      <ArrowLeft className="w-4 h-4 text-cyan-400 stroke-[3]" />
+                      <span>Back to Vault</span>
                     </motion.button>
                     <h2 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
                       <Sparkles className="w-6 h-6 text-pink-500" />
@@ -147,8 +148,9 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
                     </h2>
                   </div>
                   <motion.button
+                    type="button"
                     onClick={handleClose}
-                    className="w-10 h-10 bg-gray-100 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
+                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)] cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -209,7 +211,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
                       >
                         {/* Top Badges (Ribbon & Standard Rarity) */}
                         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
-                          {pop.badge && (
+                          {pop.badge && pop.badge !== 'GRAIL' && (
                             <div className={`px-2 py-0.5 rounded-lg border-2 border-gray-800 font-black text-[9px] tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${BADGE_STYLES[pop.badge]}`}>
                               {pop.badge}
                             </div>
