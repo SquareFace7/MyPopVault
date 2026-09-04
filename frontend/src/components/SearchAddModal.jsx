@@ -1,13 +1,5 @@
 import { getApiUrl } from '@/lib/api';
-
-const RARITY_COLORS = {
-  Common:    'bg-gray-100 text-gray-600 border-gray-400',
-  Uncommon:  'bg-green-100 text-green-700 border-green-500',
-  Rare:      'bg-blue-100 text-blue-700 border-blue-500',
-  Epic:      'bg-purple-100 text-purple-700 border-purple-500',
-  Legendary: 'bg-orange-100 text-orange-700 border-orange-500',
-  Grail:     'bg-yellow-200 text-yellow-800 border-yellow-500',
-};
+import { getRarityFromPrice, RARITY_BADGE_STYLES } from '@/lib/rarityHelper';
 
 export default function SearchAddModal({ isOpen, onClose, onAdd }) {
   const [query, setQuery] = useState('');
@@ -24,7 +16,7 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
             name: pop.name,
             series: pop.series,
             number: pop.itemNumber,
-            rarity: pop.marketPrice >= 100 ? 'Grail' : (pop.marketPrice > 25 ? 'Rare' : 'Common'),
+            rarity: getRarityFromPrice(pop.marketPrice, pop.rarity),
             price: pop.marketPrice || 15,
             emoji: '✨'
           }));
@@ -162,7 +154,7 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
                   </div>
 
                   {/* Rarity badge */}
-                  <span className={`hidden sm:block text-xs font-black px-2 py-0.5 rounded-lg border-2 shrink-0 ${RARITY_COLORS[pop.rarity]}`}>
+                  <span className={`hidden sm:block text-xs font-black px-2 py-0.5 rounded-lg border-2 shrink-0 ${RARITY_BADGE_STYLES[pop.rarity] || RARITY_BADGE_STYLES.Common}`}>
                     {pop.rarity}
                   </span>
 

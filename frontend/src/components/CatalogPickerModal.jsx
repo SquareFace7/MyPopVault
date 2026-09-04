@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, X, Sparkles } from 'lucide-react';
+import { Search, Heart, X, Sparkles, ArrowLeft } from 'lucide-react';
 import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
+import { getRarityFromPrice, RARITY_BADGE_STYLES } from '@/lib/rarityHelper';
 
 const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney', 'Movies', 'Television', 'General'];
 
@@ -41,17 +42,20 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
       fetch(getApiUrl('/api/catalog?limit=1000'))
         .then(res => res.json())
         .then(data => {
-          const mapped = (data.items || []).map((pop, index) => ({
-            id: pop._id,
-            name: pop.name,
-            series: pop.series,
-            number: pop.itemNumber,
-            rarity: pop.marketPrice >= 100 ? 'Grail' : (pop.marketPrice > 25 ? 'Rare' : 'Common'),
-            image: pop.imageUrl || null,
-            price: pop.marketPrice || 15,
-            badge: pop.marketPrice >= 100 ? 'GRAIL' : null,
-            color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
-          }));
+          const mapped = (data.items || []).map((pop, index) => {
+            const computedRarity = getRarityFromPrice(pop.marketPrice, pop.rarity);
+            return {
+              id: pop._id,
+              name: pop.name,
+              series: pop.series,
+              number: pop.itemNumber,
+              rarity: computedRarity,
+              image: pop.imageUrl || null,
+              price: pop.marketPrice || 15,
+              badge: pop.marketPrice >= 100 ? 'GRAIL' : null,
+              color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
+            };
+          });
           setCatalog(mapped);
         })
         .catch(err => console.error('Failed to fetch catalog:', err));
@@ -63,7 +67,8 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
       const matchesSeries = activeSeries === 'All' || p.series === activeSeries;
       const matchesQuery = !query.trim() ||
         p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.series.toLowerCase().includes(query.toLowerCase());
+        p.series.toLowerCase().includes(query.toLowerCase()) ||
+        String(p.number).toLowerCase().includes(query.toLowerCase());
       return matchesSeries && matchesQuery;
     });
   }, [catalog, query, activeSeries]);
@@ -126,10 +131,21 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
             <div className="bg-white border-b-4 border-gray-800 shrink-0">
               <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl md:text-3xl font-black text-gray-800 flex items-center gap-2">
-                    <Sparkles className="w-7 h-7 text-pink-500" />
-                    Catalog Picker
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      onClick={handleClose}
+                      className="px-3.5 py-2 bg-white border-2 border-gray-800 rounded-xl flex items-center gap-1.5 font-black text-xs text-gray-800 shadow-[2px_2px_0px_rgba(0,0,0,0.85)] hover:bg-gray-50"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <ArrowLeft className="w-4 h-4 text-gray-800" />
+                      Back to Vault
+                    </motion.button>
+                    <h2 className="text-xl md:text-2xl font-black text-gray-800 flex items-center gap-2">
+                      <Sparkles className="w-6 h-6 text-pink-500" />
+                      Catalog Picker
+                    </h2>
+                  </div>
                   <motion.button
                     onClick={handleClose}
                     className="w-10 h-10 bg-gray-100 border-2 border-gray-800 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.7)]"
@@ -191,12 +207,17 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
                         transition={{ delay: i * 0.02 }}
                         whileHover={{ y: -4, boxShadow: '5px 9px 0px rgba(0,0,0,0.8)' }}
                       >
-                        {/* Ribbon badge */}
-                        {pop.badge && (
-                          <div className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg border-2 border-gray-800 font-black text-[9px] tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${BADGE_STYLES[pop.badge]}`}>
-                            {pop.badge}
-                          </div>
-                        )}
+                        {/* Top Badges (Ribbon & Standard Rarity) */}
+                        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+                          {pop.badge && (
+                            <div className={`px-2 py-0.5 rounded-lg border-2 border-gray-800 font-black text-[9px] tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${BADGE_STYLES[pop.badge]}`}>
+                              {pop.badge}
+                            </div>
+                          )}
+                          <span className={`px-2 py-0.5 rounded-full border-2 text-[9px] font-black shadow-[2px_2px_0px_rgba(0,0,0,0.7)] ${RARITY_BADGE_STYLES[pop.rarity] || RARITY_BADGE_STYLES.Common}`}>
+                            {pop.rarity}
+                          </span>
+                        </div>
 
                         {/* Heart icon */}
                         <motion.button
