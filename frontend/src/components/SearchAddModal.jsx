@@ -1,37 +1,4 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, X, Sparkles } from 'lucide-react';
-
-const CATALOG = [
-  { id: 1, name: 'Spider-Man', series: 'Marvel', number: 3, rarity: 'Common', emoji: '🦸' },
-  { id: 2, name: 'Iron Man (Metallic)', series: 'Marvel', number: 4, rarity: 'Rare', emoji: '🦸' },
-  { id: 3, name: 'Thanos', series: 'Marvel', number: 289, rarity: 'Epic', emoji: '🦸' },
-  { id: 4, name: 'Venom (Chase)', series: 'Marvel', number: 587, rarity: 'Legendary', emoji: '🦸' },
-  { id: 5, name: 'Deadpool', series: 'Marvel', number: 112, rarity: 'Uncommon', emoji: '🦸' },
-  { id: 6, name: 'Wolverine', series: 'Marvel', number: 555, rarity: 'Uncommon', emoji: '🦸' },
-  { id: 7, name: 'Goku (Ultra Instinct)', series: 'Anime', number: 1262, rarity: 'Legendary', emoji: '⚡' },
-  { id: 8, name: 'Naruto (Running)', series: 'Anime', number: 727, rarity: 'Rare', emoji: '⚡' },
-  { id: 9, name: 'Itachi Uchiha', series: 'Anime', number: 722, rarity: 'Epic', emoji: '⚡' },
-  { id: 10, name: 'Luffy (Gear 5)', series: 'Anime', number: 1439, rarity: 'Legendary', emoji: '⚡' },
-  { id: 11, name: 'Pikachu', series: 'Anime', number: 353, rarity: 'Common', emoji: '⚡' },
-  { id: 12, name: 'Darth Vader', series: 'Star Wars', number: 1, rarity: 'Common', emoji: '⚔️' },
-  { id: 13, name: 'Mandalorian', series: 'Star Wars', number: 326, rarity: 'Rare', emoji: '⚔️' },
-  { id: 14, name: 'Grogu (Glow)', series: 'Star Wars', number: 369, rarity: 'Epic', emoji: '⚔️' },
-  { id: 15, name: 'Yoda', series: 'Star Wars', number: 2, rarity: 'Uncommon', emoji: '⚔️' },
-  { id: 16, name: 'Batman', series: 'DC', number: 1, rarity: 'Common', emoji: '🦇' },
-  { id: 17, name: 'Joker', series: 'DC', number: 2, rarity: 'Uncommon', emoji: '🦇' },
-  { id: 18, name: 'Superman (Chrome)', series: 'DC', number: 239, rarity: 'Legendary', emoji: '🦇' },
-  { id: 19, name: 'Mickey Mouse', series: 'Disney', number: 1, rarity: 'Grail', emoji: '✨' },
-  { id: 20, name: 'Stitch', series: 'Disney', number: 12, rarity: 'Common', emoji: '✨' },
-  { id: 21, name: 'Jack Skellington', series: 'Disney', number: 849, rarity: 'Rare', emoji: '✨' },
-  { id: 22, name: 'Harry Potter', series: 'Harry Potter', number: 1, rarity: 'Common', emoji: '🧙' },
-  { id: 23, name: 'Voldemort (Glow)', series: 'Harry Potter', number: 5, rarity: 'Epic', emoji: '🧙' },
-  { id: 24, name: 'Walter White', series: 'TV Shows', number: 160, rarity: 'Epic', emoji: '📺' },
-  { id: 25, name: 'Eleven', series: 'TV Shows', number: 421, rarity: 'Uncommon', emoji: '📺' },
-  { id: 26, name: 'Shrek', series: 'Movies', number: 278, rarity: 'Grail', emoji: '🎬' },
-  { id: 27, name: 'Freddie Mercury', series: 'Music', number: 92, rarity: 'Epic', emoji: '🎸' },
-  { id: 28, name: 'Elvis Presley', series: 'Music', number: 287, rarity: 'Rare', emoji: '🎸' },
-];
+import { getApiUrl } from '@/lib/api';
 
 const RARITY_COLORS = {
   Common:    'bg-gray-100 text-gray-600 border-gray-400',
@@ -44,17 +11,38 @@ const RARITY_COLORS = {
 
 export default function SearchAddModal({ isOpen, onClose, onAdd }) {
   const [query, setQuery] = useState('');
+  const [catalog, setCatalog] = useState([]);
   const [addedIds, setAddedIds] = useState(new Set());
 
+  React.useEffect(() => {
+    if (isOpen) {
+      fetch(getApiUrl('/api/catalog?limit=500'))
+        .then(res => res.json())
+        .then(data => {
+          const mapped = (data.items || []).map(pop => ({
+            id: pop._id,
+            name: pop.name,
+            series: pop.series,
+            number: pop.itemNumber,
+            rarity: pop.marketPrice >= 100 ? 'Grail' : (pop.marketPrice > 25 ? 'Rare' : 'Common'),
+            price: pop.marketPrice || 15,
+            emoji: '✨'
+          }));
+          setCatalog(mapped);
+        })
+        .catch(err => console.error('Failed to fetch catalog:', err));
+    }
+  }, [isOpen]);
+
   const results = useMemo(() => {
-    if (!query.trim()) return CATALOG.slice(0, 12);
+    if (!query.trim()) return catalog;
     const q = query.toLowerCase();
-    return CATALOG.filter(p =>
+    return catalog.filter(p =>
       p.name.toLowerCase().includes(q) ||
       p.series.toLowerCase().includes(q) ||
-      String(p.number).includes(q)
+      String(p.number).toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [catalog, query]);
 
   const handleAdd = (pop) => {
     setAddedIds(prev => new Set([...prev, pop.id]));
@@ -63,10 +51,11 @@ export default function SearchAddModal({ isOpen, onClose, onAdd }) {
       series: pop.series,
       number: pop.number,
       rarity: pop.rarity,
-      purchasePrice: 12,
-      marketValue: 15,
-      condition: 'Mint',
+      purchasePrice: pop.price,
+      marketValue: pop.price,
+      condition: 'Mint (9.5-10)',
       isExclusive: false,
+      popId: pop.id
     });
   };
 

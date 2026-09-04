@@ -4,12 +4,13 @@ import { Search, Heart, X, Sparkles } from 'lucide-react';
 import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
 
-const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
+const SERIES_LIST = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney', 'Movies', 'Television', 'General'];
 
 const BADGE_STYLES = {
   'NEW': 'bg-blue-500 text-white',
   'WEB EXCLUSIVE': 'bg-yellow-400 text-gray-900',
   'CHASE': 'bg-pink-500 text-white',
+  'GRAIL': 'bg-yellow-400 text-gray-900 font-black border-yellow-600'
 };
 
 function CatalogItemImage({ src, alt }) {
@@ -37,7 +38,7 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
 
   useEffect(() => {
     if (isOpen) {
-      fetch(getApiUrl('/api/catalog?limit=100'))
+      fetch(getApiUrl('/api/catalog?limit=1000'))
         .then(res => res.json())
         .then(data => {
           const mapped = (data.items || []).map((pop, index) => ({
@@ -45,10 +46,10 @@ export default function CatalogPickerModal({ isOpen, onClose, onAdd }) {
             name: pop.name,
             series: pop.series,
             number: pop.itemNumber,
-            rarity: pop.marketPrice >= 100 ? 'Epic' : 'Common',
+            rarity: pop.marketPrice >= 100 ? 'Grail' : (pop.marketPrice > 25 ? 'Rare' : 'Common'),
             image: pop.imageUrl || null,
             price: pop.marketPrice || 15,
-            badge: pop.marketPrice >= 100 ? 'CHASE' : null,
+            badge: pop.marketPrice >= 100 ? 'GRAIL' : null,
             color: pop.series === 'Marvel' ? 'from-red-105 to-orange-105' : 'from-blue-105 to-cyan-105'
           }));
           setCatalog(mapped);

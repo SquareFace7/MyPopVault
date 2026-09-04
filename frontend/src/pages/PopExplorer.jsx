@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 import AddToVaultModal from '@/components/AddToVaultModal';
 
-const CATEGORIES = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney'];
+const CATEGORIES = ['All', 'Marvel', 'Anime', 'Star Wars', 'DC', 'Disney', 'Movies', 'Television', 'General'];
 
 const RARITY_STYLES = {
   'Common': 'border-gray-200 text-gray-700 bg-gray-50',

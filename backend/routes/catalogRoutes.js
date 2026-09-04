@@ -6,14 +6,18 @@ const PopCatalog = require('../models/PopCatalog');
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const limitQuery = req.query.limit;
+    const limit = (limitQuery === 'all' || limitQuery === '0' || parseInt(limitQuery) >= 500)
+      ? 1000
+      : (parseInt(limitQuery) || 12);
     const search = req.query.search || '';
 
     const query = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { series: { $regex: search, $options: 'i' } }
+        { series: { $regex: search, $options: 'i' } },
+        { itemNumber: { $regex: search, $options: 'i' } }
       ];
     }
     if (req.query.category && req.query.category !== 'All') {
@@ -22,12 +26,12 @@ router.get('/', async (req, res) => {
 
     const skip = (page - 1) * limit;
     const total = await PopCatalog.countDocuments(query);
-    const items = await PopCatalog.find(query).skip(skip).limit(limit);
+    const items = await PopCatalog.find(query).sort({ marketPrice: -1, name: 1 }).skip(skip).limit(limit);
 
     res.json({
       items,
       page,
-      pages: Math.ceil(total / limit),
+      pages: limit > 0 ? Math.ceil(total / limit) : 1,
       total
     });
   } catch (error) {
