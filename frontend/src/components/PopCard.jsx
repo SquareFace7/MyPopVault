@@ -4,6 +4,7 @@ import { Heart, TrendingUp, TrendingDown, Sparkles, Star, Trash2 } from 'lucide-
 import CategoryBadge from './CategoryBadge';
 
 import { getConditionBadgeStyle } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 export default function PopCard({ item, index = 0, onClick, onRemove }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -13,6 +14,7 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
     ? ((item.marketValue - item.purchasePrice) / item.purchasePrice * 100).toFixed(1)
     : 0;
   const isPositiveRoi = parseFloat(roi) >= 0;
+  const computedRarity = getRarityFromPrice(item.marketValue, item.rarity);
 
   const rarityGlow = {
     'Common': '',
@@ -148,7 +150,7 @@ export default function PopCard({ item, index = 0, onClick, onRemove }) {
 
           {/* Rarity & Condition Badges */}
           <div className="absolute bottom-2 left-2 flex items-center gap-1.5 flex-wrap">
-            <CategoryBadge category={item.rarity} type="rarity" size="sm" />
+            <CategoryBadge category={computedRarity} type="rarity" size="sm" />
             <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition || 'Mint (9.5-10)')}`}>
               {item.boxCondition || 'Mint (9.5-10)'}
             </span>

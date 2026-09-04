@@ -218,6 +218,13 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
 
       console.log(`🔄 [Trade Acceptance] Transferring ${offeredQty} unit(s) of Pop ${offeredPop} (${offeredCond}) from Sender ${sender} to Receiver ${receiver}`);
 
+      const PopCatalog = require('../models/PopCatalog');
+      const offeredCatalogItem = await PopCatalog.findById(offeredPop);
+      const offeredMarketVal = offeredCatalogItem?.marketPrice || 15;
+
+      const requestedCatalogItem = await PopCatalog.findById(requestedPop);
+      const requestedMarketVal = requestedCatalogItem?.marketPrice || 15;
+
       // --- DECREMENT SENDER OFFERED ITEM ---
       senderVaultItem.quantity -= offeredQty;
       if (senderVaultItem.quantity <= 0) {
@@ -226,17 +233,19 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
         await senderVaultItem.save();
       }
 
-      // --- CREDIT RECEIVER OFFERED ITEM ---
+      // --- CREDIT RECEIVER OFFERED ITEM (Reset cost basis to current market value) ---
       const receiverExistingOffered = await VaultItem.findOne({ user: receiver, pop: offeredPop, boxCondition: offeredCond });
       if (receiverExistingOffered) {
         receiverExistingOffered.quantity += offeredQty;
+        receiverExistingOffered.purchasePrice = offeredMarketVal;
         await receiverExistingOffered.save();
       } else {
         await new VaultItem({
           user: receiver,
           pop: offeredPop,
           boxCondition: offeredCond,
-          quantity: offeredQty
+          quantity: offeredQty,
+          purchasePrice: offeredMarketVal
         }).save();
       }
 
@@ -250,17 +259,19 @@ router.put('/:id/status', authMiddleware, authMiddleware.requireVerification, au
         await receiverVaultItem.save();
       }
 
-      // --- CREDIT SENDER REQUESTED ITEM ---
+      // --- CREDIT SENDER REQUESTED ITEM (Reset cost basis to current market value) ---
       const senderExistingRequested = await VaultItem.findOne({ user: sender, pop: requestedPop, boxCondition: requestedCond });
       if (senderExistingRequested) {
         senderExistingRequested.quantity += requestedQty;
+        senderExistingRequested.purchasePrice = requestedMarketVal;
         await senderExistingRequested.save();
       } else {
         await new VaultItem({
           user: sender,
           pop: requestedPop,
           boxCondition: requestedCond,
-          quantity: requestedQty
+          quantity: requestedQty,
+          purchasePrice: requestedMarketVal
         }).save();
       }
 

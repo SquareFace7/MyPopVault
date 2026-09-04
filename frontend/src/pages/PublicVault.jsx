@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { toast as hotToast } from 'react-hot-toast';
 import { getApiUrl } from '@/lib/api';
 import { getConditionMultiplier, getConditionBadgeStyle } from '@/lib/conditionHelper';
+import { getRarityFromPrice } from '@/lib/rarityHelper';
 
 const COLLECTORS = {
   1: { id: '1', name: 'Alex "PopKing" Rivera', badge: 'Grail Hunter', gradient: 'from-pink-500 to-rose-500', initials: 'AR' },
@@ -50,18 +51,14 @@ for (let i = 4; i <= 6; i++) {
     { id: 3, name: 'Batman (1989)', series: 'DC', number: 337, marketValue: 60, purchasePrice: 12, rarity: 'Uncommon' },
   ];
 }
-
 function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, isAlreadyInVault, index }) {
   const { user } = useAuth();
   const [tradeTarget, setTradeTarget] = useState(null);
   const [imgError, setImgError] = useState(false);
-  const roi = item.marketValue && item.purchasePrice
-    ? ((item.marketValue - item.purchasePrice) / item.purchasePrice * 100).toFixed(1)
-    : 0;
-  const isPositiveRoi = parseFloat(roi) >= 0;
 
   const currentIsVipOrAdmin = user?.isLoggedIn && (user?.isVIP || user?.role === 'vip' || user?.role === 'admin');
   const hasValidImage = Boolean(item.image && typeof item.image === 'string' && item.image.trim() !== '' && item.image !== 'null' && item.image !== 'undefined');
+  const computedRarity = getRarityFromPrice(item.marketValue, item.rarity);
 
   return (
     <>
@@ -128,7 +125,7 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
               </div>
             </div>
             <div className="absolute bottom-2 left-2 flex items-center gap-1.5 flex-wrap">
-              <CategoryBadge category={item.rarity} type="rarity" size="sm" />
+              <CategoryBadge category={computedRarity} type="rarity" size="sm" />
               {item.boxCondition && (
                 <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-sm ${getConditionBadgeStyle(item.boxCondition)}`}>
                   {item.boxCondition}
@@ -138,14 +135,11 @@ function PublicPopCard({ item, collectorName, collectorId, targetIsVipOrAdmin, i
           </div>
 
           {/* Info */}
-          <div className="bg-gray-800 px-4 py-2">
+          <div className="bg-gray-800 px-4 py-3">
             <h3 className="text-white font-bold text-base truncate">{item.name}</h3>
             <div className="flex items-center justify-between mt-1">
-              <p className="text-cyan-400 font-black text-lg">${(item.marketValue || 0).toFixed(0)}</p>
-              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${isPositiveRoi ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                {isPositiveRoi ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {isPositiveRoi ? '+' : ''}{roi}%
-              </div>
+              <span className="text-xs font-bold text-gray-400">Market Value</span>
+              <p className="text-cyan-400 font-black text-xl">${(item.marketValue || 0).toFixed(0)}</p>
             </div>
           </div>
 
